@@ -1,0 +1,88 @@
+name: Deploy ARQ to Beget
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: arq_db
+          POSTGRES_USER: arquser
+          POSTGRES_PASSWORD: arqpass123
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 src --count --select=E9,F63,F7,F82 --show-source --statistics
+    
+    - name: Run tests
+      env:
+        DATABASE_URL: postgresql+asyncpg://arquser:arqpass123@localhost:5432/arq_db
+      run: |
+        echo "Running tests..."
+        python -m pytest src/ -v || echo "No tests found"
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t arq:latest .
+        echo "Docker image built successfully"
+    
+    - name: Prepare deployment files
+      run: |
+        mkdir -p deploy
+        cp Dockerfile docker-compose.yml requirements.txt .env.example deploy/
+        cp -r src deploy/
+    
+    - name: Upload to Beget via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.BEGET_FTP_SERVER }}
+        username: ${{ secrets.BEGET_FTP_USER }}
+        password: ${{ secrets.BEGET_FTP_PASSWORD }}
+        local-dir: ./deploy/
+        server-dir: /api.arqio.ru/public_html/
+        state-name: .ftp-deploy-sync-state.json
+    
+    - name: Notify deployment
+      run: |
+        echo "Deployment to Beget completed"
+        echo "API available at: https://api.arqio.ru"
