@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   CacheService,
+  BrowserService,
   EmailVerificationService,
   EventEmitterService,
   FileUploadService,
@@ -8,8 +10,12 @@ import {
   RateLimitService,
   ValidationService
 } from './services';
+import { BrowserSession } from '../entities/browser-session.entity';
+import { BrowserTab } from '../entities/browser-tab.entity';
+import { BrowserRepository } from '../repositories/browser.repository';
 
 const SERVICES = [
+  BrowserService,
   CacheService,
   EmailVerificationService,
   EventEmitterService,
@@ -19,31 +25,11 @@ const SERVICES = [
   ValidationService
 ];
 
-/**
- * Common Module
- * 
- * Phase 22 Backend Services Module
- * 
- * Provides centralized access to all common services:
- * - CacheService: In-memory caching with TTL support
- * - EmailVerificationService: Token generation and email verification
- * - EventEmitterService: Event-driven architecture with async support
- * - FileUploadService: File upload and management
- * - LoggerService: Production logging with file rotation
- * - RateLimitService: Rate limiting with sliding windows
- * - ValidationService: Comprehensive data validation
- * 
- * Usage:
- * import { CommonModule } from './common';
- * 
- * @Module({
- *   imports: [CommonModule],
- *   // Services are automatically available for injection
- * })
- * export class MyModule {}
- */
+const REPOSITORIES = [BrowserRepository];
+
 @Module({
-  providers: SERVICES,
-  exports: SERVICES
+  imports: [TypeOrmModule.forFeature([BrowserSession, BrowserTab])],
+  providers: [...SERVICES, ...REPOSITORIES],
+  exports: [...SERVICES, ...REPOSITORIES]
 })
 export class CommonModule {}
