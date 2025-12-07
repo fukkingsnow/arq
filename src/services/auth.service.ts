@@ -6,6 +6,16 @@ import * as bcrypt from 'bcrypt';
 import { User, RefreshToken } from '../entities';
 
 /**
+ * AuthResult interface - contains user and tokens
+ */
+export interface AuthResult {
+  user: { id: string; email: string; name: string };
+  accessToken: string;
+  refreshToken: string;
+}
+
+
+/**
  * AuthService - Handles JWT authentication and token management
  * Manages login, registration, and token refresh logic
  */
