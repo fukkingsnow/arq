@@ -4,8 +4,8 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from '../controllers/auth.controller';
 import { AuthService } from '../services/auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../entities';
-import { UserRepository } from '../repositories';
+import { User } from '../entities, RefreshToken };
+import { UserRepository } from '../repositories, RefreshTokenRepository };
 
 /**
  * Authentication Feature Module
@@ -20,15 +20,13 @@ import { UserRepository } from '../repositories';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
+    TypeOrmModule.forFeature([User, RefreshToken]),    PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'default-secret-key',
       signOptions: { expiresIn: '24h' },
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserRepository],
-  exports: [AuthService, JwtModule],
+  providers: [AuthService, UserRepository, RefreshTokenRepository],  exports: [AuthService, JwtModule],
 })
 export class AuthModule {}
