@@ -10,7 +10,7 @@ interface CacheEntry<T> {
 @Injectable()
 export class CacheService {
   private cache: Map<string, CacheEntry<any>> = new Map();
-  private readonly cleanupInterval: NodeJS.Timer;
+  private readonly cleanupInterval: NodeJS.Timeout;
   private readonly defaultTTL: number = 3600000; // 1 hour default
   private stats = { hits: 0, misses: 0 };
 
