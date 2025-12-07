@@ -15,6 +15,14 @@ export class User {
   id: string;
 
   /**
+   * Unique username for login
+   * @example 'john_doe'
+   */
+  @Column({ type: 'varchar', length: 100, unique: true, nullable: true })
+  username?: string;
+
+
+  /**
    * User email address (unique)
    * @example 'user@example.com'
    */
@@ -81,3 +89,4 @@ export class User {
   @UpdateDateColumn()
   updatedAt: Date;
 }
+
