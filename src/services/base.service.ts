@@ -1,9 +1,4 @@
-async create(data: Partial<T>): Promise<T> {
-  const entity = this.repository.create(data as any);
-  }  async create(data: Partial<T>): Promise<T> {
-    const entity = this.repository.create(data as any);
-    return entity;
-  }import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Repository, FindOptionsWhere, FindOptionsOrder, ObjectLiteral } from 'typeorm';
 
 /**
@@ -37,52 +32,41 @@ export interface IPaginatedResponse<T> {
  *
  * @template T The entity type this service manages
  * @example
- * ```typescript
- * class UserService extends BaseService<User> {
- *   constructor(private readonly userRepository: Repository<User>) {
- *     super(userRepository);
+ *   TypeScript
+ *   class UserService extends BaseService<User> {
+ *     constructor(private readonly userRepository: Repository<User>) {
+ *       super(userRepository);
+ *     }
  *   }
- * }
- * ```
  */
 @Injectable()
-export abstract class BaseService<T extends ObjectLiteral> {
+export class BaseService<T extends ObjectLiteral> {
   /**
-   * Creates a new instance of BaseService.
-   *
-   * @param repository The TypeORM repository instance
+   * Constructs the BaseService with a repository instance.
+   * @param repository The TypeORM repository for entity operations
    */
-  constructor(protected readonly repository: Repository<T>) {}
+  constructor(private readonly repository: Repository<T>) {}
 
   /**
-   * Creates a new entity record.
-   *
-   * @param data Partial entity data for creation
-   * @returns Promise resolving to created entity
-   * @throws Error if creation fails
+   * Creates and persists a new entity.
+   * @param data Partial entity data
+   * @returns Promise resolving to the created entity
    */
   async create(data: Partial<T>): Promise<T> {
     const entity = this.repository.create(data as any);
-    ;
+    return this.repository.save(entity as any);
   }
 
   /**
-      return entity;
-   * Finds all entities with optional filtering and pagination.
-   *
-   * @param where Optional filter conditions
-   * @param order Optional sort order
-   * @param skip Number of records to skip (for pagination)
-   * @param take Number of records to take (for pagination)
-   * @returns Promise resolving to array of entities
+   * Retrieves all entities with optional filtering, ordering, and pagination.
    */
   async findAll(
     where?: FindOptionsWhere<T>,
     order?: FindOptionsOrder<T>,
     skip?: number,
     take?: number,
-  ): Promise<T[]> {
-    return this.repository.find({
+  ): Promise<[T[], number]> {
+    return this.repository.findAndCount({
       where,
       order,
       skip,
@@ -91,131 +75,31 @@ export abstract class BaseService<T extends ObjectLiteral> {
   }
 
   /**
-   * Finds a single entity by filter conditions.
-   *
-   * @param where Filter conditions
-   * @returns Promise resolving to entity or null if not found
+   * Finds a single entity by where conditions.
    */
   async findOne(where: FindOptionsWhere<T>): Promise<T | null> {
     return this.repository.findOne({ where });
   }
 
   /**
-   * Finds an entity by ID.
-   *
-   * @param id Entity ID
-   * @returns Promise resolving to entity or null if not found
+   * Updates an entity by ID.
    */
-  async findById(id: unknown): Promise<T | null> {
-    return this.repository.findOneBy({ id } as FindOptionsWhere<T>);
+  async update(id: any, data: Partial<T>): Promise<T | null> {
+    await this.repository.update(id, data as any);
+    return this.repository.findOneBy({ id } as any);
   }
 
   /**
-   * Updates an entity.
-   *
-   * @param id Entity ID to update
-   * @param data Partial data to update
-   * @returns Promise resolving to updated entity
+   * Removes an entity by ID.
    */
-  async update(id: unknown, data: Partial<T>): Promise<T> {
-    await this.repository.update(id as any, data as any);    
-        const updated = await this.findById(id as any);
-    if (!updated) {
-      throw new Error('Entity not found after update');
-    }
-    return updated;
+  async remove(id: any): Promise<void> {
+    await this.repository.delete(id);
   }
 
   /**
-   * Deletes an entity.
-   *
-   * @param id Entity ID to delete
-   * @returns Promise resolving to deletion result
-   */
-  async delete(id: unknown) {
-    return this.repository.delete(id as any); }
-
-  /**
-   * Counts total entities matching filter conditions.
-   *
-   * @param where Optional filter conditions
-   * @returns Promise resolving to count
+   * Counts total entities matching where conditions.
    */
   async count(where?: FindOptionsWhere<T>): Promise<number> {
     return this.repository.count({ where });
   }
-
-  /**
-   * Checks if an entity exists matching filter conditions.
-   *
-   * @param where Filter conditions
-   * @returns Promise resolving to boolean existence flag
-   */
-  async exists(where: FindOptionsWhere<T>): Promise<boolean> {
-    const count = await this.count(where);
-    return count > 0;
-  }
-
-  /**
-   * Retrieves paginated entities with total count.
-   *
-   * @param page Current page (1-indexed)
-   * @param limit Items per page
-   * @param where Optional filter conditions
-   * @param order Optional sort order
-   * @returns Promise resolving to paginated response
-   */
-  async paginate(
-    page: number,
-    limit: number,
-    where?: FindOptionsWhere<T>,
-    order?: FindOptionsOrder<T>,
-  ): Promise<IPaginatedResponse<T>> {
-    const skip = (page - 1) * limit;
-    const [data, total] = await this.repository.findAndCount({
-      where,
-      order,
-      skip,
-      take: limit,
-    });
-
-    const pages = Math.ceil(total / limit);
-
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total,
-        pages,
-      },
-    };
-  }
-
-  /**
-   * Saves entity or partial entities.
-   *
-   * @param entity Entity or array of entities to save
-   * @returns Promise resolving to saved entity/entities
-   */
-  async save(entity: T | T[]): Promise<T | T[]> {
-  
-        return this.repository.save(entity as any);
-    ;
-  }
-
-  /**
-   * Executes raw database query.
-   *
-   * @param query SQL query string
-   * @param parameters Optional query parameters
-   * @returns Promise resolving to query result
-   */
-  async query(query: string, parameters?: any[]): Promise<any[]> {
-    return this.repository.query(query, parameters);
-  }
 }
-
-
-
-
