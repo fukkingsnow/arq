@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from './base.repository';
-import { BrowserSession } from '../entities/browse-sessionr.entity';
-
+import { BrowserSession } from '../entities/browser-session.entity';
 /**
  * BrowserSession Repository
  *
