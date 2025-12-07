@@ -4,10 +4,8 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthController } from '../controllers/auth.controller';
 import { AuthService } from '../services/auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../entities, RefreshToken };
-import { UserRepository } from '../repositories, RefreshTokenRepository };
-
-/**
+import { User, RefreshToken } from '../entities';import { UserRepository } from '../repositories, RefreshTokenRepository };
+import { UserRepository, RefreshTokenRepository } from '../repositories';/**
  * Authentication Feature Module
  *
  * Provides JWT-based authentication with Passport integration.
