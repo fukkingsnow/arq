@@ -60,6 +60,13 @@ export class User {
   @Column({ type: 'varchar', length: 100, nullable: true })
   firstName?: string;
 
+    /**
+   * User last name
+   * @example 'Doe'
+   */
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  lastName?: string;
+
   /**
    * Password hash (alias for password field)
    * @example '$2b$10$N9qo8uLOickgx2ZMRZoMye'
