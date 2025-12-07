@@ -1,10 +1,31 @@
 /**
- * Services Index - Centralized export of all services
- * Simplifies imports across the application
+ * Centralized exports for all application services.
+ * Phase 26-31: Core, domain, and utility services
  */
 
-export { AuthService } from './auth.service';
+// Phase 26: Core Services
+export { AuditService } from './audit.service';
+export { AuthService, type IJwtPayload, type IAuthResponse } from './auth.service';
 export { BrowserService } from './browser.service';
 export { SessionService } from './session.service';
 export { UserService } from './user.service';
-export { AuditService } from './audit.service';
+
+// Phase 31: Advanced Services
+export { BaseService, type IPaginationMeta, type IPaginatedResponse } from './base.service';
+export { CacheService, type ICacheEntry, type ICacheStats } from './cache.service';
+export { EmailService, type IEmailConfig, type IEmailContent, type IEmailResult } from './email.service';
+
+/**
+ * Service providers array for NestJS module registration.
+ * Includes all domain services for dependency injection.
+ */
+export const SERVICE_PROVIDERS = [
+  AuditService,
+  AuthService,
+  BrowserService,
+  CacheService,
+  EmailService,
+  SessionService,
+  UserService,
+  BaseService,
+];
