@@ -2,22 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from './base.repository';
-import { Browser } from '../entities/browser.entity';
+import { BrowserSession } from '../entities/browse-sessionr.entity';
 
 /**
- * Browser Repository
+ * BrowserSession Repository
  *
  * Handles database operations for browser sessions including:
- * - Browser session creation and management
+ * - BrowserSession session creation and management
  * - Tab automation records
  * - Session history tracking
  * - State persistence
  */
 @Injectable()
-export class BrowserRepository extends BaseRepository<Browser> {
+export class BrowserRepository extends BaseRepository<BrowserSession> {
   constructor(
-    @InjectRepository(Browser)
-    private readonly browserRepository: Repository<Browser>,
+    @InjectRepository(BrowserSession)
+    private readonly browserRepository: Repository<BrowserSession>,
   ) {
     super(browserRepository);
   }
@@ -25,9 +25,9 @@ export class BrowserRepository extends BaseRepository<Browser> {
   /**
    * Find browser by session ID
    * @param sessionId Session identifier
-   * @returns Browser entity or null
+   * @returns BrowserSession entity or null
    */
-  async findBySessionId(sessionId: string): Promise<Browser | null> {
+  async findBySessionId(sessionId: string): Promise<BrowserSession | null> {
     return this.browserRepository.findOne({ where: { sessionId } });
   }
 
@@ -35,7 +35,7 @@ export class BrowserRepository extends BaseRepository<Browser> {
    * Find all active browser sessions
    * @returns Array of active browsers
    */
-  async findActive(): Promise<Browser[]> {
+  async findActive(): Promise<BrowserSession[]> {
     return this.browserRepository.find({
       where: { isActive: true },
     });
@@ -43,7 +43,7 @@ export class BrowserRepository extends BaseRepository<Browser> {
 
   /**
    * Mark browser session as inactive
-   * @param id Browser ID
+   * @param id BrowserSession ID
    * @returns Success flag
    */
   async deactivate(id: string | number): Promise<boolean> {
