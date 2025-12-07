@@ -27,8 +27,7 @@ export abstract class BaseRepository<T extends ObjectLiteral> {
    */
   async create(data: Partial<T>): Promise<T> {
     const entity = this.repository.create(data as any);
-    return this.repository.save(enti ty)as any);
-  }
+    return this.repository.save(entity as any);  }
 
   /**
    * Find entity by ID
