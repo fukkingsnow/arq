@@ -11,6 +11,7 @@ import {
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
+import { AuthResult } from '../services/auth.service';
 
 interface RegisterDto {
   email: string;
@@ -25,14 +26,14 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() registerDto: RegisterDto) {
+  async register(@Body() registerDto: RegisterDto) {: Promise<AuthResult>
     return this.authService.register(registerDto);
   }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req) {
+  async login(@Request() req) {: Promise<AuthResult>
     return this.authService.login(req.user);
   }
 
