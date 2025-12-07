@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Repository, ObjectLiteral } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
 /**
@@ -68,5 +68,6 @@ export abstract class BaseRepository<T extends ObjectLiteral> {
     return (result.affected ?? 0) > 0;
   }
 }
+
 
 

@@ -61,19 +61,9 @@ export class User {
   updatedAt: Date;
 
   // Relationships
-  // @OneToMany(() => Conversation, (conversation) => conversation.user, {
-    lazy: true,
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  conversations: Conversation[];
 
-  // @OneToMany(() => MemoryContext, (memory) => memory.user, {
-    lazy: true,
-    cascade: true,
-    onDelete: 'CASCADE',
-  })
-  memories: MemoryContext[];
+
+
 
   // Methods
   /**
@@ -130,4 +120,5 @@ export class User {
     };
   }
 }
+
 

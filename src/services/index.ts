@@ -5,7 +5,7 @@
 
 // Phase 26: Core Services
 export { AuditService } from './audit.service';
-export { AuthService, type IJwtPayload, type IAuthResponse } from './auth.service';
+export { AuthService } from './auth.service';
 export { BrowserService } from './browser.service';
 export { SessionService } from './session.service';
 export { UserService } from './user.service';
@@ -19,7 +19,7 @@ export { EmailService, type IEmailConfig, type IEmailContent, type IEmailResult 
  * Service providers array for NestJS module registration.
  * Includes all domain services for dependency injection.
  */
-export const SERVICE_PROVIDERS = [
+/* export const SERVICE_PROVIDERS = [
   AuditService,
   AuthService,
   BrowserService,
@@ -29,3 +29,5 @@ export const SERVICE_PROVIDERS = [
   UserService,
   BaseService,
 ];
+
+

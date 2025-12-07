@@ -1,0 +1,204 @@
+﻿
+> arq-backend@0.1.0 build
+> nest build
+
+node.exe : [96msrc/auth/auth.module.ts[0m:[93m21[0m:[93m7[0m - [91merror[0m[90m TS2322: [0mType '(configSer
+vice: ConfigService) => Promise<{ secret: string; signOptions: { expiresIn: string; }; }>' is not assignable to type 
+'(...args: any[]) => JwtModuleOptions | Promise<JwtModuleOptions>'.
+строка:1 знак:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\cneg2\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([96msrc/auth/a...oduleOptions>'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  Type 'Promise<{ secret: string; signOptions: { expiresIn: string; }; }>' is not assignable to type 'JwtModuleOption
+s | Promise<JwtModuleOptions>'.
+    Type 'Promise<{ secret: string; signOptions: { expiresIn: string; }; }>' is not assignable to type 'Promise<JwtMo
+duleOptions>'.
+      Type '{ secret: string; signOptions: { expiresIn: string; }; }' is not assignable to type 'JwtModuleOptions'.
+        The types of 'signOptions.expiresIn' are incompatible between these types.
+          Type 'string' is not assignable to type 'number | StringValue | undefined'.
+
+[7m21[0m       useFactory: async (configService: ConfigService) => ({
+[7m  [0m [91m      ~~~~~~~~~~[0m
+
+  [96mnode_modules/@nestjs/jwt/dist/interfaces/jwt-module-options.interface.d.ts[0m:[93m24[0m:[93m5[0m
+    [7m24[0m     useFactory?: (...args: any[]) => Promise<JwtModuleOptions> | JwtModuleOptions;
+    [7m  [0m [96m    ~~~~~~~~~~[0m
+    The expected type comes from property 'useFactory' which is declared here on type 'JwtModuleAsyncOptions'
+[96msrc/auth/services/auth.service.ts[0m:[93m59[0m:[93m38[0m - [91merror[0m[90m TS2769: [0mNo overload matc
+hes this call.
+  Overload 1 of 3, '(entityLikeArray: DeepPartial<User>[]): User[]', gave the following error.
+    Object literal may only specify known properties, and 'email' does not exist in type 'DeepPartial<User>[]'.
+  Overload 2 of 3, '(entityLike: DeepPartial<User>): User', gave the following error.
+    Object literal may only specify known properties, and 'password' does not exist in type 'DeepPartial<User>'.
+
+[7m59[0m     const user = this.userRepository.create({ email, password });
+[7m  [0m [91m                                     ~~~~~~[0m
+
+[96msrc/auth/services/auth.service.ts[0m:[93m78[0m:[93m65[0m - [91merror[0m[90m TS2339: [0mProperty 'passwo
+rd' does not exist on type 'User'.
+
+[7m78[0m     const isPasswordValid = await bcrypt.compare(password, user.password);
+[7m  [0m [91m                                                                ~~~~~~~~[0m
+[96msrc/auth/services/auth.service.ts[0m:[93m100[0m:[93m65[0m - [91merror[0m[90m TS2339: [0mProperty 'passw
+ord' does not exist on type 'User'.
+
+[7m100[0m     const isPasswordValid = await bcrypt.compare(password, user.password);
+[7m   [0m [91m                                                                ~~~~~~~~[0m
+[96msrc/auth/services/auth.service.ts[0m:[93m107[0m:[93m66[0m - [91merror[0m[90m TS1005: [0m',' expected.
+
+[7m107[0m     return this.userRepository.findOne({ where: { id: payload.sub);
+[7m   [0m [91m                                                                 ~[0m
+[96msrc/auth/services/auth.service.ts[0m:[93m132[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'passw
+ord' does not exist on type 'User'.
+
+[7m132[0m     const { password, ...sanitized } = user;
+[7m   [0m [91m            ~~~~~~~~[0m
+[96msrc/common/controllers/browser.controller.ts[0m:[93m2[0m:[93m32[0m - [91merror[0m[90m TS2307: [0mCannot
+ find module '../services/browser.service' or its corresponding type declarations.
+
+[7m2[0m import { BrowserService } from '../services/browser.service';
+[7m [0m [91m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/common/controllers/browser.controller.ts[0m:[93m3[0m:[93m28[0m - [91merror[0m[90m TS2307: [0mCannot
+ find module '../services/tab.service' or its corresponding type declarations.
+
+[7m3[0m import { TabService } from '../services/tab.service';
+[7m [0m [91m                           ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/common/controllers/browser.controller.ts[0m:[93m4[0m:[93m35[0m - [91merror[0m[90m TS2307: [0mCannot
+ find module '../services/navigation.service' or its corresponding type declarations.
+
+[7m4[0m import { NavigationService } from '../services/navigation.service';
+[7m [0m [91m                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/common/controllers/browser.controller.ts[0m:[93m7[0m:[93m65[0m - [91merror[0m[90m TS2307: [0mCannot
+ find module '../dto' or its corresponding type declarations.
+
+[7m7[0m import { BrowserActionDto, NavigateDto, ExecuteScriptDto } from '../dto';
+[7m [0m [91m                                                                ~~~~~~~~[0m
+[96msrc/common/services/cache.service.ts[0m:[93m25[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of t
+ype 'Timer' is not assignable to parameter of type 'string | number | Timeout | undefined'.
+  Type 'Timer' is missing the following properties from type 'Timeout': close, _onTimeout, [Symbol.dispose]
+
+[7m25[0m     clearInterval(this.cleanupInterval);
+[7m  [0m [91m                  ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/common/services/rate-limit.service.ts[0m:[93m36[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument
+ of type 'Timer' is not assignable to parameter of type 'string | number | Timeout | undefined'.
+  Type 'Timer' is missing the following properties from type 'Timeout': close, _onTimeout, [Symbol.dispose]
+
+[7m36[0m     clearInterval(this.cleanupInterval);
+[7m  [0m [91m                  ~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/entities/action-log.entity.ts[0m:[93m56[0m:[93m57[0m - [91merror[0m[90m TS2339: [0mProperty 'action
+s' does not exist on type 'BrowserSession'.
+
+[7m56[0m   @ManyToOne(() => BrowserSession, (session) => session.actions, { onDelete: 'CASCADE' })
+[7m  [0m [91m                                                        ~~~~~~~[0m
+[96msrc/entities/browser-tab.entity.ts[0m:[93m50[0m:[93m57[0m - [91merror[0m[90m TS2339: [0mProperty 'tabs'
+ does not exist on type 'BrowserSession'.
+
+[7m50[0m   @ManyToOne(() => BrowserSession, (session) => session.tabs, { onDelete: 'CASCADE' })
+[7m  [0m [91m                                                        ~~~~[0m
+[96msrc/entities/refresh-token.entity.ts[0m:[93m46[0m:[93m41[0m - [91merror[0m[90m TS2339: [0mProperty 'ref
+reshTokens' does not exist on type 'User'.
+
+[7m46[0m   @ManyToOne(() => User, (user) => user.refreshTokens, { onDelete: 'CASCADE' })
+[7m  [0m [91m                                        ~~~~~~~~~~~~~[0m
+[96msrc/main.ts[0m:[93m5[0m:[93m37[0m - [91merror[0m[90m TS2307: [0mCannot find module './filters/http-exce
+ption.filter' or its corresponding type declarations.
+
+[7m5[0m import { HttpExceptionFilter } from './filters/http-exception.filter';
+[7m [0m [91m                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/modules/common.module.ts[0m:[93m2[0m:[93m31[0m - [91merror[0m[90m TS2307: [0mCannot find module '..
+/services/common.service' or its corresponding type declarations.
+
+[7m2[0m import { CommonService } from '../services/common.service';
+[7m [0m [91m                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/repositories/auth.repository.ts[0m:[93m5[0m:[93m27[0m - [91merror[0m[90m TS2307: [0mCannot find mod
+ule '../entities/auth-token.entity' or its corresponding type declarations.
+
+[7m5[0m import { AuthToken } from '../entities/auth-token.entity';
+[7m [0m [91m                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/repositories/base.repository.ts[0m:[93m30[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'T[]' is n
+ot assignable to type 'T'.
+  'T[]' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constr
+aint 'ObjectLiteral'.
+
+[7m30[0m     return this.repository.save(entity);
+[7m  [0m [91m    ~~~~~~[0m
+[96msrc/repositories/browser.repository.ts[0m:[93m5[0m:[93m25[0m - [91merror[0m[90m TS2307: [0mCannot find 
+module '../entities/browser.entity' or its corresponding type declarations.
+
+[7m5[0m import { Browser } from '../entities/browser.entity';
+[7m [0m [91m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/repositories/session.repository.ts[0m:[93m5[0m:[93m25[0m - [91merror[0m[90m TS2307: [0mCannot find 
+module '../entities/session.entity' or its corresponding type declarations.
+
+[7m5[0m import { Session } from '../entities/session.entity';
+[7m [0m [91m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/services/auth.service.ts[0m:[93m50[0m:[93m33[0m - [91merror[0m[90m TS2300: [0mDuplicate identifier 
+'password'.
+
+[7m50[0m   async register(email: string, password: string) {
+[7m  [0m [91m                                ~~~~~~~~[0m
+[96msrc/services/auth.service.ts[0m:[93m55[0m:[93m11[0m - [91merror[0m[90m TS2300: [0mDuplicate identifier 
+'password'.
+
+[7m55[0m     const password = await bcrypt.hash(password, 10);
+[7m  [0m [91m          ~~~~~~~~[0m
+[96msrc/services/base.service.ts[0m:[93m44[0m:[93m45[0m - [91merror[0m[90m TS2304: [0mCannot find name 'Obj
+ectLiteral'.
+
+[7m44[0m export abstract class BaseService<T extends ObjectLiteral> {
+[7m  [0m [91m                                            ~~~~~~~~~~~~~[0m
+[96msrc/services/base.service.ts[0m:[93m61[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'T[]' is not assi
+gnable to type 'T'.
+  'T[]' is assignable to the constraint of type 'T', but 'T' could be instantiated with a different subtype of constr
+aint 'ObjectLiteral'.
+
+[7m61[0m     return this.repository.save(entity);
+[7m  [0m [91m    ~~~~~~[0m
+[96msrc/services/base.service.ts[0m:[93m115[0m:[93m34[0m - [91merror[0m[90m TS2345: [0mArgument of type 'un
+known' is not assignable to parameter of type 'string | number | string[] | Date | number[] | ObjectId | Date[] | Obj
+ectId[] | FindOptionsWhere<T> | FindOptionsWhere<T>[]'.
+
+[7m115[0m     await this.repository.update(id, data as any);
+[7m   [0m [91m                                 ~~[0m
+[96msrc/services/base.service.ts[0m:[93m130[0m:[93m35[0m - [91merror[0m[90m TS2345: [0mArgument of type 'un
+known' is not assignable to parameter of type 'string | number | string[] | Date | number[] | ObjectId | Date[] | Obj
+ectId[] | FindOptionsWhere<T> | FindOptionsWhere<T>[]'.
+
+[7m130[0m     return this.repository.delete(id);
+[7m   [0m [91m                                  ~~[0m
+[96msrc/services/browser.service.ts[0m:[93m23[0m:[93m44[0m - [91merror[0m[90m TS2769: [0mNo overload matche
+s this call.
+  Overload 1 of 3, '(entityLikeArray: DeepPartial<BrowserSession>[]): BrowserSession[]', gave the following error.
+    Object literal may only specify known properties, and 'userId' does not exist in type 'DeepPartial<BrowserSession
+>[]'.
+Found 32 error(s).
+
+  Overload 2 of 3, '(entityLike: DeepPartial<BrowserSession>): BrowserSession', gave the following error.
+    Object literal may only specify known properties, and 'tabCount' does not exist in type 'DeepPartial<BrowserSessi
+on>'.
+
+[7m23[0m     const session = this.sessionRepository.create({
+[7m  [0m [91m                                           ~~~~~~[0m
+
+[96msrc/services/browser.service.ts[0m:[93m49[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'endedAt'
+ does not exist on type 'BrowserSession'.
+
+[7m49[0m     session.endedAt = new Date();
+[7m  [0m [91m            ~~~~~~~[0m
+[96msrc/services/browser.service.ts[0m:[93m69[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'tabCount
+' does not exist on type 'BrowserSession'.
+
+[7m69[0m     session.tabCount = (session.tabCount || 0) + 1;
+[7m  [0m [91m            ~~~~~~~~[0m
+[96msrc/services/browser.service.ts[0m:[93m69[0m:[93m33[0m - [91merror[0m[90m TS2339: [0mProperty 'tabCount
+' does not exist on type 'BrowserSession'.
+
+[7m69[0m     session.tabCount = (session.tabCount || 0) + 1;
+[7m  [0m [91m                                ~~~~~~~~[0m
+[96msrc/services/index.ts[0m:[93m33[0m:[93m1[0m - [91merror[0m[90m TS1010: [0m'*/' expected.
+
+[7m33[0m 
+[7m  [0m [91m[0m
+

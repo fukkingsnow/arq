@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Repository, FindOptionsWhere, FindOptionsOrder } from 'typeorm';
+import { Repository, FindOptionsWhere, FindOptionsOrder, ObjectLiteral } from 'typeorm';
 
 /**
  * Represents pagination metadata for list responses.
@@ -208,5 +208,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
     return this.repository.query(query, parameters);
   }
 }
+
+
 
 
