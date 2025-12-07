@@ -8,3 +8,4 @@ export { AuthRepository } from './auth.repository';
 export { BrowserRepository } from './browser.repository';
 export { SessionRepository } from './session.repository';
 export { UserRepository } from './user.repository';
+export { RefreshTokenRepository } from './refresh-token.repository';
