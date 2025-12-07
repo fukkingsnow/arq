@@ -1,4 +1,6 @@
 import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
+import { APP_FILTER } from '@nestjs/core';
+import { ValidationExceptionFilter } from './common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database';
 import { AuthModule } from './modules/auth.module';
@@ -36,6 +38,12 @@ import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common
     UserModule,
     // Shared Module
     CommonModule,
+  ],
+    providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ValidationExceptionFilter,
+    },
   ],
 })
 export class AppModule implements NestModule {
