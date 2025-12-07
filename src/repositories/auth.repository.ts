@@ -58,6 +58,6 @@ export class AuthRepository extends BaseRepository<AuthToken> {
    */
   async isTokenValid(token: string): Promise<boolean> {
     const authToken = await this.findByToken(token);
-    return !!(authToken && !authToken.isRevoked);
+    return !!(authToken &&authToken.isActive);
   }
 }
