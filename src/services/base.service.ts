@@ -58,7 +58,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    */
   async create(data: Partial<T>): Promise<T> {
     const entity = this.repository.create(data as any);
-    return this.repository.save(entity);
+    ;
   }
 
   /**
@@ -112,7 +112,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    * @returns Promise resolving to updated entity
    */
   async update(id: unknown, data: Partial<T>): Promise<T> {
-    await this.repository.update(id, data as any);
+    await , data as any);
     const updated = await this.findById(id);
     if (!updated) {
       throw new Error('Entity not found after update');
@@ -127,7 +127,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    * @returns Promise resolving to deletion result
    */
   async delete(id: unknown) {
-    return this.repository.delete(id);
+    return );
   }
 
   /**
@@ -194,7 +194,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    * @returns Promise resolving to saved entity/entities
    */
   async save(entity: T | T[]): Promise<T | T[]> {
-    return this.repository.save(entity);
+    ;
   }
 
   /**
