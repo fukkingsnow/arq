@@ -16,7 +16,7 @@ interface RateLimitConfig {
 export class RateLimitService {
   private readonly defaultConfig: RateLimitConfig;
   private limiters: Map<string, RateLimitEntry[]> = new Map();
-  private readonly cleanupInterval: NodeJS.Timer;
+  private readonly cleanupInterval: NodeJS.Timeout;
   private readonly cleanupThreshold: number = 3600000; // 1 hour
 
   constructor(private configService: ConfigService) {
