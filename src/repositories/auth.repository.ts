@@ -38,7 +38,7 @@ export class AuthRepository extends BaseRepository<AuthToken> {
    * @returns AuthToken entity or null
    */
   async findByToken(token: string): Promise<AuthToken | null> {
-    return this.authRepository.findOne({ where: { token } });
+    return this.authRepository.findOne({ where: { accessToken } });
   }
 
   /**
