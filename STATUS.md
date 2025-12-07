@@ -322,3 +322,32 @@ src/
 ---
 
 **Ready for API Development Phase** 🚀
+
+
+### Session Update (December 7, 2025 - 11 PM MSK)
+
+**New Additions:**
+- ✅ **DTOs folder** (`src/dtos/index.ts`) - All data transfer objects for validation
+  - CreateUserDto, UpdateUserDto, LoginDto, RegisterDto, RefreshDto
+  - CreateBrowserSessionDto, UpdateBrowserSessionDto
+  - CreateBrowserTabDto, UpdateBrowserTabDto
+
+- ✅ **Guards folder** (`src/guards/`)
+  - JwtAuthGuard - JWT token validation on protected endpoints
+  - Guards index.ts for centralized exports
+
+- ✅ **Decorators folder** (`src/decorators/index.ts`)
+  - IsPublic() - Mark endpoints as publicly accessible
+  - CurrentUser() - Inject authenticated user into route handlers
+  - Roles() - Specify required roles for RBAC with metadata
+
+**Recent Commits:**
+- `docs: Update STATUS.md with complete ARQIUM Phase 17-25 roadmap and API development plan`
+- `feat: Create DTOs folder with data transfer objects for API validation`
+- `feat: Create JWT Auth Guard for API route protection`
+- `chore: Add guards index.ts with exports`
+- `feat: Create decorators folder with custom NestJS decorators`
+
+---
+
+**Status Update:** 🟢 75% - API Layer Foundation Complete, Ready for Integration Testing
