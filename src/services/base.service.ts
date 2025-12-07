@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+async create(data: Partial<T>): Promise<T> {
+  const entity = this.repository.create(data as any);
+  }  async create(data: Partial<T>): Promise<T> {
+    const entity = this.repository.create(data as any);
+    return entity;
+  }import { Injectable } from '@nestjs/common';
 import { Repository, FindOptionsWhere, FindOptionsOrder, ObjectLiteral } from 'typeorm';
 
 /**
