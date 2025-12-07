@@ -2,22 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { BaseRepository } from './base.repository';
-import { Session } from '../entities/session.entity';
+import { BrowserSession } from '../entities/browser-session.entity';
 
 /**
- * Session Repository
+ * BrowserSession Repository
  *
  * Manages user session data including:
- * - Session creation and termination
- * - Session state persistence
+ * - BrowserSession creation and termination
+ * - BrowserSession state persistence
  * - Concurrent session tracking
- * - Session timeout management
+ * - BrowserSession timeout management
  */
 @Injectable()
-export class SessionRepository extends BaseRepository<Session> {
+export class SessionRepository extends BaseRepository<BrowserSession> {
   constructor(
-    @InjectRepository(Session)
-    private readonly sessionRepository: Repository<Session>,
+    @InjectRepository(BrowserSession)
+    private readonly sessionRepository: Repository<BrowserSession>,
   ) {
     super(sessionRepository);
   }
@@ -27,7 +27,7 @@ export class SessionRepository extends BaseRepository<Session> {
    * @param userId User identifier
    * @returns Array of active sessions
    */
-  async findActiveByUserId(userId: string | number): Promise<Session[]> {
+  async findActiveByUserId(userId: string | number): Promise<BrowserSession[]> {
     return this.sessionRepository.find({
       where: {
         userId,
@@ -38,16 +38,16 @@ export class SessionRepository extends BaseRepository<Session> {
 
   /**
    * Find session by ID
-   * @param sessionId Session identifier
-   * @returns Session entity or null
+   * @param sessionId BrowserSession identifier
+   * @returns BrowserSession entity or null
    */
-  async findBySessionId(sessionId: string): Promise<Session | null> {
+  async findBySessionId(sessionId: string): Promise<BrowserSession | null> {
     return this.sessionRepository.findOne({ where: { sessionId } });
   }
 
   /**
    * Terminate user session
-   * @param sessionId Session identifier
+   * @param sessionId BrowserSession identifier
    * @returns Success flag
    */
   async terminateSession(sessionId: string): Promise<boolean> {
