@@ -26,15 +26,13 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  async register(@Body() registerDto: RegisterDto) {: Promise<AuthResult>
-    return this.authService.register(registerDto);
+  async register(@Body() registerDto: RegisterDto): Promise<AuthResult> {    return this.authService.register(registerDto);
   }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req) {: Promise<AuthResult>
-    return this.authService.login(req.user);
+  async login(@Request() req): Promise<AuthResult> {    return this.authService.login(req.user);
   }
 
   @Get('profile')
