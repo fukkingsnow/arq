@@ -62,6 +62,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
   }
 
   /**
+      return entity;
    * Finds all entities with optional filtering and pagination.
    *
    * @param where Optional filter conditions
@@ -113,6 +114,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    */
   async update(id: unknown, data: Partial<T>): Promise<T> {
     await this.repository.update(id as any, data as any);    
+        const updated = await this.findById(id as any);
     if (!updated) {
       throw new Error('Entity not found after update');
     }
@@ -192,6 +194,8 @@ export abstract class BaseService<T extends ObjectLiteral> {
    * @returns Promise resolving to saved entity/entities
    */
   async save(entity: T | T[]): Promise<T | T[]> {
+  
+        return this.repository.save(entity as any);
     ;
   }
 
