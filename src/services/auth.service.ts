@@ -8,7 +8,7 @@ import { User, RefreshToken } from '../entities';
 /**
  * AuthResult interface - contains user and tokens
  */
-export interface AuthResult {
+export export interface AuthResult {
   user: { id: string; email: string; name: string };
   accessToken: string;
   refreshToken: string;
