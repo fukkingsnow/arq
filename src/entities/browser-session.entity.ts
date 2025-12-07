@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, ManyToOne, JoinColum, OneToManyn } from 'typeorm';
 import { User } from './user.entity';
+import { BrowserTab } from './browser-tab.entity';
+import { ActionLog } from './action-log.entity';
 
 /**
  * Browser session entity for tracking active browser automation sessions
@@ -70,6 +72,27 @@ export class BrowserSession {
   @Column({ type: 'boolean', default: true })
   isConnected: boolean;
 
+    /**
+   * Tab count
+   * @default 0
+   */
+  @Column({ type: 'integer', default: 0 })
+  tabCount: number;
+
+  /**
+   * Active status
+   * @default true
+   */
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
+
+  /**
+   * Session end timestamp
+   * @optional
+   */
+  @Column({ type: 'timestamp', nullable: true })
+  endedAt?: Date;
+
   /**
    * Metadata (JSON)
    * @optional
@@ -82,6 +105,18 @@ export class BrowserSession {
    */
   @Column({ type: 'timestamp', nullable: true })
   lastActivityAt?: Date;
+
+    /**
+   * Browser tabs associated with this session
+   */
+  @OneToMany(() => BrowserTab, (tab) => tab.session)
+  tabs: BrowserTab[];
+
+  /**
+   * Action logs for this session
+   */
+  @OneToMany(() => ActionLog, (action) => action.session)
+  actions: ActionLog[];
 
   /**
    * Session creation timestamp
