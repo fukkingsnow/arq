@@ -1,6 +1,9 @@
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BrowserSession, BrowserTab } from '../entities';
 import { BrowserController } from '../controllers/browser.controller';
 import { BrowserService } from '../services/browser.service';
+import { BrowserSessionRepository, BrowserTabRepository } from '../repositories';
 
 /**
  * Browser Automation Feature Module
@@ -14,8 +17,8 @@ import { BrowserService } from '../services/browser.service';
  * @module src/modules/browser.module
  */
 @Module({
+    imports: [TypeOrmModule.forFeature([BrowserSession, BrowserTab])],
   controllers: [BrowserController],
-  providers: [BrowserService],
-  exports: [BrowserService],
+providers: [BrowserService, BrowserSessionRepository, BrowserTabRepository],  exports: [BrowserService],
 })
 export class BrowserModule {}
