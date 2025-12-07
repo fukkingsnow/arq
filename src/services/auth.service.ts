@@ -52,9 +52,8 @@ export class AuthService {
     if (existing) {
       throw new BadRequestException('User already exists');
     }
-    const password = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ email, password });
-    return await this.userRepository.save(user);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = this.userRepository.create({ email, password: hashedPassword });    return await this.userRepository.save(user);
   }
 
   /**
