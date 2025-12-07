@@ -30,8 +30,7 @@ export class SessionRepository extends BaseRepository<BrowserSession> {
   async findActiveByUserId(userId: string | number): Promise<BrowserSession[]> {
     return this.sessionRepository.find({
       where: {
-        userId,
-        isActive: true,
+        userId: userId as string,        isActive: true,
       },
     });
   }
