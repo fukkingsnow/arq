@@ -1,6 +1,6 @@
 # ARQ - AI Assistant Backend
 
-An intelligent AI assistant with advanced memory, context management, and real-time dialogue processing capabilities. Built with FastAPI, supporting multiple deployment platforms (local, Docker, Beget hosting).
+An intelligent AI assistant with advanced memory, context management, and real-time dialogue processing capabilities. Built with NestJS and TypeScript, supporting multiple deployment platforms (local, Docker, Beget hosting).
 
 ## Overview
 
@@ -17,8 +17,9 @@ ARQ is a production-ready backend service designed for building AI-powered dialo
 
 ### Prerequisites
 
-- Python 3.11+
-- Docker & Docker Compose
+- Node.js 20.x+
+- npm or yarn
+- Docker & Docker Compose (optional)
 - PostgreSQL 14+ (or use Docker)
 - Redis 7+ (or use Docker)
 - Git
@@ -26,48 +27,75 @@ ARQ is a production-ready backend service designed for building AI-powered dialo
 ### Local Development Setup
 
 1. **Clone the repository**
-   ```bash
-   git clone https://github.com/fukkingsnow/arq.git
-   cd arq
-   ```
 
-2. **Create environment configuration**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` with your configuration:
-   ```env
-   # Database
-   DATABASE_URL=postgresql://user:password@localhost:5432/arq_db
-   
-   # Redis
-   REDIS_URL=redis://localhost:6379/0
-   
-   # API Configuration
-   API_HOST=0.0.0.0
-   API_PORT=8000
-   DEBUG=False
-   
-   # AI/ML (Optional)
-   OPENAI_API_KEY=your_key_here
-   ```
+```bash
+git clone https://github.com/fukkingsnow/arq.git
+cd arq
+```
 
-3. **Using Docker Compose (Recommended)**
-   ```bash
-   docker-compose up -d
-   ```
-   This starts:
-   - PostgreSQL database
-   - Redis cache
-   - ARQ FastAPI server (accessible at http://localhost:8000)
+2. **Install dependencies**
 
-4. **Using Virtual Environment (Development)**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   python -m uvicorn src.main:app --reload
-   ```
+```bash
+npm install
+```
+
+3. **Create environment configuration**
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your configuration:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/arq_db
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=user
+DB_PASSWORD=password
+DB_DATABASE=arq_db
+
+# Redis
+REDIS_URL=redis://localhost:6379/0
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=3000
+NODE_ENV=development
+DEBUG=true
+
+# JWT
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRATION=3600
+JWT_REFRESH_SECRET=your_refresh_secret_key
+JWT_REFRESH_EXPIRATION=604800
+
+# AI/ML (Optional)
+OPENAI_API_KEY=your_key_here
+```
+
+4. **Using Docker Compose (Recommended)**
+
+```bash
+docker-compose up -d
+```
+
+This starts:
+- PostgreSQL database
+- Redis cache
+- ARQ NestJS server (accessible at http://localhost:3000)
+
+5. **Using Local Environment (Development)**
+
+```bash
+npm run start:dev
+```
+
+The API will be available at http://localhost:3000
 
 ## Project Structure
 
@@ -75,16 +103,28 @@ ARQ is a production-ready backend service designed for building AI-powered dialo
 arq/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml           # CI/CD pipeline configuration
+│       └── deploy.yml          # CI/CD pipeline configuration
 ├── src/
-│   ├── main.py                  # FastAPI application entry point
-│   └── config.py                # Environment configuration management
-├── .env.example                 # Configuration template
-├── Dockerfile                   # Production container image
-├── docker-compose.yml           # Local development environment
-├── requirements.txt             # Python dependencies
-├── .gitignore                   # Git ignore rules
-└── README.md                    # This file
+│   ├── main.ts                 # NestJS application entry point
+│   ├── app.module.ts           # Root application module
+│   ├── entities/               # TypeORM database entities
+│   ├── repositories/           # Data access layer
+│   ├── services/               # Business logic layer
+│   ├── controllers/            # API endpoint handlers
+│   ├── dtos/                   # Data transfer objects
+│   ├── guards/                 # Route protection guards
+│   ├── decorators/             # Custom NestJS decorators
+│   ├── modules/                # Feature modules
+│   ├── common/                 # Shared utilities and filters
+│   ├── filters/                # Exception filters
+│   └── config/                 # Configuration management
+├── .env.example                # Configuration template
+├── Dockerfile                  # Production container image
+├── docker-compose.yml          # Local development environment
+├── package.json                # Node.js dependencies
+├── tsconfig.json               # TypeScript configuration
+├── .gitignore                  # Git ignore rules
+└── README.md                   # This file
 ```
 
 ## API Documentation
@@ -92,24 +132,54 @@ arq/
 ### Available Endpoints
 
 #### Health Checks
+
 - `GET /health` - Service health status
 - `GET /ready` - Readiness probe for Kubernetes/orchestrators
 
-#### API Root
-- `GET /` - API information and version
+#### Authentication
+
+- `POST /auth/register` - User registration
+- `POST /auth/login` - User login
+- `POST /auth/refresh` - Refresh JWT token
+- `POST /auth/logout` - User logout
+- `GET /auth/profile` - Get current user profile
+
+#### Users
+
+- `GET /users` - List all users (admin only)
+- `GET /users/:id` - Get user by ID
+- `PUT /users/:id` - Update user
+- `DELETE /users/:id` - Delete user (admin only)
+
+#### Browser Automation
+
+- `POST /browser/sessions` - Create new browser session
+- `GET /browser/sessions` - List user sessions
+- `GET /browser/sessions/:id` - Get session details
+- `DELETE /browser/sessions/:id` - Close session
+- `POST /browser/sessions/:id/tabs` - Create tab in session
+- `GET /browser/sessions/:id/tabs` - List session tabs
 
 Full API documentation with Swagger UI:
-- **Interactive Docs**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
+
+- **Interactive Docs**: http://localhost:3000/api/docs
+- **OpenAPI JSON**: http://localhost:3000/api/docs-json
 
 ### Example Usage
 
 ```bash
 # Health check
-curl http://localhost:8000/health
+curl http://localhost:3000/health
 
-# API info
-curl http://localhost:8000/
+# Register new user
+curl -X POST http://localhost:3000/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
+
+# Login
+curl -X POST http://localhost:3000/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "user@example.com", "password": "password123"}'
 ```
 
 ## Configuration
@@ -119,37 +189,44 @@ All configuration is managed through environment variables. See `.env.example` f
 ### Key Configuration Sections
 
 **Database Configuration**
+
 - `DATABASE_URL`: PostgreSQL connection string
-- `DB_POOL_SIZE`: Connection pool size (default: 20)
-- `DB_POOL_RECYCLE`: Connection recycle time in seconds
+- `DB_HOST`: Database host
+- `DB_PORT`: Database port
+- `DB_USERNAME`: Database user
+- `DB_PASSWORD`: Database password
+- `DB_DATABASE`: Database name
 
 **Redis Configuration**
+
 - `REDIS_URL`: Redis connection string
+- `REDIS_HOST`: Redis host
+- `REDIS_PORT`: Redis port
 - `REDIS_DB`: Redis database number
-- `CACHE_TTL`: Cache expiration time (seconds)
 
-**FastAPI Configuration**
+**NestJS Configuration**
+
 - `API_HOST`: Bind host (default: 0.0.0.0)
-- `API_PORT`: Bind port (default: 8000)
-- `DEBUG`: Debug mode (default: False)
-- `WORKERS`: Number of worker processes
+- `API_PORT`: Bind port (default: 3000)
+- `NODE_ENV`: Environment (development/production)
+- `DEBUG`: Debug mode
 
-**Memory Management**
-- `MEMORY_MAX_SIZE`: Maximum memory items
-- `MEMORY_RETENTION_DAYS`: How long to keep memory
-- `CONTEXT_WINDOW_SIZE`: Active context size
+**JWT Configuration**
+
+- `JWT_SECRET`: JWT secret key
+- `JWT_EXPIRATION`: Token expiration in seconds
+- `JWT_REFRESH_SECRET`: Refresh token secret
+- `JWT_REFRESH_EXPIRATION`: Refresh token expiration in seconds
 
 **AI/ML Integrations (Optional)**
+
 - `OPENAI_API_KEY`: OpenAI API key
 - `OPENAI_MODEL`: Model selection
 
 **Beget Hosting (Optional)**
+
 - `BEGET_API_KEY`: Beget API credentials
 - `BEGET_DOMAIN`: Hosted domain name
-
-**Telegram Bot (Optional)**
-- `TELEGRAM_TOKEN`: Bot API token
-- `TELEGRAM_WEBHOOK_URL`: Webhook endpoint
 
 ## Deployment
 
@@ -163,17 +240,25 @@ docker build -t arq:latest .
 docker run -d \
   -e DATABASE_URL=postgresql://user:pass@db:5432/arq \
   -e REDIS_URL=redis://redis:6379/0 \
-  -p 8000:8000 \
+  -e JWT_SECRET=your_secret \
+  -p 3000:3000 \
   --name arq-api \
   arq:latest
+```
+
+### Docker Compose Deployment
+
+```bash
+docker-compose up -d
 ```
 
 ### Beget Hosting Deployment
 
 The repository includes GitHub Actions CI/CD pipeline that automatically:
-1. Runs tests and linting
+
+1. Builds NestJS application
 2. Builds Docker image
-3. Deploys to Beget hosting via FTP
+3. Deploys to Beget hosting
 
 **Setup Instructions**:
 
@@ -186,17 +271,53 @@ The repository includes GitHub Actions CI/CD pipeline that automatically:
 
 3. Push to main branch to trigger automatic deployment
 
-## Testing
+## Development
+
+### Available Scripts
 
 ```bash
+# Install dependencies
+npm install
+
+# Development mode with auto-reload
+npm run start:dev
+
+# Production build
+npm run build
+
+# Production mode
+npm run start:prod
+
 # Run tests
-pytest src/ -v
+npm run test
 
-# Run with coverage
-pytest src/ --cov=src --cov-report=html
+# Run tests with coverage
+npm run test:cov
 
-# Lint check
-flake8 src/ --max-line-length=100
+# Run E2E tests
+npm run test:e2e
+
+# Linting
+npm run lint
+
+# Format code
+npm run format
+```
+
+### Testing
+
+```bash
+# Run all tests
+npm run test
+
+# Run tests in watch mode
+npm run test -- --watch
+
+# Run tests with coverage report
+npm run test:cov
+
+# Run E2E tests
+npm run test:e2e
 ```
 
 ## Health Checks
@@ -205,11 +326,11 @@ The service includes comprehensive health checks:
 
 ```bash
 # Application health
-curl http://localhost:8000/health
+curl http://localhost:3000/health
 
 # Response format
 {
-  "status": "healthy",
+  "status": "ok",
   "database": "connected",
   "redis": "connected",
   "uptime": 3600
@@ -221,52 +342,53 @@ curl http://localhost:8000/health
 ### Production Optimization
 
 1. **Database Connection Pool**
-   - Adjust `DB_POOL_SIZE` based on expected concurrent connections
+   - Adjust connection pool size based on expected concurrent connections
    - Typical: 5-20 for small deployments, 20-100 for large scale
 
-2. **Worker Processes**
-   - Use `WORKERS=4` (or CPU cores) for production
-   - Adjust based on CPU utilization
+2. **Node.js Worker Threads**
+   - Use clustering module for multi-core utilization
+   - Set `NODE_ENV=production` for optimizations
 
 3. **Memory Management**
-   - Configure `MEMORY_MAX_SIZE` based on available RAM
-   - Set appropriate `MEMORY_RETENTION_DAYS`
+   - Monitor Node.js heap usage
+   - Configure appropriate garbage collection settings
 
 4. **Caching**
    - Use Redis for frequently accessed data
-   - Adjust `CACHE_TTL` based on data freshness requirements
+   - Configure appropriate TTL values
 
 ## Troubleshooting
 
 ### Database Connection Issues
 
 ```bash
-# Check PostgreSQL connection
+# Test PostgreSQL connection
 psql postgresql://user:password@localhost:5432/arq_db -c "SELECT 1;"
 
-# Check from container
-docker-compose exec arq-api python -c "from src.config import settings; print(settings.database_url)"
+# Check from application logs
+npm run start:dev
 ```
 
 ### Redis Connection Issues
 
 ```bash
-# Check Redis connection
+# Test Redis connection
 redis-cli ping
 
-# Check from container
-docker-compose exec arq-api redis-cli -u redis://redis:6379/0 ping
+# Check Redis status
+redis-cli info
 ```
 
-### API Not Starting
+### Application Issues
 
 Check logs:
-```bash
-# Docker Compose logs
-docker-compose logs arq-api
 
-# Check environment variables
-docker-compose exec arq-api env | grep DATABASE
+```bash
+# Development mode logs
+npm run start:dev
+
+# Docker Compose logs
+docker-compose logs arq
 ```
 
 ## Monitoring
@@ -278,10 +400,22 @@ Logs are output to stdout and can be collected by container orchestration system
 ### Metrics
 
 Enable metrics collection by setting:
+
 ```env
-ENABLE_METRICS=True
+ENABLE_METRICS=true
 METRICS_PORT=9090
 ```
+
+## Architecture
+
+The backend follows NestJS best practices with:
+
+- **Modular Architecture**: Feature-based modules with clear separation of concerns
+- **Dependency Injection**: Full DI container for loose coupling
+- **Database Layer**: TypeORM with repositories for data access
+- **Service Layer**: Business logic isolated from HTTP concerns
+- **Guards & Decorators**: Fine-grained access control
+- **Error Handling**: Centralized exception filters
 
 ## Contributing
 
@@ -298,16 +432,21 @@ This project is licensed under the MIT License - see LICENSE file for details.
 ## Support
 
 For issues and questions:
+
 - Open an issue on GitHub
-- Check existing documentation in SETUP.md
+- Check existing documentation
 - Review configuration examples in .env.example
 
 ## Changelog
 
-### Version 0.1.0 (Initial Release)
-- FastAPI application foundation
-- PostgreSQL database integration
+### Version 0.1.0 (Current)
+
+- NestJS application foundation
+- PostgreSQL database integration via TypeORM
 - Redis caching support
+- JWT authentication
 - Docker containerization
+- Modular architecture with services, repositories, and controllers
 - CI/CD pipeline with GitHub Actions
 - Environment-based configuration
+- Type-safe NestJS implementation with full TypeScript support
