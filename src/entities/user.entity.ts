@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, Unique } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index, Unique } fr, OneToManyom 'typeorm';
+import { RefreshToken } from './refresh-token.entity';
 
 /**
  * User entity for authentication and profile management
@@ -70,6 +71,12 @@ export class User {
    */
   @Column({ type: 'boolean', default: false })
   emailVerified: boolean;
+
+    /**
+   * Refresh tokens associated with this user
+   */
+  @OneToMany(() => RefreshToken, (token) => token.user)
+  refreshTokens: RefreshToken[];
 
   /**
    * Last login timestamp
