@@ -28,7 +28,8 @@ export class AuthRepository extends BaseRepository<AuthToken> {
    * @returns AuthToken entity or null
    */
   async findByUserId(userId: string | number): Promise<AuthToken | null> {
-    return this.authRepository.findOne({ where: { userId } });
+    const userIdStr = String(userId);
+    return this.authRepository.findOne({ where: { userId: userIdStr } });
   }
 
   /**
@@ -46,7 +47,8 @@ export class AuthRepository extends BaseRepository<AuthToken> {
    * @returns Success flag
    */
   async revokeByUserId(userId: string | number): Promise<boolean> {
-    return this.update(userId, { isRevoked: true } as any).then(Boolean);
+    const userIdStr = String(userId);
+    return this.update(userIdStr, { isRevoked: true } as any).then(Boolean);
   }
 
   /**
