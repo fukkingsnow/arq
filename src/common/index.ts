@@ -1,6 +1,6 @@
 /**
  * Barrel export for common module
- * Phase 23 Backend Controllers/Guards/Interceptors/Pipes/Decorators
+ * Phase 24 Backend Middleware Layer + Phase 23 Controllers/Guards/Interceptors/Pipes/Decorators
  * Centralized exports for all common functionality
  */
 
@@ -18,6 +18,9 @@ export * from './pipes';
 
 // Decorators
 export * from './decorators';
+
+// Middleware
+export * from './middleware';
 
 // Module
 export { CommonModule } from './common.module';
