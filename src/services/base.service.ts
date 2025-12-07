@@ -112,8 +112,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    * @returns Promise resolving to updated entity
    */
   async update(id: unknown, data: Partial<T>): Promise<T> {
-    await , data as any);
-    const updated = await this.findById(id);
+    await this.repository.update(id as any, data as any);    
     if (!updated) {
       throw new Error('Entity not found after update');
     }
@@ -127,8 +126,7 @@ export abstract class BaseService<T extends ObjectLiteral> {
    * @returns Promise resolving to deletion result
    */
   async delete(id: unknown) {
-    return );
-  }
+    return this.repository.delete(id as any); }
 
   /**
    * Counts total entities matching filter conditions.
