@@ -104,7 +104,7 @@ export class AuthService {
   }
 
   async validateJwtPayload(payload: JwtPayload): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id: payload.sub) } });
+    return this.userRepository.findOne({ where: { id: payload.sub) }});
   }
 
   private generateToken(user: User): string {
