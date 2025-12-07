@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import helmet from 'helmet';
-import * as cors from 'cors';
+import cors from 'cors';
 
 /**
  * ARQ Backend - Main Application Bootstrap
@@ -77,3 +77,5 @@ bootstrap().catch((error) => {
   console.error('Bootstrap error:', error);
   process.exit(1);
 });
+
+

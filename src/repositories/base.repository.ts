@@ -13,7 +13,7 @@ import { Injectable } from '@nestjs/common';
  * @template T Generic entity type
  */
 @Injectable()
-export abstract class BaseRepository<T> {
+export abstract class BaseRepository<T extends ObjectLiteral> {
   /**
    * Constructor
    * @param repository TypeORM repository instance
@@ -26,7 +26,7 @@ export abstract class BaseRepository<T> {
    * @returns Created entity
    */
   async create(data: Partial<T>): Promise<T> {
-    const entity = this.repository.create(data);
+    const entity = this.repository.create(data as any);
     return this.repository.save(entity);
   }
 
@@ -68,3 +68,5 @@ export abstract class BaseRepository<T> {
     return (result.affected ?? 0) > 0;
   }
 }
+
+

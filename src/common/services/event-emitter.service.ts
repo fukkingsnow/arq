@@ -95,7 +95,7 @@ export class EventEmitterService {
    * Get all event names
    */
   eventNames(): (string | symbol)[] {
-    return this.emitter.eventNames();
+    return this.emitter.eventNames() as (string | symbol)[];
   }
 
   /**
@@ -128,7 +128,7 @@ export class EventEmitterService {
    * Check if event has listeners
    */
   hasListeners(eventName: string): boolean {
-    return this.emitter.hasListeners(eventName);
+    return this.emitter.hasListeners(eventName) as boolean;
   }
 
   /**
@@ -160,3 +160,4 @@ export class EventEmitterService {
       }));
   }
 }
+

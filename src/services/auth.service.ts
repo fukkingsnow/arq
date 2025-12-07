@@ -1,4 +1,4 @@
-auth.service.tsimport { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,7 +8,7 @@ import { User, RefreshToken } from '../entities';
 /**
  * AuthResult interface - contains user and tokens
  */
-export export interface AuthResult {
+export interface AuthResult {
   user: { id: string; email: string; name: string };
   accessToken: string;
   refreshToken: string;
@@ -35,7 +35,7 @@ export class AuthService {
    */
   async login(email: string, password: string) {
     const user = await this.userRepository.findOne({ where: { email } });
-    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
     return this.generateTokens(user);
@@ -52,8 +52,8 @@ export class AuthService {
     if (existing) {
       throw new BadRequestException('User already exists');
     }
-    const passwordHash = await bcrypt.hash(password, 10);
-    const user = this.userRepository.create({ email, passwordHash });
+    const password = await bcrypt.hash(password, 10);
+    const user = this.userRepository.create({ email, password });
     return await this.userRepository.save(user);
   }
 
@@ -95,3 +95,4 @@ export class AuthService {
     return this.jwtService.verify(token);
   }
 }
+

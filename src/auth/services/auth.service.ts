@@ -11,7 +11,7 @@ interface JwtPayload {
   exp?: number;
 }
 
-interface AuthResult {
+export interface AuthResult {
   access_token: string;
   user: Partial<User>;
   expiresIn: number;
@@ -56,13 +56,7 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await this.userRepository.create({
-      email,
-      password: hashedPassword,
-      firstName: firstName || '',
-      lastName: lastName || '',
-      isActive: true,
-    });
+    const user = this.userRepository.create({ email, password });
 
     const token = this.generateToken(user);
 
@@ -110,7 +104,7 @@ export class AuthService {
   }
 
   async validateJwtPayload(payload: JwtPayload): Promise<User | null> {
-    return this.userRepository.findById(payload.sub);
+    return this.userRepository.findOne({ where: { id: payload.sub);
   }
 
   private generateToken(user: User): string {
@@ -175,3 +169,6 @@ export class AuthService {
  * 
  * Token Expiration: 24 hours (configurable)
  */
+
+
+

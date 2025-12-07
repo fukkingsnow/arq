@@ -41,7 +41,7 @@ export interface IPaginatedResponse<T> {
  * ```
  */
 @Injectable()
-export abstract class BaseService<T> {
+export abstract class BaseService<T extends ObjectLiteral> {
   /**
    * Creates a new instance of BaseService.
    *
@@ -57,7 +57,7 @@ export abstract class BaseService<T> {
    * @throws Error if creation fails
    */
   async create(data: Partial<T>): Promise<T> {
-    const entity = this.repository.create(data);
+    const entity = this.repository.create(data as any);
     return this.repository.save(entity);
   }
 
@@ -208,3 +208,5 @@ export abstract class BaseService<T> {
     return this.repository.query(query, parameters);
   }
 }
+
+

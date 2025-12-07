@@ -102,7 +102,7 @@ export class LoggerService extends Logger {
     const entry: LogEntry = {
       timestamp: this.getTimestamp(),
       level: 'log',
-      context: context || this.context,
+      context: (context || this.context) as string,
       message
     };
 
@@ -116,7 +116,7 @@ export class LoggerService extends Logger {
     const entry: LogEntry = {
       timestamp: this.getTimestamp(),
       level: 'error',
-      context: context || this.context,
+      context: (context || this.context) as string,
       message,
       stack: trace
     };
@@ -131,7 +131,7 @@ export class LoggerService extends Logger {
     const entry: LogEntry = {
       timestamp: this.getTimestamp(),
       level: 'warn',
-      context: context || this.context,
+      context: (context || this.context) as string,
       message
     };
 
@@ -145,7 +145,7 @@ export class LoggerService extends Logger {
     const entry: LogEntry = {
       timestamp: this.getTimestamp(),
       level: 'debug',
-      context: context || this.context,
+      context: (context || this.context) as string,
       message
     };
 
@@ -159,7 +159,7 @@ export class LoggerService extends Logger {
     const entry: LogEntry = {
       timestamp: this.getTimestamp(),
       level: 'verbose',
-      context: context || this.context,
+      context: (context || this.context) as string,
       message
     };
 
@@ -173,7 +173,7 @@ export class LoggerService extends Logger {
     const entry: LogEntry = {
       timestamp: this.getTimestamp(),
       level: 'log',
-      context: context || this.context,
+      context: (context || this.context) as string,
       message,
       data: this.sanitizeData(data)
     };
@@ -201,3 +201,4 @@ export class LoggerService extends Logger {
     return sanitized;
   }
 }
+

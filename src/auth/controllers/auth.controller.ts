@@ -32,12 +32,12 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalAuthGuard)
   @HttpCode(HttpStatus.OK)
-  async login(@Request() req): Promise<AuthResult> {    return this.authService.login(req.user);
+  async login(@Request() req: any): Promise<AuthResult> {    return this.authService.login(req.user);
   }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  async getProfile(@Request() req) {
+  async getProfile(@Request() req: any) {
     return req.user;
   }
 }
@@ -128,3 +128,4 @@ export class AuthController {
  * - 401: Unauthorized (invalid credentials, expired token)
  * - 409: Conflict (email already registered)
  */
+

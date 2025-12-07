@@ -88,7 +88,8 @@ export class BrowserService {
   async updateTabStatus(tabId: string, status: string) {
     const tab = await this.tabRepository.findOne({ where: { id: tabId } });
     if (!tab) throw new NotFoundException('Tab not found');
-    tab.status = status;
+    tab.status = status as any;
     return await this.tabRepository.save(tab);
   }
 }
+

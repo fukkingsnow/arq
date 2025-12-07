@@ -16,13 +16,13 @@ export class UserService {
   /**
    * Create new user account
    * @param email User email
-   * @param passwordHash Hashed password
+   * @param password Hashed password
    * @returns Created user
    */
-  async createUser(email: string, passwordHash: string) {
+  async createUser(email: string, password: string) {
     const existing = await this.userRepository.findOne({ where: { email } });
     if (existing) throw new ConflictException('User already exists');
-    const user = this.userRepository.create({ email, passwordHash });
+    const user = this.userRepository.create({ email, password });
     return await this.userRepository.save(user);
   }
 
@@ -63,3 +63,4 @@ export class UserService {
     return await this.userRepository.delete(userId);
   }
 }
+

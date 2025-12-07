@@ -9,8 +9,8 @@ import {
   BeforeUpdate,
   Index,
 } from 'typeorm';
-import { Conversation } from '../../conversations/entities/conversation.entity';
-import { MemoryContext } from '../../memory/entities/memory-context.entity';
+// import { Conversation } from '../../conversations/entities/conversation.entity'; // TODO: Create conversation entity
+// import { MemoryContext } from '../../memory/entities/memory-context.entity'; // TODO: Create memory entity
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -61,14 +61,14 @@ export class User {
   updatedAt: Date;
 
   // Relationships
-  @OneToMany(() => Conversation, (conversation) => conversation.user, {
+  // @OneToMany(() => Conversation, (conversation) => conversation.user, {
     lazy: true,
     cascade: true,
     onDelete: 'CASCADE',
   })
   conversations: Conversation[];
 
-  @OneToMany(() => MemoryContext, (memory) => memory.user, {
+  // @OneToMany(() => MemoryContext, (memory) => memory.user, {
     lazy: true,
     cascade: true,
     onDelete: 'CASCADE',
@@ -130,3 +130,4 @@ export class User {
     };
   }
 }
+
