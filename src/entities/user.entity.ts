@@ -2,6 +2,15 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { RefreshToken } from './refresh-token.entity';
 
 /**
+ * User role enum
+ */
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'user',
+  MODERATOR = 'moderator'
+}
+
+/**
  * User entity for authentication and profile management
  * Represents a user account in the ARQ system
  */
@@ -44,6 +53,25 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   fullName?: string;
 
+    /**
+   * User first name
+   * @example 'John'
+   */
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  firstName?: string;
+
+  /**
+   * Password hash (alias for password field)
+   * @example '$2b$10$N9qo8uLOickgx2ZMRZoMye'
+   */
+  get passwordHash(): string {
+    return this.password;
+  }
+
+  set passwordHash(value: string) {
+    this.password = value;
+  }
+
   /**
    * User role (admin, user, moderator)
    * @default 'user'
@@ -64,6 +92,14 @@ export class User {
    */
   @Column({ type: 'enum', enum: ['active', 'inactive', 'suspended'], default: 'active' })
   status: 'active' | 'inactive' | 'suspended';
+
+    /**
+   * Account is active (computed from status)
+   * @returns true if status is 'active'
+   */
+  get isActive(): boolean {
+    return this.status === 'active';
+  }
 
   /**
    * Email verification status
