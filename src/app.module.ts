@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database';
 import { AuthModule } from './modules/auth.module';
 import { BrowserModule } from './modules/browser.module';
 import { UserModule } from './modules/user.module';
 import { CommonModule } from './modules/common.module';
+import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
 
 /**
  * Root Application Module
@@ -14,6 +15,7 @@ import { CommonModule } from './modules/common.module';
  * - Initializes database connection via DatabaseModule
  * - Imports all feature modules (Auth, Browser, User)
  * - Imports shared CommonModule for cross-module dependencies
+ * - Registers middleware for HTTP request processing (Phase 25)
  *
  * @module src/app.module
  * @example
@@ -36,4 +38,22 @@ import { CommonModule } from './modules/common.module';
     CommonModule,
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  /**
+   * Configures and registers middleware for the application
+   * Phase 25: Middleware Application Integration
+   * - RequestLoggingMiddleware: Logs HTTP traffic with timestamps
+   * - CompressionRequestMiddleware: Enables gzip/deflate response compression
+   *
+   * @param consumer - NestJS middleware consumer for registration
+   */
+  configure(consumer: MiddlewareConsumer): void {
+    consumer
+      // Apply compression middleware to all routes
+      .apply(CompressionRequestMiddleware)
+      .forRoutes('*')
+      // Apply request logging middleware to all routes
+      .apply(RequestLoggingMiddleware)
+      .forRoutes('*');
+  }
+}
