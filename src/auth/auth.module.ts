@@ -7,7 +7,7 @@ import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { AuthController } from './controllers/auth.controller';
-import { User } from '../users/entities/user.entity';
+import { User } from '../entities/user.entity';
 import { UserRepository } from '../users/repositories/user.repository';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
