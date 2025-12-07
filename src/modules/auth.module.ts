@@ -5,16 +5,14 @@ import { AuthController } from '../controllers/auth.controller';
 import { AuthService } from '../services/auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User, RefreshToken } from '../entities';import { UserRepository } from '../repositories, RefreshTokenRepository };
-import { UserRepository, RefreshTokenRepository } from '../repositories';/**
- * Authentication Feature Module
- *
- * Provides JWT-based authentication with Passport integration.
- * - JWT token generation and validation
- * - Refresh token management
- * - Role-based access control (RBAC)
- * - Integration with UserService for account management
- *
- * @module src/modules/auth.module
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { AuthController } from '../controllers/auth.controller';
+import { AuthService } from '../services/auth.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User, RefreshToken } from '../entities';
+import { UserRepository, RefreshTokenRepository } from '../repositories';le
  */
 @Module({
   imports: [
