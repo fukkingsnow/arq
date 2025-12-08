@@ -21,7 +21,7 @@ import {
 /**
  * UserController - Manages user profile and account endpoints
  * Handles user profile operations, account management
- * 
+ *
  * @controller users
  */
 @Controller('users')
@@ -31,7 +31,7 @@ export class UserController {
   /**
    * GET /users/:id - Get user profile by ID
    * Retrieves user account information (without sensitive data)
-   * 
+   *
    * @param userId User unique identifier (UUID)
    * @returns GetUserResponseDto User profile data
    * @throws NotFoundException If user not found
@@ -41,13 +41,17 @@ export class UserController {
     @Param('id', new ParseUUIDPipe())
     userId: string,
   ): Promise<GetUserResponseDto> {
-    return await this.userService.getUserById(userId);
+    const user = await this.userService.getUserById(userId);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return user;
   }
 
   /**
    * PUT /users/:id - Update user profile
    * Allows user to update their profile information (name, etc.)
-   * 
+   *
    * @param userId User unique identifier (UUID)
    * @param updateUserDto Update data (firstName, lastName, fullName)
    * @returns GetUserResponseDto Updated user profile
@@ -64,14 +68,18 @@ export class UserController {
     if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
       throw new BadRequestException('Update data cannot be empty');
     }
-    return await this.userService.updateUser(userId, updateUserDto);
+    const user = await this.userService.updateUser(userId, updateUserDto);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return user;
   }
 
   /**
    * DELETE /users/:id - Delete user account
    * Permanently deletes user account and associated data
    * Requires password confirmation for security
-   * 
+   *
    * @param userId User unique identifier (UUID)
    * @param deleteUserDto Deletion confirmation with password
    * @returns Success message
