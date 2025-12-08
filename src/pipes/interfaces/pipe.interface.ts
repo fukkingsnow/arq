@@ -17,6 +17,15 @@ export interface DialogueContext {
   enriched?: boolean;
   routed?: boolean;
   transformed?: boolean;
+  route?: string;
+  fieldsAdded?: string[];
+  transformationCount?: number;
+  conversationDepth?: number;
+  userAgentAnalyzed?: boolean;
+  messageSentiment?: string;
+  detectedLanguage?: string;
+  priorityScore?: number;
+  [key: string]: any;
 }
 
 export interface PipeResult<T = any> {
@@ -28,6 +37,8 @@ export interface PipeResult<T = any> {
     name?: string;
     duration?: number;
     executedPipes?: any[];
+    pipelineExecuted?: string;
+    errorHandled?: boolean;
   };
 }
 
