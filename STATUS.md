@@ -469,3 +469,34 @@ Phase 31 - Dialogue Processing Pipes Architecture (December 8, 2025)
    - PipePipelineFactory - Compose pipes into chains
 
 **Status:** 70% - Foundation Ready, Implementation Phase
+
+
+Phase 32 - Pipe Interfaces & Implementations (December 8, 2025)
+================================================================
+
+### Status: IN PROGRESS (Part 1 Complete - 40%)
+
+**Objective:** Implement concrete pipe classes extending BasePipe with business logic
+
+**Completed (Part 1):**
+1. PipeInterface created - DialogueContext, PipeResult, IPipe, PipeMetadata
+2. BasePipe abstract class implemented with:
+   - canProcess() default implementation
+   - execute() abstract method for subclasses
+   - getMetadata() method
+   - createSuccessResult() and createErrorResult() helpers
+3. ValidationPipe implemented - validates message, userId, sessionId
+
+**In Progress/Pending:**
+- IntentParsingPipe - Extract intent from dialogue
+- TransformPipe - Normalize dialogue data
+- ContextEnrichmentPipe - Enrich with memory/session
+- RoutingPipe - Route to action handlers
+- PipePipelineFactory - Compose pipes into chains
+- Unit tests for all pipes
+
+**Architecture:**
+- Pipes folder structure: base/, interfaces/, validation/, [intent/, transform/, context/, routing/]
+- All pipes extend BasePipe and implement IPipe
+- Generic result types for type-safe operations
+- Priority-based execution support
