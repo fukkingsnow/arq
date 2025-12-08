@@ -1,4 +1,4 @@
-import { DialogueContext, IPipe, PipeMetadata, PipeResult } from '../interfaces';
+import { DialogContext, IPipe, PipeMetadata, PipeResult } from '../interfaces';
 
 /**
  * BasePipe - Abstract base class for all ARQ pipes
@@ -20,14 +20,14 @@ export abstract class BasePipe implements IPipe {
    * Default implementation - checks if metadata is enabled
    * Can be overridden by subclasses for custom validation
    */
-  canProcess(context: DialogueContext): boolean {
+  canProcess(context: DialogContext): boolean {
     return this.metadata.enabled;
   }
 
   /**
    * Execute the pipe - abstract method to be implemented by subclasses
    */
-  abstract execute(context: DialogueContext): Promise<PipeResult>;
+  abstract execute(context: DialogContext): Promise<PipeResult>;
 
   /**
    * Get pipe metadata
@@ -41,7 +41,7 @@ export abstract class BasePipe implements IPipe {
    */
   protected createSuccessResult<T = any>(
     data?: T,
-    context?: DialogueContext,
+    context?: DialogContext,
   ): PipeResult<T> {
     return {
       success: true,
@@ -53,7 +53,10 @@ export abstract class BasePipe implements IPipe {
   /**
    * Create an error result
    */
-  protected createErrorResult(error: string, context?: DialogueContext): PipeResult {
+  protected createErrorResult(
+    error: string,
+    context?: DialogContext,
+  ): PipeResult {
     return {
       success: false,
       error,
