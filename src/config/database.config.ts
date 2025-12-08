@@ -12,8 +12,5 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     logging: process.env.NODE_ENV === 'development',
     migrationsRun: false,
     migrations: ['dist/src/database/migrations/*.{js,ts}'],
-    cli: {
-      migrationsDir: 'src/database/migrations',
-    },
   };
 };
