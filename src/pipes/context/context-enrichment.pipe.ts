@@ -40,13 +40,13 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
       // Add priority score
       enrichedContext.metadata.priorityScore = this.calculatePriorityScore(context);
 
-      return this.createSuccessResult(enrichedContext, {
-        enriched: true,
-        fieldsAdded: ['enrichedAt', 'conversationDepth', 'userAgentAnalyzed', 'messageSentiment', 'detectedLanguage', 'priorityScore'],
-      });
+      return this.createSuccessResult(
+        enrichedContext,
+        'Enrichment completed successfully',
+      );
     } catch (error) {
       return this.createErrorResult(
-        new Error(`Enrichment error: ${(error as Error).message}`),
+        `Enrichment error: ${(error as Error).message}`,
         context,
       );
     }
@@ -63,7 +63,7 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
   private analyzeSentiment(message: string): string {
     const positiveWords = ['good', 'great', 'excellent', 'happy', 'love'];
     const negativeWords = ['bad', 'terrible', 'awful', 'sad', 'hate'];
-    
+
     const lowerMessage = message.toLowerCase();
     const positiveCount = positiveWords.filter(word => lowerMessage.includes(word)).length;
     const negativeCount = negativeWords.filter(word => lowerMessage.includes(word)).length;
@@ -75,7 +75,7 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
 
   private calculatePriorityScore(context: DialogContext): number {
     let score = 50; // base score
-    
+
     // Check for urgency keywords
     const urgencyKeywords = ['urgent', 'asap', 'immediate', 'critical'];
     const message = context.message.toLowerCase();
