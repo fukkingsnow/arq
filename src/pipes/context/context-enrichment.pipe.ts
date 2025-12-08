@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BasePipe } from '../base/base.pipe';
-import { DialogContext, IPipe, PipeResult } from '../interfaces';
+import { DialogueContext, IPipe, PipeResult } from '../interfaces';
 
 @Injectable()
 export class ContextEnrichmentPipe extends BasePipe implements IPipe {
@@ -13,7 +13,7 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
     });
   }
 
-  async execute(context: DialogContext): Promise<PipeResult> {
+  async execute(context: DialogueContext): Promise<PipeResult> {
     try {
       const enrichedContext = { ...context };
       enrichedContext.metadata = enrichedContext.metadata || {};
@@ -56,7 +56,7 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
     return 'neutral';
   }
 
-  private calculatePriorityScore(context: DialogContext): number {
+  private calculatePriorityScore(context: DialogueContext): number {
     const message = context.message.toLowerCase();
     let score = 50;
     if (context.sessionId) {
