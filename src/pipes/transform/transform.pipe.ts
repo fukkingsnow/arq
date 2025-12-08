@@ -1,15 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { BasePipe } from '../../base.pipe';
-import { IPipe } from '../../interfaces/pipe.interface';
-import { DialogueContext } from '../../../common/interfaces/dialogue.interface';
-import { PipeResult } from '../../interfaces/pipe.interface';
+import { BasePipe } from '../base/base.pipe';
+import { IPipe, PipeResult } from '../interfaces';
+import { DialogueContext } from '../../common/interfaces/dialogue.interface';
 
 export interface TransformConfig {
   transformations: Map<string, (value: any) => any>;
 }
 
 @Injectable()
-fix(transform.pipe): 3 errors - transformer null check, parameter order, Error to string
 export class TransformPipe extends BasePipe implements IPipe {
   private readonly transformationMap: Map<string, (value: any) => any> = new Map();
 
