@@ -6,7 +6,7 @@ import { TransformPipe } from '../transform/transform.pipe';
 import { ContextEnrichmentPipe } from '../context/context-enrichment.pipe';
 import { RoutingPipe } from '../routing/routing.pipe';
 import { IntentParsingPipe } from '../intent/intent-parsing.pipe';
-import { DialogueContext } from '../../common/interfaces/dialogue.interface';
+import { DialogContext } from '../../common/interfaces/dialogue.interface';
 import { PipeResult } from '../interfaces/pipe.interface';
 
 export interface PipelineConfig {
@@ -53,7 +53,7 @@ export class PipePipelineFactory {
   }
 
   async executePipeline(
-    context: DialogueContext,
+    context: DialogContext,
     pipelineName?: string,
     config?: Partial<PipelineConfig>,
   ): Promise<PipeResult> {
@@ -92,7 +92,7 @@ export class PipePipelineFactory {
   }
 
   async executeSpecificPipes(
-    context: DialogueContext,
+    context: DialogContext,
     pipeNames: string[],
   ): Promise<PipeResult> {
     const allPipes = [
