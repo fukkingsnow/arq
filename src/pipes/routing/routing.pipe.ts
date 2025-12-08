@@ -35,21 +35,20 @@ export class RoutingPipe extends BasePipe implements IPipe {
 
       if (!handler) {
         return this.createErrorResult(
-          new Error(`No handler found for route: ${routePath}`),
+          `No handler found for route: ${routePath}`,
           context,
         );
       }
 
       const result = await handler(context);
 
-      return this.createSuccessResult(context, {
-        routed: true,
-        route: routePath,
-        result,
-      });
+      return this.createSuccessResult(
+        context,
+        `Routed to ${routePath} successfully`,
+      );
     } catch (error) {
       return this.createErrorResult(
-        new Error(`Routing error: ${(error as Error).message}`),
+        `Routing error: ${(error as Error).message}`,
         context,
       );
     }
@@ -57,7 +56,7 @@ export class RoutingPipe extends BasePipe implements IPipe {
 
   private determineRoute(context: DialogContext): string {
     const message = context.message.toLowerCase();
-    
+
     // Route based on keywords
     if (message.includes('help') || message.includes('assist')) {
       return '/help';
@@ -71,7 +70,7 @@ export class RoutingPipe extends BasePipe implements IPipe {
     if (message.includes('info') || message.includes('information')) {
       return '/info';
     }
-    
+
     return '/default';
   }
 }
