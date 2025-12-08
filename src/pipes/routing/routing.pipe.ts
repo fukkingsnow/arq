@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { BasePipe } from '../base/base.pipe';
-import { IPipe } from '../interfaces/pipe.interface';
-import { DialogContext } from '../../common/interfaces/dialogue.interface';
-import { PipeResult } from '../interfaces/pipe.interface';
+import { BasePipe } from '../../base.pipe';
+import { IPipe } from '../../interfaces/pipe.interface';
+import { DialogueContext } from '../../../common/interfaces/dialogue.interface';
+import { PipeResult } from '../../interfaces/pipe.interface';
 
-export type RouteHandler = (context: DialogContext) => Promise<any>;
+export type RouteHandler = (context: DialogueContext) => Promise<any>;
 
 export interface RoutingConfig {
   routes: Map<string, RouteHandler>;
   defaultRoute?: RouteHandler;
-fix(routing.pipe): correct parameter order for createSuccessResult
+}
+
 @Injectable()
 export class RoutingPipe extends BasePipe implements IPipe {
   private routes: Map<string, RouteHandler> = new Map();
@@ -27,7 +28,7 @@ export class RoutingPipe extends BasePipe implements IPipe {
     this.routes.set(path, handler);
   }
 
-  async execute(context: DialogContext): Promise<PipeResult> {
+  async execute(context: DialogueContext): Promise<PipeResult> {
     try {
       const routePath = this.determineRoute(context);
       const handler = this.routes.get(routePath);
@@ -42,34 +43,26 @@ export class RoutingPipe extends BasePipe implements IPipe {
       const result = await handler(context);
 
       return this.createSuccessResult(
+        {
+          ...context,
+          routePath,
+          routeResult: result,
+        },
         context,
-        `Routed to ${routePath} successfully`,
       );
     } catch (error) {
       return this.createErrorResult(
-        `Routing error: ${(error as Error).message}`,
+        error instanceof Error ? error.message : String(error),
         context,
       );
     }
   }
 
-  private determineRoute(context: DialogContext): string {
-    const message = context.message.toLowerCase();
-
-    // Route based on keywords
-    if (message.includes('help') || message.includes('assist')) {
-      return '/help';
+  private determineRoute(context: DialogueContext): string {
+    // Simple routing logic - can be extended
+    if (context.intent) {
+      return context.intent;
     }
-    if (message.includes('order') || message.includes('purchase')) {
-      return '/order';
-    }
-    if (message.includes('support') || message.includes('issue')) {
-      return '/support';
-    }
-    if (message.includes('info') || message.includes('information')) {
-      return '/info';
-    }
-
-    return '/default';
+    return 'default';
   }
 }
