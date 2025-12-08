@@ -13,11 +13,15 @@ export class DialogueController {
 
   @Post('send')
   @HttpCode(HttpStatus.OK)
-  async sendMessage(@Body() dto: { conversationId: string; message: string }) {
-    return this.dialogueService.processMessage(
-      dto.conversationId,
-      dto.message,
-    );
+  async sendMessage(
+    @Body() dto: { conversationId: string; message: string; userId: string; sessionId: string },
+  ) {
+    return this.dialogueService.processDialogue({
+      conversationId: dto.conversationId,
+      message: dto.message,
+      userId: dto.userId,
+      sessionId: dto.sessionId,
+    });
   }
 
   @Get('conversation/:id')
@@ -27,8 +31,10 @@ export class DialogueController {
 
   @Post('conversation')
   @HttpCode(HttpStatus.CREATED)
-  async createConversation() {
-    return this.conversationManager.createConversation();
+  async createConversation(
+    @Body() dto: { sessionId: string; userId: string },
+  ) {
+    return this.conversationManager.createConversation(dto.sessionId, dto.userId);
   }
 
   @Get('history/:conversationId')
