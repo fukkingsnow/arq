@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PipePipelineFactory } from '../pipes/pipeline/pipe-pipeline.factory';
-import { DialogueContext } from '../common/interfaces/dialogue.interface';
+import { DialogContext } from '../common/interfaces/dialogue.interface';
 import { PipeResult } from '../pipes/interfaces/pipe.interface';
 import { SessionService } from './session.service';
 import { UserService } from './user.service';
@@ -22,7 +22,7 @@ export class DialogueService {
   /**
    * Process a dialogue message through the configured pipeline
    */
-  async processDialogue(context: DialogueContext): Promise<PipeResult> {
+  async processDialogue(context: DialogContext): Promise<PipeResult> {
     // Enrich context with session and user data
     const enrichedContext = await this.enrichContext(context);
 
@@ -41,7 +41,7 @@ export class DialogueService {
    * Process dialogue with a specific pipeline
    */
   async processWithPipeline(
-    context: DialogueContext,
+    context: DialogContext,
     pipelineName: string,
   ): Promise<PipeResult> {
     const enrichedContext = await this.enrichContext(context);
@@ -59,8 +59,8 @@ export class DialogueService {
    * Enrich dialogue context with session and user data
    */
   private async enrichContext(
-    context: DialogueContext,
-  ): Promise<DialogueContext> {
+    context: DialogContext,
+  ): Promise<DialogContext> {
     const enriched = { ...context };
 
     // Add session data if available
