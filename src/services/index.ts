@@ -15,6 +15,11 @@ export { BaseService, type IPaginationMeta, type IPaginatedResponse } from './ba
 export { CacheService, type ICacheEntry, type ICacheStats } from './cache.service';
 export { EmailService, type IEmailConfig, type IEmailContent, type IEmailResult } from './email.service';
 
+// Phase 33: Dialogue Services
+export { DialogueService } from './dialogue.service';
+export { ConversationManager } from './conversation.manager';
+export { DialogueHistoryService } from './dialogue-history.service';
+
 /**
  * Service providers array for NestJS module registration.
  * Includes all domain services for dependency injection.
@@ -28,6 +33,9 @@ export { EmailService, type IEmailConfig, type IEmailContent, type IEmailResult 
   SessionService,
   UserService,
   BaseService,
+    DialogueService,
+  ConversationManager,
+  DialogueHistoryService,
 ];
 */
 
