@@ -443,3 +443,29 @@ src/
 **Commits:**
 - 5512c9fa: refactor: Move remaining documentation files to /docs/guides/
 - aab00e57: chore: Remove legacy .md files from root
+
+
+Phase 31 - Dialogue Processing Pipes Architecture (December 8, 2025)
+----------------------------------------------------------------------
+
+### Status: IN PROGRESS (Barrel Export Complete)
+
+**Objective:** Establish pipes-based architecture for dialogue processing
+
+**Accomplishments:**
+
+1. Barrel Export Created - `/src/pipes/index.ts`
+   - Defined pipe categories: validation, transform, context, routing, intent parsing
+   - Centralized exports for all custom pipes
+   - Pipeline factory for composing pipes
+
+2. Pipe Architecture Defined:
+   - PipeInterface - Base interface for all pipes
+   - ValidationPipe - Input validation and schema checking  
+   - TransformPipe - Data transformation and normalization
+   - ContextEnrichmentPipe - Enrich with memory and session
+   - RoutingPipe - Determine action handlers
+   - IntentParsingPipe - Extract intent from dialogue
+   - PipePipelineFactory - Compose pipes into chains
+
+**Status:** 70% - Foundation Ready, Implementation Phase
