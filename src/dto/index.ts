@@ -9,6 +9,15 @@ export {
   UpdatePermissionsDto,
 } from './auth.dto';
 
+// User DTOs
+export * from './user.dto';
+export {
+  GetUserResponseDto,
+  UpdateUserDto,
+  DeleteUserDto,
+  UserListResponseDto,
+} from './user.dto';
+
 // Browser DTOs
 export * from './browser.dto';
 export {
