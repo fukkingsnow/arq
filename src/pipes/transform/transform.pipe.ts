@@ -1,26 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { BasePipe } from '../base/base.pipe';
-import { IPipe } from '../interfaces/pipe.interface';
-import { DialogContext } from '../../common/interfaces/dialogue.interface';
-import { PipeResult } from '../interfaces/pipe.interface';
+import { BasePipe } from '../../base.pipe';
+import { IPipe } from '../../interfaces/pipe.interface';
+import { DialogueContext } from '../../../common/interfaces/dialogue.interface';
+import { PipeResult } from '../../interfaces/pipe.interface';
 
 export interface TransformConfig {
   transformations: Map<string, (value: any) => any>;
 }
 
 @Injectable()
-fix(transform.pipe): 3 errors - transformer null check, parameter order, Error to string  private readonly transformationMap: Map<string, (value: any) => any> = new Map();
+fix(transform.pipe): 3 errors - transformer null check, parameter order, Error to string
+export class TransformPipe extends BasePipe implements IPipe {
+  private readonly transformationMap: Map<string, (value: any) => any> = new Map();
 
   constructor() {
     super('TransformPipe', {
       description: 'Transforms dialogue context data',
       version: '1.0.0',
       priority: 70,
-      enabled: true,- Added null-check for transformer before calling it
-- Fixed createSuccessResult parameter order: data first, context second
-- Changed DialogContext to DialogueContext for correct interface
-- Changed Error object to string for createErrorResult
-- Added explicit type annotation for transformedContext
+      enabled: true,
     });
     this.initializeTransformations();
   }
@@ -42,26 +40,31 @@ fix(transform.pipe): 3 errors - transformer null check, parameter order, Error t
     });
   }
 
-  async execute(context: DialogContext): Promise<PipeResult> {
+  async execute(context: DialogueContext): Promise<PipeResult> {
     try {
       const transformedContext = { ...context };
-      
+
       if (context.metadata?.transformations) {
         for (const [key, transformName] of Object.entries(context.metadata.transformations)) {
           if (transformName && this.transformationMap.has(transformName as string)) {
             const transformer = this.transformationMap.get(transformName as string);
-            transformedContext[key] = transformer(context[key]);
+            if (transformer) {
+              transformedContext[key] = transformer(context[key]);
+            }
           }
         }
       }
 
-      return this.createSuccessResult(transformedContext, {
-        transformed: true,
-        transformationCount: Object.keys(context.metadata?.transformations || {}).length,
-      });
+      return this.createSuccessResult(
+        {
+          ...transformedContext,
+          transformationCount: Object.keys(context.metadata?.transformations || {}).length,
+        },
+        context,
+      );
     } catch (error) {
       return this.createErrorResult(
-        new Error(`Transform error: ${(error as Error).message}`),
+        error instanceof Error ? error.message : String(error),
         context,
       );
     }
