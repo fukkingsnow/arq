@@ -26,7 +26,12 @@ export interface IPipe {
   /**
    * Unique identifier for the pipe
    */
-  name: string;
+  readonly name: string;
+
+  readonly metadata?: {
+    name: string;
+    priority?: number;
+  };
 
   /**
    * Execute the pipe logic
