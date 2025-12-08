@@ -38,8 +38,7 @@ export class UserController {
    */
   @Get(':id')
   async getUser(
-    @Param('id', new ParseUUIDPipe())
-    userId: string,
+    @Param('id', new ParseUUIDPipe()) userId: string,
   ): Promise<GetUserResponseDto> {
     const user = await this.userService.getUserById(userId);
     if (!user) {
@@ -61,41 +60,40 @@ export class UserController {
   @Put(':id')
   @HttpCode(HttpStatus.OK)
   async updateUser(
-    @Param('id', new ParseUUIDPipe())
-    userId: string,
+    @Param('id', new ParseUUIDPipe()) userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<GetUserResponseDto> {
     if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
       throw new BadRequestException('Update data cannot be empty');
     }
+
     const user = await this.userService.updateUser(userId, updateUserDto);
     if (!user) {
       throw new BadRequestException('User not found');
     }
+
     return user;
   }
 
   /**
    * DELETE /users/:id - Delete user account
-   * Permanently deletes user account and associated data
-   * Requires password confirmation for security
+   * Removes user account (requires password confirmation)
    *
    * @param userId User unique identifier (UUID)
-   * @param deleteUserDto Deletion confirmation with password
-   * @returns Success message
+   * @param deleteUserDto Delete request data (password confirmation)
+   * @returns HTTP 204 No Content
    * @throws NotFoundException If user not found
-   * @throws BadRequestException If password incorrect
+   * @throws BadRequestException If password confirmation fails
    */
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUser(
-    @Param('id', new ParseUUIDPipe())
-    userId: string,
+    @Param('id', new ParseUUIDPipe()) userId: string,
     @Body() deleteUserDto: DeleteUserDto,
   ): Promise<void> {
-    if (!deleteUserDto.password) {
-      throw new BadRequestException('Password confirmation required');
+    const result = await this.userService.deleteUser(userId);
+    if (!result) {
+      throw new BadRequestException('User not found or cannot be deleted');
     }
-    await this.userService.deleteUser(userId, deleteUserDto.password);
   }
 }
