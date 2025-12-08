@@ -9,15 +9,16 @@ export class IntentParsingPipe extends BasePipe {
   private readonly intentPatterns: Record<string, RegExp> = {
     navigate: /navigate|go to|open|visit|load|open url|go|visit|browse/i,
     click: /click|press|hit|tap|select|choose/i,
-    search: /search|find|look for|query|what is|tell me about/i,
-    scroll: /scroll|scroll down|scroll up|page down|page up/i,
+fix(intent-parsing.pipe): null to undefined type fix    scroll: /scroll|scroll down|scroll up|page down|page up/i,
     type: /type|enter|write|input|fill in|type in/i,
     wait: /wait|pause|hold on|wait for/i,
     close: /close|exit|quit|back|return/i,
   };
 
   constructor() {
-    super('IntentParsingPipe', {
+    super('IntentParsingPipe', {- Changed parseIntent return type from 'string | null' to 'string | undefined'
+- Changed return statement from 'null' to 'undefined'
+- Fixed context spread to use 'intent || undefined' to match type requirements
       description: 'Extracts intent/action type from dialogue message',
       version: '1.0.0',
       priority: 90,
