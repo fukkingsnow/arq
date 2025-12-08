@@ -1,5 +1,5 @@
 import { BasePipe } from '../base/base.pipe';
-import { DialogContext, IPipe, PipeResult } from '../interfaces';
+import { DialogueContext, IPipe, PipeResult } from '../interfaces';
 
 /**
  * IntentParsingPipe - Extracts intent/action type from dialogue message
@@ -24,10 +24,9 @@ export class IntentParsingPipe extends BasePipe {
     });
   }
 
-  async execute(context: DialogContext): Promise<PipeResult> {
+  async execute(context: DialogueContext): Promise<PipeResult> {
     try {
       const intent = this.parseIntent(context.message);
-
       return this.createSuccessResult(
         {
           intent,
