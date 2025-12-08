@@ -1,5 +1,4 @@
-dialogue-exception.filter.tsimport { Catch, ExceptionFilter, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { Response } from 'express';
+import { Catch, ExceptionFilter, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
 
 export class DialogueException extends HttpException {
   constructor(
@@ -17,7 +16,7 @@ export class DialogueExceptionFilter implements ExceptionFilter {
 
   catch(exception: DialogueException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    const response = ctx.getResponse();
     const status = exception.getStatus();
 
     this.logger.error(
