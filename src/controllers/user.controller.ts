@@ -1,46 +1,93 @@
-import { Controller, Get, Put, Delete, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  Param,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  ParseUUIDPipe,
+  BadRequestException,
+} from '@nestjs/common';
 import { UserService } from '../services';
-
-interface UpdateUserDto {
-  email?: string;
-  profile?: any;
-}
+import {
+  GetUserResponseDto,
+  UpdateUserDto,
+  DeleteUserDto,
+} from '../dto';
 
 /**
- * UserController - Manages user endpoints
- * Handles user profile operations
+ * UserController - Manages user profile and account endpoints
+ * Handles user profile operations, account management
+ * 
+ * @controller users
  */
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   /**
-   * GET /users/:id - Get user by ID
-   * @param userId User ID
-   * @returns User data
+   * GET /users/:id - Get user profile by ID
+   * Retrieves user account information (without sensitive data)
+   * 
+   * @param userId User unique identifier (UUID)
+   * @returns GetUserResponseDto User profile data
+   * @throws NotFoundException If user not found
    */
   @Get(':id')
-  async getUser(@Param('id') userId: string) {
+  async getUser(
+    @Param('id', new ParseUUIDPipe())
+    userId: string,
+  ): Promise<GetUserResponseDto> {
     return await this.userService.getUserById(userId);
   }
 
   /**
    * PUT /users/:id - Update user profile
-   * @param userId User ID
-   * @param dto Update data
-   * @returns Updated user
+   * Allows user to update their profile information (name, etc.)
+   * 
+   * @param userId User unique identifier (UUID)
+   * @param updateUserDto Update data (firstName, lastName, fullName)
+   * @returns GetUserResponseDto Updated user profile
+   * @throws NotFoundException If user not found
+   * @throws BadRequestException If invalid update data
    */
   @Put(':id')
-  async updateUser(@Param('id') userId: string, @Body() dto: UpdateUserDto) {
-    return await this.userService.updateUser(userId, dto);
+  @HttpCode(HttpStatus.OK)
+  async updateUser(
+    @Param('id', new ParseUUIDPipe())
+    userId: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<GetUserResponseDto> {
+    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
+      throw new BadRequestException('Update data cannot be empty');
+    }
+    return await this.userService.updateUser(userId, updateUserDto);
   }
 
   /**
    * DELETE /users/:id - Delete user account
-   * @param userId User ID
+   * Permanently deletes user account and associated data
+   * Requires password confirmation for security
+   * 
+   * @param userId User unique identifier (UUID)
+   * @param deleteUserDto Deletion confirmation with password
+   * @returns Success message
+   * @throws NotFoundException If user not found
+   * @throws BadRequestException If password incorrect
    */
   @Delete(':id')
-  async deleteUser(@Param('id') userId: string) {
-    return await this.userService.deleteUser(userId);
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(
+    @Param('id', new ParseUUIDPipe())
+    userId: string,
+    @Body() deleteUserDto: DeleteUserDto,
+  ): Promise<void> {
+    if (!deleteUserDto.password) {
+      throw new BadRequestException('Password confirmation required');
+    }
+    await this.userService.deleteUser(userId, deleteUserDto.password);
   }
 }
