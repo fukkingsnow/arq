@@ -1,15 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { BasePipe } from '../base/base.pipe';
-import { IPipe, PipeResult } from '../interfaces';
-import { DialogueContext } from '../../common/interfaces/dialogue.interface';
+import { DialogContext, IPipe, PipeResult } from '../interfaces';
 
 @Injectable()
 export class RoutingPipe extends BasePipe implements IPipe {
-  async execute(context: DialogueContext): Promise<PipeResult> {
+  constructor() {
+    super('RoutingPipe', {
+      description: 'Routing pipe for determining request path',
+      version: '1.0.0',
+      priority: 60,
+      enabled: true,
+    });
+  }
+
+  async execute(context: DialogContext): Promise<PipeResult> {
     try {
-      return this.createSuccessResult({ ...context, routed: true }, context);
+      return this.createSuccessResult(
+        { ...context, routed: true },
+        context,
+      );
     } catch (error) {
-      return this.createErrorResult(error instanceof Error ? error.message : String(error), context);
+      return this.createErrorResult(
+        error instanceof Error ? error.message : String(error),
+        context,
+      );
     }
   }
 }
