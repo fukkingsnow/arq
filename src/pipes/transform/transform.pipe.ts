@@ -9,15 +9,18 @@ export interface TransformConfig {
 }
 
 @Injectable()
-export class TransformPipe extends BasePipe implements IPipe {
-  private readonly transformationMap: Map<string, (value: any) => any> = new Map();
+fix(transform.pipe): 3 errors - transformer null check, parameter order, Error to string  private readonly transformationMap: Map<string, (value: any) => any> = new Map();
 
   constructor() {
     super('TransformPipe', {
       description: 'Transforms dialogue context data',
       version: '1.0.0',
       priority: 70,
-      enabled: true,
+      enabled: true,- Added null-check for transformer before calling it
+- Fixed createSuccessResult parameter order: data first, context second
+- Changed DialogContext to DialogueContext for correct interface
+- Changed Error object to string for createErrorResult
+- Added explicit type annotation for transformedContext
     });
     this.initializeTransformations();
   }
