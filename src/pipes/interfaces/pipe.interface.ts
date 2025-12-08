@@ -10,9 +10,13 @@ export interface DialogueContext {
   userId: string;
   sessionId: string;
   intent?: string;
+  intentId?: string;
   entities?: Record<string, any>;
   memory?: Record<string, any>;
   metadata?: Record<string, any>;
+  enriched?: boolean;
+  routed?: boolean;
+  transformed?: boolean;
 }
 
 export interface PipeResult<T = any> {
@@ -20,6 +24,11 @@ export interface PipeResult<T = any> {
   data?: T;
   error?: string;
   context?: DialogueContext;
+  metadata?: {
+    name?: string;
+    duration?: number;
+    executedPipes?: any[];
+  };
 }
 
 export interface IPipe {
