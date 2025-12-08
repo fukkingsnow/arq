@@ -1,5 +1,5 @@
-import { BasePipe } from '../../base.pipe';
-import { DialogueContext, PipeResult } from '../../interfaces';
+import { BasePipe } from '../base/base.pipe';
+import { DialogueContext, IPipe, PipeResult } from '../interfaces';
 
 /**
  * IntentParsingPipe - Extracts intent/action type from dialogue message
