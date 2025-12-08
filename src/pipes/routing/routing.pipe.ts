@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { BasePipe } from '../../base.pipe';
-import { IPipe } from '../../interfaces/pipe.interface';
-import { DialogueContext } from '../../../common/interfaces/dialogue.interface';
-import { PipeResult } from '../../interfaces/pipe.interface';
+import { BasePipe } from '../base/base.pipe';
+import { IPipe, PipeResult } from '../interfaces';
+import { DialogueContext } from '../../common/interfaces/dialogue.interface';
 
 export type RouteHandler = (context: DialogueContext) => Promise<any>;
 
