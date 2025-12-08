@@ -1,15 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { BasePipe } from '../base/base.pipe';
-import { IPipe, PipeResult } from '../interfaces';
-import { DialogueContext } from '../../common/interfaces/dialogue.interface';
+import { DialogContext, IPipe, PipeResult } from '../interfaces';
 
 @Injectable()
 export class TransformPipe extends BasePipe implements IPipe {
-  async execute(context: DialogueContext): Promise<PipeResult> {
+  constructor() {
+    super('TransformPipe', {
+      description: 'Transform pipe for processing data',
+      version: '1.0.0',
+      priority: 50,
+      enabled: true,
+    });
+  }
+
+  async execute(context: DialogContext): Promise<PipeResult> {
     try {
-      return this.createSuccessResult({ ...context, transformed: true }, context);
+      return this.createSuccessResult(
+        { ...context, transformed: true },
+        context,
+      );
     } catch (error) {
-      return this.createErrorResult(error instanceof Error ? error.message : String(error), context);
+      return this.createErrorResult(
+        error instanceof Error ? error.message : String(error),
+        context,
+      );
     }
   }
 }
