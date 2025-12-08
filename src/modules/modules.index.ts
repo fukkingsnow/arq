@@ -8,6 +8,7 @@
 export { TypeOrmDatabaseModule } from '../database/typeorm.module';
 export { ConfigModuleWrapper } from '../config/config.module';
 export { AuthModule } from '../auth/auth.module';
+export { DialogueModule } from './dialogue.module';
 
 // Application Modules
 export { AppModule } from '../app.module';
