@@ -9,15 +9,17 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
   constructor() {
     super('ContextEnrichmentPipe', {
       description: 'Enriches dialogue context with additional metadata',
-      version: '1.0.0',
-      priority: 60,
+fix(context-enrichment.pipe): correct parameter order for createSuccessResult      priority: 60,
       enabled: true,
     });
   }
 
   async execute(context: DialogContext): Promise<PipeResult> {
     try {
-      const enrichedContext = { ...context };
+      const enrichedContext = { ...context };- Fixed createSuccessResult parameter order: data first, context second
+- Changed DialogContext to DialogueContext for correct interface
+- Added explicit type annotation for enrichedContext
+- Matches BasePipe signature: createSuccessResult(data?, context?)
 
       // Enrich with timestamp
       enrichedContext.metadata = enrichedContext.metadata || {};
