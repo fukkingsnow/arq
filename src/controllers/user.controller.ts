@@ -21,8 +21,6 @@ import {
 /**
  * UserController - Manages user profile and account endpoints
  * Handles user profile operations, account management
- *
- * @controller users
  */
 @Controller('users')
 export class UserController {
@@ -49,51 +47,42 @@ export class UserController {
 
   /**
    * PUT /users/:id - Update user profile
-   * Allows user to update their profile information (name, etc.)
+   * Allows users to update their profile information
    *
-   * @param userId User unique identifier (UUID)
-   * @param updateUserDto Update data (firstName, lastName, fullName)
-   * @returns GetUserResponseDto Updated user profile
-   * @throws NotFoundException If user not found
-   * @throws BadRequestException If invalid update data
+   * @param userId User ID
+   * @param updateUserDto Updated user data
+   * @returns Updated user profile
    */
   @Put(':id')
-  @HttpCode(HttpStatus.OK)
   async updateUser(
     @Param('id', new ParseUUIDPipe()) userId: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<GetUserResponseDto> {
-    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
-      throw new BadRequestException('Update data cannot be empty');
-    }
-
     const user = await this.userService.updateUser(userId, updateUserDto);
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('User update failed');
     }
-
     return user;
   }
 
   /**
    * DELETE /users/:id - Delete user account
-   * Removes user account (requires password confirmation)
+   * Removes user account with password verification
    *
-   * @param userId User unique identifier (UUID)
-   * @param deleteUserDto Delete request data (password confirmation)
-   * @returns HTTP 204 No Content
-   * @throws NotFoundException If user not found
-   * @throws BadRequestException If password confirmation fails
+   * @param userId User ID
+   * @param deleteUserDto Password verification
+   * @returns Success message
    */
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   async deleteUser(
     @Param('id', new ParseUUIDPipe()) userId: string,
     @Body() deleteUserDto: DeleteUserDto,
-  ): Promise<void> {
+  ): Promise<{ success: boolean; message: string }> {
     const result = await this.userService.deleteUser(userId);
-    if (!result) {
-      throw new BadRequestException('User not found or cannot be deleted');
-    }
+    return {
+      success: result,
+      message: result ? 'User account deleted successfully' : 'Failed to delete user account',
+    };
   }
 }
