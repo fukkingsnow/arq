@@ -9,8 +9,7 @@ export type RouteHandler = (context: DialogContext) => Promise<any>;
 export interface RoutingConfig {
   routes: Map<string, RouteHandler>;
   defaultRoute?: RouteHandler;
-}
-
+fix(routing.pipe): correct parameter order for createSuccessResult
 @Injectable()
 export class RoutingPipe extends BasePipe implements IPipe {
   private routes: Map<string, RouteHandler> = new Map();
