@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+DialogueContext
+  DialogContextimport { Injectable } from '@nestjs/common';
 import { BasePipe } from '../base/base.pipe';
 import { IPipe, PipeResult } from '../interfaces';
 import { DialogueContext } from '../../common/interfaces/dialogue.interface';
