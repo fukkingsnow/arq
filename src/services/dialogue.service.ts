@@ -97,12 +97,4 @@ export class DialogueService {
       },
     };
 
-  async processMessage(context: DialogueContext): Promise<PipeResult> {
-    return {
-      success: true,
-      data: context,
-      metadata: { name: 'processMessage', priority: 1 },
-    };
-  }
-  }
 }
