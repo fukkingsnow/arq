@@ -1,4 +1,4 @@
-import { QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
+import { Table, TableIndex, TableForeignKey } from 'typeorm';
 
 /**
  * Phase 21 - Initial Database Schema Migration
@@ -11,7 +11,7 @@ import { QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
  */
 
 export class CreateInitialSchema1702000001 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
+  public async up(queryRunner: any): Promise<void> {
     // USERS TABLE
     await queryRunner.createTable(
       new Table({
@@ -27,33 +27,33 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'email',
             type: 'varchar',
-            length: '255',
+            length: 255,
             isUnique: true,
             isNullable: false,
           },
           {
             name: 'username',
             type: 'varchar',
-            length: '100',
+            length: 100,
             isUnique: true,
             isNullable: false,
           },
           {
             name: 'password_hash',
             type: 'varchar',
-            length: '255',
+            length: 255,
             isNullable: false,
           },
           {
             name: 'first_name',
             type: 'varchar',
-            length: '100',
+            length: 100,
             isNullable: true,
           },
           {
             name: 'last_name',
             type: 'varchar',
-            length: '100',
+            length: 100,
             isNullable: true,
           },
           {
@@ -85,7 +85,7 @@ export class CreateInitialSchema1702000001 {
           },
         ],
       }),
-      true,
+      true
     );
 
     // INDEX on email and username for fast auth
@@ -93,14 +93,13 @@ export class CreateInitialSchema1702000001 {
       'users',
       new TableIndex({
         columnNames: ['email'],
-      }),
+      })
     );
-
     await queryRunner.createIndex(
       'users',
       new TableIndex({
         columnNames: ['username'],
-      }),
+      })
     );
 
     // CONVERSATIONS TABLE
@@ -123,7 +122,7 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'title',
             type: 'varchar',
-            length: '255',
+            length: 255,
             isNullable: true,
           },
           {
@@ -150,7 +149,7 @@ export class CreateInitialSchema1702000001 {
           },
         ],
       }),
-      true,
+      true
     );
 
     await queryRunner.createForeignKey(
@@ -160,14 +159,14 @@ export class CreateInitialSchema1702000001 {
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'CASCADE',
-      }),
+      })
     );
 
     await queryRunner.createIndex(
       'conversations',
       new TableIndex({
         columnNames: ['user_id', 'created_at'],
-      }),
+      })
     );
 
     // MESSAGES TABLE
@@ -215,7 +214,7 @@ export class CreateInitialSchema1702000001 {
           },
         ],
       }),
-      true,
+      true
     );
 
     await queryRunner.createForeignKey(
@@ -225,14 +224,14 @@ export class CreateInitialSchema1702000001 {
         referencedColumnNames: ['id'],
         referencedTableName: 'conversations',
         onDelete: 'CASCADE',
-      }),
+      })
     );
 
     await queryRunner.createIndex(
       'messages',
       new TableIndex({
         columnNames: ['conversation_id', 'created_at'],
-      }),
+      })
     );
 
     // MEMORY_CONTEXTS TABLE - Long-term memory
@@ -255,7 +254,7 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'key',
             type: 'varchar',
-            length: '255',
+            length: 255,
             isNullable: false,
           },
           {
@@ -291,7 +290,7 @@ export class CreateInitialSchema1702000001 {
           },
         ],
       }),
-      true,
+      true
     );
 
     await queryRunner.createForeignKey(
@@ -301,7 +300,7 @@ export class CreateInitialSchema1702000001 {
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'CASCADE',
-      }),
+      })
     );
 
     await queryRunner.createIndex(
@@ -309,7 +308,7 @@ export class CreateInitialSchema1702000001 {
       new TableIndex({
         columnNames: ['user_id', 'key'],
         isUnique: true,
-      }),
+      })
     );
 
     // AUDIT_LOGS TABLE - Security & Compliance
@@ -332,19 +331,19 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'action',
             type: 'varchar',
-            length: '255',
+            length: 255,
             isNullable: false,
           },
           {
             name: 'resource_type',
             type: 'varchar',
-            length: '100',
+            length: 100,
             isNullable: false,
           },
           {
             name: 'resource_id',
             type: 'varchar',
-            length: '255',
+            length: 255,
             isNullable: true,
           },
           {
@@ -375,33 +374,33 @@ export class CreateInitialSchema1702000001 {
           },
         ],
       }),
-      true,
+      true
     );
 
     await queryRunner.createIndex(
       'audit_logs',
       new TableIndex({
         columnNames: ['actor_id', 'created_at'],
-      }),
+      })
     );
 
     await queryRunner.createIndex(
       'audit_logs',
       new TableIndex({
         columnNames: ['resource_type', 'resource_id'],
-      }),
+      })
     );
 
     await queryRunner.createIndex(
       'audit_logs',
       new TableIndex({
         columnNames: ['created_at'],
-      }),
+      })
     );
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Drop tables in reverse order (respect FK constraints)
+  public async down(queryRunner: any): Promise<void> {
+    // Drop tables in reverse order to respect FK constraints
     await queryRunner.dropTable('audit_logs');
     await queryRunner.dropTable('memory_contexts');
     await queryRunner.dropTable('messages');
