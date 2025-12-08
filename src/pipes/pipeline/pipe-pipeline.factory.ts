@@ -6,7 +6,7 @@ import { TransformPipe } from '../transform/transform.pipe';
 import { ContextEnrichmentPipe } from '../context/context-enrichment.pipe';
 import { RoutingPipe } from '../routing/routing.pipe';
 import { IntentParsingPipe } from '../intent/intent-parsing.pipe';
-import { DialogContext } from '../../common/interfaces/dialogue.interface';
+import { DialogueContext } from '../../common/interfaces/dialogue.interface';
 import { PipeResult } from '../interfaces/pipe.interface';
 
 export interface PipelineConfig {
@@ -53,23 +53,22 @@ export class PipePipelineFactory {
   }
 
   async executePipeline(
-    context: DialogContext,
+    context: DialogueContext,
     pipelineName?: string,
     config?: Partial<PipelineConfig>,
   ): Promise<PipeResult> {
     const pipeline = this.getPipeline(pipelineName);
     const stopOnError = config?.stopOnError ?? true;
     const logExecution = config?.logExecution ?? false;
-
     let currentContext = { ...context };
     const results: PipeResult[] = [];
 
     for (const pipe of pipeline) {
       if (logExecution) {
-        console.log(`Executing pipe: ${pipe.metadata.name}`);
+        console.log(`Executing pipe: ${pipe.metadata?.name || 'Unknown'}`);
       }
 
-      const result = await pipe.execute(currentContext);
+      const result = await pipe.execute({ ...currentContext, message: context.message, userId: context.userId, sessionId: context.sessionId });
       results.push(result);
 
       if (!result.success && stopOnError) {
@@ -86,14 +85,14 @@ export class PipePipelineFactory {
       data: currentContext,
       metadata: {
         pipelineExecuted: pipelineName || 'default',
-        pipeCount: pipeline.length,
         executedPipes: results.map(r => r.metadata),
+        errorHandled: false,
       },
     };
   }
 
   async executeSpecificPipes(
-    context: DialogContext,
+    context: DialogueContext,
     pipeNames: string[],
   ): Promise<PipeResult> {
     const allPipes = [
@@ -105,13 +104,13 @@ export class PipePipelineFactory {
     ];
 
     const selectedPipes = allPipes.filter(pipe =>
-      pipeNames.includes(pipe.metadata.name),
+      pipeNames.includes(pipe.metadata?.name || ''),
     );
 
     if (selectedPipes.length === 0) {
       return {
         success: false,
-        error: new Error('No valid pipes found for execution'),
+        error: 'No valid pipes found for execution',
         data: context,
       };
     }
@@ -122,6 +121,6 @@ export class PipePipelineFactory {
   }
 
   createCustomPipeline(pipes: IPipe[]): IPipe[] {
-    return pipes.sort((a, b) => (b.metadata.priority || 0) - (a.metadata.priority || 0));
+    return pipes.sort((a, b) => ((b.metadata?.priority) || 0) - ((a.metadata?.priority) || 0));
   }
 }
