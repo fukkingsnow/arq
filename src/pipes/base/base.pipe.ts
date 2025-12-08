@@ -5,8 +5,8 @@ import { DialogueContext, IPipe, PipeMetadata, PipeResult } from '../interfaces'
  * Provides common functionality for dialogue processing pipes
  */
 export abstract class BasePipe implements IPipe {
-  protected name: string;
-  protected metadata: PipeMetadata;
+  public name: string;
+  public metadata: PipeMetadata;
 
   constructor(name: string, metadata: Omit<PipeMetadata, 'name'>) {
     this.name = name;
