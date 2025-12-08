@@ -1,21 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { BasePipe } from '../base/base.pipe';
 import { IPipe, PipeResult } from '../interfaces';
-import { DialogueContext } from '../../common/interfaces/dialogue.interface';
+import { DialogContext } from '../../common/interfaces/dialogue.interface';
 
 @Injectable()
 export class ContextEnrichmentPipe extends BasePipe implements IPipe {
   constructor() {
     super('ContextEnrichmentPipe', {
       description: 'Enriches dialogue context with additional metadata',
-      fix: (context: DialogueContext): void => {
-        context.enrichment = { ...context };
-      },
       enabled: true,
     });
   }
 
-  async execute(context: DialogueContext): Promise<PipeResult> {
+  async execute(context: DialogContext): Promise<PipeResult> {
     try {
       const enrichedContext = { ...context };
 
@@ -59,7 +56,7 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
     return 'neutral';
   }
 
-  private calculatePriorityScore(context: DialogueContext): number {
+  private calculatePriorityScore(context: DialogContext): number {
     const message = context.message.toLowerCase();
     let score = 50;
     if (context.sessionId) {
