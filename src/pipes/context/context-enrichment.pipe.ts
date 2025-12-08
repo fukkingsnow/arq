@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { BasePipe } from '../base/base.pipe';
-import { IPipe, PipeResult } from '../interfaces';
-import { DialogContext } from '../../common/interfaces/dialogue.interface';
+import { DialogContext, IPipe, PipeResult } from '../interfaces';
 
 @Injectable()
 export class ContextEnrichmentPipe extends BasePipe implements IPipe {
   constructor() {
     super('ContextEnrichmentPipe', {
       description: 'Enriches dialogue context with additional metadata',
+      version: '1.0.0',
+      priority: 10,
       enabled: true,
     });
   }
@@ -15,7 +16,6 @@ export class ContextEnrichmentPipe extends BasePipe implements IPipe {
   async execute(context: DialogContext): Promise<PipeResult> {
     try {
       const enrichedContext = { ...context };
-
       enrichedContext.metadata = enrichedContext.metadata || {};
       enrichedContext.metadata.enrichedAt = new Date().toISOString();
       enrichedContext.metadata.conversationDepth = (context.conversationHistory?.length || 0) + 1;
