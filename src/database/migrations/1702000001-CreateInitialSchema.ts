@@ -1,5 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
-
+import { QueryRunner, Table, TableIndex, TableForeignKey } from 'typeorm';
 /**
  * Phase 21 Initial Database Schema Migration
  * Creates core tables for AI Assistant Backend:
@@ -9,8 +8,7 @@ import { MigrationInterface, QueryRunner, Table, TableIndex, TableForeignKey } f
  * - memory_contexts: Long-term memory storage
  * - audit_logs: Security and compliance logging
  */
-export class CreateInitialSchema1702000001 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
+export class CreateInitialSchema1702000001 {  public async up(queryRunner: QueryRunner): Promise<void> {
     // USERS TABLE
     await queryRunner.createTable(
       new Table({
