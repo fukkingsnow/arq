@@ -81,8 +81,7 @@ export class UserController {
   ): Promise<{ success: boolean; message: string }> {
     const result = await this.userService.deleteUser(userId);
     return {
-      success: result.affected > 0,
-      message: result ? 'User account deleted successfully' : 'Failed to delete user account',
+success: (result.affected ?? 0) > 0,      message: result ? 'User account deleted successfully' : 'Failed to delete user account',
     };
   }
 }
