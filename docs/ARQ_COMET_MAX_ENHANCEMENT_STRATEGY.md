@@ -7,6 +7,41 @@
 
 ---
 
+## PHASE NUMBERING REGISTRY (Central Synchronization Point)
+
+### Global Phase Mapping
+
+```
+ARQIUM Project (ARQIUM Phases)         | ARQ Enhancement (ARQ Phases)      | Sync Status
+─────────────────────────────────────────────────────────────────────────────────────────
+Phase 3.1: Infrastructure Checklist    | ARQ Phase 9: Infra Foundation     | ✅ LINKED
+Phase 3.2: Execution Status            | ARQ Phase 10: ACM Foundation      | ✅ LINKED
+Phase 3.3: Community Launch Guide      | ARQ Phase 11: AIP System          | ✅ LINKED
+Phase 3.4: Community Governance        | ARQ Phase 12: RO Layer            | ✅ LINKED
+Phase 4.0: Post-Community Planning     | ARQ Phase 13: BAP Module          | 🔄 IN PLANNING
+────────────────────────────────────────────────────────────────────────────────────────────
+
+ARQ (Comet Max) Enhancement Phases:
+  - Phase 1-8: Previous ARQ development
+  - Phase 9: Infrastructure Foundation (Current)
+  - Phase 10: Advanced Context Management (ACM) - Foundation
+  - Phase 11: Advanced Input Processing (AIP) - NLP Layer
+  - Phase 12: Resource Optimization (RO) - Performance
+  - Phase 13: Browser Automation Pro (BAP) - Workflows
+  - Phase 14: Enterprise Security (ES) - Protection
+  - Phase 15: Integration & Production Ready
+```
+
+### Next Implementation Phase
+**ARQ Phase 10** (Advanced Context Management - Foundation)
+- Replaces old context system
+- Multi-level memory hierarchy (L1/L2/L3)
+- Embedding-based compression
+- Cross-session persistence
+- Est. duration: 2-3 weeks
+
+---
+
 ## Executive Summary
 
 Transform ARQ from a basic AI Assistant backend into **Comet Max** — a sophisticated, resource-efficient, and feature-rich intelligent browser assistant with advanced context management, real-time browser automation, and enterprise-grade security.
@@ -234,7 +269,7 @@ class SecurityManager {
 
 ## III. Implementation Roadmap
 
-### Phase 1: Foundation (Weeks 1-3)
+### Phase 10: ACM Foundation (Weeks 1-3)
 - [ ] Context Manager & embedding integration
 - [ ] Input Processor with intent routing
 - [ ] Database migrations for vectors
