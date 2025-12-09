@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth.module';
 import { BrowserModule } from './modules/browser.module';
 import { UserModule } from './modules/user.module';
 import { CommonModule } from './modules/common.module';
+import { ContextEngineModule } from './context-engine/context-engine.module';
 import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
 
 /**
@@ -38,8 +39,10 @@ import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common
     UserModule,
     // Shared Module
     CommonModule,
+    // Phase 10: Advanced Context Management
+    ContextEngineModule,
   ],
-    providers: [
+  providers: [
     {
       provide: APP_FILTER,
       useClass: ValidationExceptionFilter,
