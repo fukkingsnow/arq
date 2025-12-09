@@ -27,33 +27,33 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'email',
             type: 'varchar',
-            length: 255,
+            length: '255',
             isUnique: true,
             isNullable: false,
           },
           {
             name: 'username',
             type: 'varchar',
-            length: 100,
+            length: '100',
             isUnique: true,
             isNullable: false,
           },
           {
             name: 'password_hash',
             type: 'varchar',
-            length: 255,
+            length: '255',
             isNullable: false,
           },
           {
             name: 'first_name',
             type: 'varchar',
-            length: 100,
+            length: '100',
             isNullable: true,
           },
           {
             name: 'last_name',
             type: 'varchar',
-            length: 100,
+            length: '100',
             isNullable: true,
           },
           {
@@ -122,7 +122,7 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'title',
             type: 'varchar',
-            length: 255,
+            length: '255',
             isNullable: true,
           },
           {
@@ -254,7 +254,7 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'key',
             type: 'varchar',
-            length: 255,
+            length: '255',
             isNullable: false,
           },
           {
@@ -331,19 +331,19 @@ export class CreateInitialSchema1702000001 {
           {
             name: 'action',
             type: 'varchar',
-            length: 255,
+            length: '255',
             isNullable: false,
           },
           {
             name: 'resource_type',
             type: 'varchar',
-            length: 100,
+            length: '100',
             isNullable: false,
           },
           {
             name: 'resource_id',
             type: 'varchar',
-            length: 255,
+            length: '255',
             isNullable: true,
           },
           {
