@@ -1,4 +1,5 @@
-  "@nestjs/jwt": "10.1.0",
+  {
+"@nestjs/jwt": "10.1.0",
   "name": "arq-backend",
   "version": "1.0.0",
   "description": "ARQ - AI Assistant Backend",
