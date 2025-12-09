@@ -9,3 +9,4 @@ export { BrowserSession } from './browser-session.entity';
 export { BrowserTab } from './browser-tab.entity';
 export { RefreshToken } from './refresh-token.entity';
 export { User } from './user.entity';
+export { ContextInteraction } from './context-interaction.entity';
