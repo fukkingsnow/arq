@@ -16,7 +16,7 @@ export class DialogueController {
   async sendMessage(
     @Body() dto: { conversationId: string; message: string; userId: string; sessionId: string },
   ) {
-    return this.dialogueService.processMessage({
+    return this.dialogueService.processDialogue({
       conversationId: dto.conversationId,
       message: dto.message,
       userId: dto.userId,
