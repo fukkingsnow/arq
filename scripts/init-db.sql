@@ -9,6 +9,9 @@ CREATE TYPE user_role AS ENUM ('admin', 'user', 'moderator', 'guest');
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Create arq_dev user
+CREATE ROLE arq_dev WITH LOGIN PASSWORD 'arq_dev_password';
+
 -- Grant privileges to the ARQ user
 GRANT CREATE ON SCHEMA public TO arq_dev;
 GRANT USAGE ON SCHEMA public TO arq_dev;
