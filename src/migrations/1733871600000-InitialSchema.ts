@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner, Table } from 'typeorm';
+import { QueryRunner, Table } from 'typeorm';
 
-export class InitialSchema1733871600000 implements MigrationInterface {
-  public async up(queryRunner: QueryRunner): Promise<void> {
+export const InitialSchema1733871600000 = {
+  async up(queryRunner: QueryRunner): Promise<void> {
     // users table
     await queryRunner.createTable(
       new Table({
@@ -110,13 +110,13 @@ export class InitialSchema1733871600000 implements MigrationInterface {
       }),
       true,
     );
-  }
+  },
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
+  async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.dropTable('browser_tabs', true);
     await queryRunner.dropTable('browser_sessions', true);
     await queryRunner.dropTable('refresh_tokens', true);
     await queryRunner.dropTable('auth_tokens', true);
     await queryRunner.dropTable('users', true);
-  }
-}
+  },
+};
