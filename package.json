@@ -1,4 +1,4 @@
-package.json{
+{
   "name": "arq",
   "version": "0.1.0",
   "description": "ARQ - AI Assistant Backend with NestJS",
