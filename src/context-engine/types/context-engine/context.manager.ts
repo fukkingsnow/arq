@@ -29,13 +29,15 @@ export class ContextManager implements IContextManager {
   private readonly config: ContextEngineConfig;
   private l1Cache: Map<string, ContextInteraction[]> = new Map();
   private costMetrics: Map<string, CostMetrics> = new Map();
+    private redis!: Redis;
+    private contextRepository!: Repository<ContextInteraction>;
   
   constructor(
   ) {
     this.config = {
 l1MaxSize: 5,
-      embeddingModel: 'all-MiniLM-L6-v2',
-      embeddingDim: 384,      compressionTtlDays: 30,
+l2MaxSize: 50,
+      embeddingModel: 'all-MiniLM-L6-v2',      embeddingDim: 384,      compressionTtlDays: 30,
       enableCostTracking: true,
     };
   }
