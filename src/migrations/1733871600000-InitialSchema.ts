@@ -1,122 +1,69 @@
-import { QueryRunner, Table } from 'typeorm';
-
 export const InitialSchema1733871600000 = {
-  async up(queryRunner: QueryRunner): Promise<void> {
-    // users table
-    await queryRunner.createTable(
-      new Table({
-        name: 'users',
-        columns: [
-          { name: 'id', type: 'uuid', isPrimary: true, default: 'uuid_generate_v4()' },
-          { name: 'email', type: 'varchar', isUnique: true },
-          { name: 'password_hash', type: 'varchar' },
-          { name: 'created_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-          { name: 'updated_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-        ],
-      }),
-      true,
-    );
+  async up(queryRunner) {
+    // Create users table
+    await queryRunner.query(`
+      CREATE TABLE users (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        email VARCHAR UNIQUE NOT NULL,
+        password_hash VARCHAR NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-    // auth_tokens table
-    await queryRunner.createTable(
-      new Table({
-        name: 'auth_tokens',
-        columns: [
-          { name: 'id', type: 'uuid', isPrimary: true, default: 'uuid_generate_v4()' },
-          { name: 'user_id', type: 'uuid' },
-          { name: 'token', type: 'text', isUnique: true },
-          { name: 'expires_at', type: 'timestamp' },
-          { name: 'created_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-        ],
-        foreignKeys: [
-          {
-            columnNames: ['user_id'],
-            referencedTableName: 'users',
-            referencedColumnNames: ['id'],
-            onDelete: 'CASCADE',
-          },
-        ],
-      }),
-      true,
-    );
+    // Create auth_tokens table
+    await queryRunner.query(`
+      CREATE TABLE auth_tokens (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-    // refresh_tokens table
-    await queryRunner.createTable(
-      new Table({
-        name: 'refresh_tokens',
-        columns: [
-          { name: 'id', type: 'uuid', isPrimary: true, default: 'uuid_generate_v4()' },
-          { name: 'user_id', type: 'uuid' },
-          { name: 'token', type: 'text', isUnique: true },
-          { name: 'expires_at', type: 'timestamp' },
-          { name: 'created_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-        ],
-        foreignKeys: [
-          {
-            columnNames: ['user_id'],
-            referencedTableName: 'users',
-            referencedColumnNames: ['id'],
-            onDelete: 'CASCADE',
-          },
-        ],
-      }),
-      true,
-    );
+    // Create refresh_tokens table
+    await queryRunner.query(`
+      CREATE TABLE refresh_tokens (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        token TEXT UNIQUE NOT NULL,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-    // browser_sessions table
-    await queryRunner.createTable(
-      new Table({
-        name: 'browser_sessions',
-        columns: [
-          { name: 'id', type: 'uuid', isPrimary: true, default: 'uuid_generate_v4()' },
-          { name: 'user_id', type: 'uuid' },
-          { name: 'user_agent', type: 'varchar' },
-          { name: 'ip_address', type: 'varchar' },
-          { name: 'created_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-          { name: 'updated_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-        ],
-        foreignKeys: [
-          {
-            columnNames: ['user_id'],
-            referencedTableName: 'users',
-            referencedColumnNames: ['id'],
-            onDelete: 'CASCADE',
-          },
-        ],
-      }),
-      true,
-    );
+    // Create browser_sessions table
+    await queryRunner.query(`
+      CREATE TABLE browser_sessions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_agent VARCHAR NOT NULL,
+        ip_address VARCHAR NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
 
-    // browser_tabs table
-    await queryRunner.createTable(
-      new Table({
-        name: 'browser_tabs',
-        columns: [
-          { name: 'id', type: 'uuid', isPrimary: true, default: 'uuid_generate_v4()' },
-          { name: 'session_id', type: 'uuid' },
-          { name: 'title', type: 'varchar' },
-          { name: 'url', type: 'varchar' },
-          { name: 'created_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-          { name: 'updated_at', type: 'timestamp', default: 'CURRENT_TIMESTAMP' },
-        ],
-        foreignKeys: [
-          {
-            columnNames: ['session_id'],
-            referencedTableName: 'browser_sessions',
-            referencedColumnNames: ['id'],
-            onDelete: 'CASCADE',
-          },
-        ],
-      }),
-      true,
-    );
+    // Create browser_tabs table
+    await queryRunner.query(`
+      CREATE TABLE browser_tabs (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        session_id UUID NOT NULL REFERENCES browser_sessions(id) ON DELETE CASCADE,
+        title VARCHAR NOT NULL,
+        url VARCHAR NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
   },
 
-  async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('browser_tabs', true);
-    await queryRunner.dropTable('browser_sessions', true);
-    await queryRunner.dropTable('refresh_tokens', true);
-    await queryRunner.dropTable('auth_tokens', true);
-    await queryRunner.dropTable('users', true);
+  async down(queryRunner) {
+    // Drop tables in reverse order
+    await queryRunner.query('DROP TABLE IF EXISTS browser_tabs');
+    await queryRunner.query('DROP TABLE IF EXISTS browser_sessions');
+    await queryRunner.query('DROP TABLE IF EXISTS refresh_tokens');
+    await queryRunner.query('DROP TABLE IF EXISTS auth_tokens');
+    await queryRunner.query('DROP TABLE IF EXISTS users');
   },
 };
