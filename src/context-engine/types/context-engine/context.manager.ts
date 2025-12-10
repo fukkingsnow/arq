@@ -32,8 +32,6 @@ export class ContextManager implements IContextManager {
   
   constructor(
     private readonly redis: Redis,
-    @InjectRepository(ContextInteraction)
-    private readonly contextRepository: Repository<ContextInteraction>,
   ) {
     this.config = {
       l1MaxSize: 5,
