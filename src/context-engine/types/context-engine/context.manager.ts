@@ -33,6 +33,7 @@ export class ContextManager implements IContextManager {
   constructor(
     private readonly redis: Redis,
   ) {
+        private readonly contextRepository: Repository<any>,
     this.config = {
       l1MaxSize: 5,
       l2MaxSize: 50,
