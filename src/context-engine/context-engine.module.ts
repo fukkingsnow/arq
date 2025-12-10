@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ContextInteraction } from './types/context.types';
-import { ContextManager } from './context.manager';
-
+import { ContextManager } from './types/context-engine/context.manager';
 /**
  * Phase 10: Context Engine Module
  * Registers Advanced Context Management (ACM) service
@@ -10,7 +9,6 @@ import { ContextManager } from './context.manager';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ContextInteraction]),
   ],
   providers: [ContextManager],
   exports: [ContextManager],
