@@ -33,9 +33,9 @@ export class ContextManager implements IContextManager {
   constructor(
   ) {
     this.config = {
-      l1MaxSize: 5,
-      embeddingModel: 'all-MiniLM-L6-v2',      embeddingDim: 384,
-      compressionTtlDays: 30,
+l1MaxSize: 5,
+      embeddingModel: 'all-MiniLM-L6-v2',
+      embeddingDim: 384,      compressionTtlDays: 30,
       enableCostTracking: true,
     };
   }
