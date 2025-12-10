@@ -12,8 +12,7 @@ import {
   MemoryTier,
   ContextEngineConfig,
   CostMetrics,
-} from './types/context.types';
-
+} from '../context.types';
 /**
  * Phase 10: Advanced Context Management (ACM) Service
  * Multi-level memory hierarchy with embedding-based compression
