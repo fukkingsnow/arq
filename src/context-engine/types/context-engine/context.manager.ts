@@ -31,8 +31,8 @@ export class ContextManager implements IContextManager {
   private costMetrics: Map<string, CostMetrics> = new Map();
   
   constructor(
-  ) {}      l1MaxSize: 5,
-      l2MaxSize: 50,
+  ) {
+    this.config = {      l2MaxSize: 50,
       embeddingModel: 'all-MiniLM-L6-v2',
       embeddingDim: 384,
       compressionTtlDays: 30,
