@@ -31,10 +31,7 @@ export class ContextManager implements IContextManager {
   private costMetrics: Map<string, CostMetrics> = new Map();
   
   constructor(
-    private readonly redis: Redis,
-    private readonly contextRepository: Repository<any>  ) {
-    this.config = {
-      l1MaxSize: 5,
+  ) {}      l1MaxSize: 5,
       l2MaxSize: 50,
       embeddingModel: 'all-MiniLM-L6-v2',
       embeddingDim: 384,
