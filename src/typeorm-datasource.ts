@@ -1,17 +1,18 @@
-import 'reflect-metadata';
+import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import { config } from 'dotenv';
-import { join } from 'path';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url:
-    process.env.DATABASE_URL ??
-    `postgres://${process.env.DB_USERNAME ?? 'arq_dev'}:${process.env.DB_PASSWORD ?? 'arq_dev_password'}@${process.env.DB_HOST ?? 'localhost'}:${process.env.DB_PORT ?? '5432'}/${process.env.DB_DATABASE ?? 'arq_development'}`,
-  entities: [join(__dirname, 'entities', '*.entity.{ts,js}')],
-  migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
-  synchronize: false,
-  logging: false,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT ?? 5432),
+  username: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  entities: [path.join(__dirname, 'modules/**/*.entity.{ts,js}')],
+  migrations: [path.join(__dirname, 'migrations/*.{ts,js}')],
 });
