@@ -1,5 +1,5 @@
-export const InitialSchema1733871600000 = {
-  async up(queryRunner) {
+export class InitialSchema1733871600000 {
+  public async up(queryRunner): Promise<void> {
     // Create users table
     await queryRunner.query(`
       CREATE TABLE users (
@@ -56,14 +56,14 @@ export const InitialSchema1733871600000 = {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-  },
+  }
 
-  async down(queryRunner) {
+  public async down(queryRunner): Promise<void> {
     // Drop tables in reverse order
     await queryRunner.query('DROP TABLE IF EXISTS browser_tabs');
     await queryRunner.query('DROP TABLE IF EXISTS browser_sessions');
     await queryRunner.query('DROP TABLE IF EXISTS refresh_tokens');
     await queryRunner.query('DROP TABLE IF EXISTS auth_tokens');
     await queryRunner.query('DROP TABLE IF EXISTS users');
-  },
-};
+  }
+}
