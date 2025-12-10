@@ -10,8 +10,8 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Create arq_dev user
-CREATE ROLE arq_dev WITH LOGIN PASSWORD 'arq_dev_password';
-
+DO $$ BEGIN CREATE ROLE arq_dev WITH LOGIN PASSWORD 'arq_dev_password'; EXCEPTION WHEN DUPLICATE_OBJECT THEN NULL; END $$;
+GRANT ALL PRIVILEGES ON DATABASE arq_development TO arq_dev;
 -- Grant privileges to the ARQ user
 GRANT CREATE ON SCHEMA public TO arq_dev;
 GRANT USAGE ON SCHEMA public TO arq_dev;
