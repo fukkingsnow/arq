@@ -2,6 +2,7 @@
 **Updated:** December 11, 2025 23:30 MSK
 🚀 **BACKEND RUNNING** - Successfully launched on December 11, 2025 at 23:30 MSK on localhost:8000
 ✅ **Database**: PostgreSQL connected and ready
+🌐 **CLOUD DEPLOYMENT**: Beget (reverse proxy) → arq-ai.ru | Ready for production deployment
 
 🎉 **HANDOFF TO ARQ**: Backend is now prepared for self-development. See LAUNCH_ARQ.md for quick start. Phase 40 planning complete in PHASE_40_ADVANCED_WORKFLOW_FEATURES.md
 ---
