@@ -24,6 +24,12 @@ interface RegisterDto {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Request() req: any) {
+    return req.user;
+  }
+
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(@Body() registerDto: RegisterDto): Promise<AuthResult> {
@@ -40,11 +46,5 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Request() req: any) {
     return { message: 'Refresh token endpoint' };
-  }
-
-  @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  async getProfile(@Request() req: any) {
-    return req.user;
   }
 }
