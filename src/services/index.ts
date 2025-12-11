@@ -22,6 +22,8 @@ export { EmailService, type IEmailConfig, type IEmailContent, type IEmailResult 
 export { DialogueService } from './dialogue.service';
 export { ConversationManager } from './conversation.manager';
 export { DialogueHistoryService } from './dialogue-history.service';
+export { WorkflowService } from './workflow.service';
+export { WorkflowRepository } from './workflow.repository';
 
 /**
  * Service providers array for NestJS module registration.
