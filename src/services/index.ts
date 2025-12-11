@@ -24,6 +24,8 @@ export { ConversationManager } from './conversation.manager';
 export { DialogueHistoryService } from './dialogue-history.service';
 export { WorkflowService } from './workflow.service';
 export { WorkflowRepository } from './workflow.repository';
+export { WorkflowEngineService } from './workflow-engine.service';
+export { StepExecutorService } from './step-executor.service';
 
 /**
  * Service providers array for NestJS module registration.
