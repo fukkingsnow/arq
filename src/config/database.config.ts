@@ -9,7 +9,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
     url: dbUrl,
     entities: ['dist/src/**/*.entity.{js,ts}'],
     synchronize: true,
-    logging: process.env.NODE_ENV === 'development',
+    logging: ['error', 'warn', 'log', 'debug'],
     migrationsRun: false,
     migrations: ['dist/src/database/migrations/*.{js,ts}'],
   };
