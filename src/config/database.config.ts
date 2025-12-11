@@ -7,8 +7,7 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
   return {
     type: 'postgres',
     url: dbUrl,
-    entities: ['dist/src/**/*.entity.{js,ts}'],
-    synchronize: true,
+    entities: ['dist/entities/*.js'],    synchronize: true,
     logging: ['error', 'warn', 'log'],
     migrationsRun: false,
     migrations: ['dist/src/database/migrations/*.{js,ts}'],
