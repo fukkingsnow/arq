@@ -10,6 +10,7 @@ export { BrowserService } from './browser.service';
 export { SessionService } from './session.service';
 export { UserService } from './user.service';
 export { TabService } from './tab.service';
+export { NavigationService } from './navigation.service';
 
 // Phase 31: Advanced Services
 export { BaseService, type IPaginationMeta, type IPaginatedResponse } from './base.service';
@@ -34,6 +35,7 @@ export { DialogueHistoryService } from './dialogue-history.service';
   SessionService,
   UserService,
     TabService,
+      NavigationService,
   BaseService,
     DialogueService,
   ConversationManager,
