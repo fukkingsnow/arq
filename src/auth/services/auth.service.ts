@@ -55,8 +55,13 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = this.userRepository.create({ email, password });
+    const user = this.userRepository.create({
+      email,
+      password: hashedPassword,
+      firstName,
+      lastName,
+    });
+    await this.userRepository.save(user);
 
     const token = this.generateToken(user);
 
@@ -96,15 +101,13 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findByEmail(email);
     if (!user) return null;
-
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) return null;
-
     return user;
   }
 
   async validateJwtPayload(payload: JwtPayload): Promise<User | null> {
-        return this.userRepository.findOne({ where: { id: payload.sub } });
+    return this.userRepository.findOne({ where: { id: payload.sub } });
   }
 
   private generateToken(user: User): string {
@@ -133,43 +136,3 @@ export class AuthService {
     return sanitized;
   }
 }
-
-/**
- * Authentication Service - Core Business Logic
- * Handles user registration, login, token generation, and credential validation
- * 
- * Key Responsibilities:
- * - User registration with email & password strength validation
- * - User login with credential verification
- * - JWT token generation with Passport integration
- * - Password hashing with bcrypt (10 salt rounds)
- * - User data sanitization (removes sensitive information)
- * - TypeORM UserRepository integration for persistence
- * 
- * Security Features:
- * - Bcrypt prevents rainbow table attacks
- * - Email validation ensures proper format
- * - Password complexity requirements enforced
- * - Duplicate email prevention at registration
- * - User active status validation at login
- * - Constant-time password comparison
- * - Sensitive data removed from responses
- * 
- * API Methods:
- * - register(): Create new user account
- * - login(): Authenticate user and generate token
- * - validateUser(): Used by LocalStrategy for Passport
- * - validateJwtPayload(): Used by JwtStrategy for Passport
- * 
- * Password Requirements:
- * - Minimum 8 characters
- * - At least one uppercase letter
- * - At least one lowercase letter
- * - At least one digit
- * 
- * Token Expiration: 24 hours (configurable)
- */
-
-
-
-
