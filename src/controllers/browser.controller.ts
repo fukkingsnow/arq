@@ -1,5 +1,6 @@
 import { Controller, Post, Get, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { BrowserService } from '../services';
+import { NavigationService, DOMService } from './..services';
 
 interface CreateSessionDto {
   userId: string;
@@ -15,6 +16,8 @@ interface CreateTabDto {
  */
 @Controller('browser')
 export class BrowserController {
+      private navigationService: NavigationService,
+    private domService: DOMService,
   constructor(private readonly browserService: BrowserService) {}
 
   /**
@@ -68,5 +71,55 @@ export class BrowserController {
   @Get('sessions/:id/tabs')
   async getSessionTabs(@Param('id') sessionId: string) {
     return await this.browserService.getSessionTabs(sessionId);
+  }
+
+    // Navigation endpoints
+
+  /**
+   * Navigate to URL
+   */
+  @Post(':sessionId/navigate')
+  @HttpCode(HttpStatus.OK)
+  async navigate(
+    @Param('sessionId') sessionId: string,
+    @Body() data: { url: string; timeout?: number },
+  ) {
+    return await this.navigationService.navigateTo(sessionId, data.url, data.timeout);
+  }
+
+  /**
+   * DOM interaction - Click element
+   */
+  @Post(':sessionId/click')
+  @HttpCode(HttpStatus.OK)
+  async click(
+    @Param('sessionId') sessionId: string,
+    @Body() data: { selector: string; selectorType?: 'css' | 'xpath' | 'text' },
+  ) {
+    return await this.domService.click(sessionId, data.selector, data.selectorType);
+  }
+
+  /**
+   * DOM interaction - Type text
+   */
+  @Post(':sessionId/type')
+  @HttpCode(HttpStatus.OK)
+  async type(
+    @Param('sessionId') sessionId: string,
+    @Body() data: { selector: string; text: string; clearFirst?: boolean },
+  ) {
+    return await this.domService.type(sessionId, data.selector, data.text, data.clearFirst);
+  }
+
+  /**
+   * Take screenshot
+   */
+  @Post(':sessionId/screenshot')
+  @HttpCode(HttpStatus.OK)
+  async takeScreenshot(
+    @Param('sessionId') sessionId: string,
+    @Body() data: { fullPage?: boolean } = {},
+  ) {
+    return await this.domService.takeScreenshot(sessionId, data.fullPage);
   }
 }
