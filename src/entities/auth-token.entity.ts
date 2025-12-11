@@ -23,7 +23,7 @@ export class AuthToken {
   @Column({ type: 'text', nullable: true })
   refreshToken?: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   expiresAt: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
