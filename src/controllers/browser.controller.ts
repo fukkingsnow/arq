@@ -16,8 +16,6 @@ interface CreateTabDto {
  */
 @Controller('browser')
 export class BrowserController {
-      private navigationService: NavigationService,
-    private domService: DOMService,
   constructor(private readonly browserService: BrowserService) {}
 
   /**
