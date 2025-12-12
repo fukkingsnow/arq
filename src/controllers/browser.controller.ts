@@ -1,7 +1,6 @@
 import { Controller, Post, Get, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { BrowserService } from '../services';
-import { NavigationService, DOMService } from './..services';
-
+import { NavigationService, DOMService } from '../services';
 interface CreateSessionDto {
   userId: string;
 }
