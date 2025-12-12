@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { BrowserService } from '../services';
-import { CreateSessionDto, GetSessionDto, CloseSessionDto } from '../dtos';
+import { CreateSessionDto } from '../dtos';
 
 interface CreateTabDto {
   uri: string;
