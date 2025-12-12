@@ -90,8 +90,6 @@ export class TabService {
    */
   async closeTab(tabId: string) {
     const tab = await this.getTab(tabId);
-    tab.status = 'closed';
-    tab.closedAt = new Date();
     tab.isActive = false;
     return await this.tabRepository.save(tab);
   }
