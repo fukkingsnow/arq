@@ -53,3 +53,7 @@ export interface UpdateBrowserTabDto {
   title?: string;
   metadata?: Record<string, any>;
 }
+
+
+// Browser Controller DTOs
+export type CreateSessionDto = CreateBrowserSessionDto;
