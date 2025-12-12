@@ -1,7 +1,6 @@
 import { Controller, Post, Get, Param, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { BrowserService } from '../services';
-import { NavigationService, DOMService } from '../services';
-interface CreateSessionDto {
+import { BrowserService } from '../services';interface CreateSessionDto {
   userId: string;
 }
 
@@ -15,13 +14,9 @@ interface CreateTabDto {
  */
 @Controller('browser')
 export class BrowserController {
-  constructor(
-    private readonly browserService: BrowserService,
     private readonly navigationService: NavigationService,
-    private readonly domService: DOMService,
   ) {}
-  /**
-   * POST /browser/sessions - Create new browser session
+constructor(private readonly browserService: BrowserService) {}   * POST /browser/sessions - Create new browser session
    * @param dto Session creation data
    * @returns Created session
    */
