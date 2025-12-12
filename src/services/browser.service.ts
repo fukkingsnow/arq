@@ -90,6 +90,32 @@ export class BrowserService {
     if (!tab) throw new NotFoundException('Tab not found');
     tab.status = status as any;
     return await this.tabRepository.save(tab);
+    
+  /**
+   * Get tab data
+   * @param sessionId Session ID
+   * @param tabId Tab ID
+   * @returns Tab data
+   */
+  async getTab(sessionId: string, tabId: string) {
+    const tab = await this.tabRepository.findOne({
+      where: { id: tabId, sessionId },
+    });
+    if (!tab) throw new NotFoundException('Tab not found');
+    return tab;
+  }
+
+  /**
+   * Close tab in session
+   * @param sessionId Session ID
+   * @param tabId Tab ID
+   * @returns Closed tab
+   */
+  async closeTab(sessionId: string, tabId: string) {
+    const tab = await this.getTab(sessionId, tabId);
+    tab.status = 'closed';
+    return await this.tabRepository.save(tab);
+  }
   }
 }
 
