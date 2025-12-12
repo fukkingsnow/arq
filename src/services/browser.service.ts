@@ -21,6 +21,7 @@ export class BrowserService {
    */
   async createSession(userId: string) {
     const session = this.sessionRepository.create({
+          sessionId: require('uuid').v4(),
       userId,
       status: 'active',
       tabCount: 0,
