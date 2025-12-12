@@ -16,8 +16,11 @@ interface CreateTabDto {
  */
 @Controller('browser')
 export class BrowserController {
-  constructor(private readonly browserService: BrowserService) {}
-
+  constructor(
+    private readonly browserService: BrowserService,
+    private readonly navigationService: NavigationService,
+    private readonly domService: DOMService,
+  ) {}
   /**
    * POST /browser/sessions - Create new browser session
    * @param dto Session creation data
