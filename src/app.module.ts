@@ -9,6 +9,7 @@ import { UserModule } from './modules/user.module';
 import { CommonModule } from './modules/common.module';
 import { ContextEngineModule } from './context-engine/context-engine.module';
 import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
+import { GitHubService } from './services/github.service';
 
 /**
  * Root Application Module
@@ -46,6 +47,7 @@ import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common
     {
       provide: APP_FILTER,
       useClass: ValidationExceptionFilter,
+    GitHubService,
     },
   ],
 })
