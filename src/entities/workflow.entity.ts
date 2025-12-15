@@ -20,7 +20,7 @@ export class Workflow {
   steps: any[];
 
   @Column('varchar', { length: 50, default: 'draft' })
-  status: 'draft' | 'active' | 'archived';
+  status: 'draft' | 'active' | 'paused' | 'archived';
 
   @Column('jsonb', { nullable: true })
   errorHandling: {
