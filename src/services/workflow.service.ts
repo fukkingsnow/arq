@@ -1,8 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { WorkflowRepository } from './workflow.repository';
 import { Workflow } from '../entities/workflow.entity';
-// import { CreateWorkflowDto, UpdateWorkflowDto } from '../dtos';
-@Injectable()
+import { CreateWorkflowDto, UpdateWorkflowDto } from '../dto/workflow.dto';@Injectable()
 export class WorkflowService {
   constructor(private readonly workflowRepository: WorkflowRepository) {}
 
