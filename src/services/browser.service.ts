@@ -118,4 +118,5 @@ export class BrowserService {
     tab.status = 'complete';
         return await this.tabRepository.save(tab);
   }
+  }
 
