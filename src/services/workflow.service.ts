@@ -63,8 +63,7 @@ export class WorkflowService {
     return this.workflowRepository.delete(id);
   }
 
-  async getWorkflowsByStatus(status: string): Promise<Workflow[]> {
-    return this.workflowRepository.findByStatus(status);
+  async getWorkflowsByStatus(status: 'draft' | 'active' | 'paused' | 'archived'): Promise<Workflow[]> {    return this.workflowRepository.findByStatus(status);
   }
 
   async updateWorkflowSteps(id: string, steps: any[]): Promise<Workflow> {
