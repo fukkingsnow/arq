@@ -115,9 +115,7 @@ export class BrowserService {
    */
   async closeTab(sessionId: string, tabId: string) {
     const tab = await this.getTab(sessionId, tabId);
-    tab.status = 'closed';
-    return await this.tabRepository.save(tab);
+    tab.status = 'complete';
+        return await this.tabRepository.save(tab);
   }
-  }
-}
 
