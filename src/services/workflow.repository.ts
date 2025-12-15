@@ -42,8 +42,7 @@ export class WorkflowRepository {
     return result.affected > 0;
   }
 
-  async findByStatus(status: string): Promise<Workflow[]> {
-    return this.repository.find({
+  async findByStatus(status: 'draft' | 'active' | 'paused' | 'archived'): Promise<Workflow[]> {    return this.repository.find({
       where: { status },
       order: { createdAt: 'DESC' },
     });
