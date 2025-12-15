@@ -33,6 +33,7 @@ export interface RefreshDto {
 export interface CreateBrowserSessionDto {
   name: string;
   config?: Record<string, any>;
+    userId?: string;
 }
 
 export interface UpdateBrowserSessionDto {
