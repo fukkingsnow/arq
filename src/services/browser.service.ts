@@ -91,6 +91,7 @@ export class BrowserService {
     if (!tab) throw new NotFoundException('Tab not found');
     tab.status = status as any;
     return await this.tabRepository.save(tab);
+      }
     
   /**
    * Get tab data
