@@ -47,8 +47,8 @@ import { GitHubService } from './services/github.service';
     {
       provide: APP_FILTER,
       useClass: ValidationExceptionFilter,
-    GitHubService,
     },
+    GitHubService,
   ],
 })
 export class AppModule implements NestModule {
