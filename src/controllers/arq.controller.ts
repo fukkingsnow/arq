@@ -133,6 +133,6 @@ ${dto.priority.toUpperCase()}
         startDevelopment: 'POST /api/v1/arq/start-development',
         tasks: 'GET /api/v1/arq/tasks',
       },
-    };
+    }
   }
 }
