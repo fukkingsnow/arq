@@ -9,8 +9,7 @@ import { UserModule } from './modules/user.module';
 import { CommonModule } from './modules/common.module';
 import { ContextEngineModule } from './context-engine/context-engine.module';
 import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
-import { GitHubService } from './services/github.service';
-
+import { GitHubModule } from './modules/github.module';
 /**
  * Root Application Module
  *
@@ -42,13 +41,13 @@ import { GitHubService } from './services/github.service';
     CommonModule,
     // Phase 10: Advanced Context Management
     ContextEngineModule,
+    GitHubModule,
   ],
   providers: [
     {
       provide: APP_FILTER,
       useClass: ValidationExceptionFilter,
     },
-    GitHubService,
   ],
 })
 export class AppModule implements NestModule {
