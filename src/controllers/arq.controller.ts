@@ -120,18 +120,5 @@ ${dto.priority.toUpperCase()}
   
   
 
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  getRoot() {
-    return {
-      message: 'ARQ Self-Development Engine',
-      version: '0.1.0',
-      status: 'operational',
-      timestamp: new Date(),
-      endpoints: {
-        health: '/api/v1/arq/health',
-        startDevelopment: 'POST /api/v1/arq/start-development',
-        tasks: 'GET /api/v1/arq/tasks',
-      },
-    }
-  }
+}
+}
