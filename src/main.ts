@@ -61,6 +61,11 @@ async function bootstrap() {
   }
 
   // Listen on configured port
+// Serve static files (frontend)
+import { join } from 'path';
+app.useStaticAssets(join(__dirname, '..', 'frontend'));
+app.setBaseViewsDir(join(__dirname, '..', 'frontend'));
+
   await app.listen(port, '0.0.0.0');
 
   logger.log(`========================================`);
