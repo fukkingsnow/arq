@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ARQDashboard from './ARQDashboard';
 import APITester from './APITester';
 import TaskCreator from './TaskCreator';
+import TaskMonitor from './TaskMonitor';
 
 type Tab = 'dashboard' | 'api' | 'tasks';
 
@@ -54,6 +55,7 @@ const DashboardApp: React.FC = () => {
             {tab === 'dashboard' && '📊 Dashboard'}
             {tab === 'api' && '🔌 API Tester'}
             {tab === 'tasks' && '✅ Create Task'}
+                    {tab === 'monitor' && <span>📊 Monitor</span>}
           </button>
         ))}
       </nav>
@@ -62,6 +64,7 @@ const DashboardApp: React.FC = () => {
         {activeTab === 'dashboard' && <ARQDashboard />}
         {activeTab === 'api' && <APITester />}
         {activeTab === 'tasks' && <TaskCreator onTaskCreated={() => setActiveTab('dashboard')} />}
+                  {activeTab === 'monitor' && <TaskMonitor />}
       </main>
 
       <footer style={styles.footer}>
