@@ -118,6 +118,8 @@ ${dto.priority.toUpperCase()}
 🚀 In Progress`;
   
   
+  
+
   @Get()
   @HttpCode(HttpStatus.OK)
   getRoot() {
@@ -132,5 +134,5 @@ ${dto.priority.toUpperCase()}
         tasks: 'GET /api/v1/arq/tasks',
       },
     };
-  }}
+  }
 }
