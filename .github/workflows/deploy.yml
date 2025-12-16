@@ -17,10 +17,12 @@ jobs:
           node-version: '18'
           
       - name: Install dependencies
-        run: npm install
+        run: npm install --ignore-scripts
         
       - name: Build application
-        run: npm run build
+        run: |
+          rm -rf dist
+          npx nest build
         
       - name: Prepare deployment files
         run: |
