@@ -14,6 +14,7 @@ from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
 from config import settings
+from arq_endpoints import router as arq_router
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -76,6 +77,7 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan
 )
+app.include_router(arq_router)
 
 # Health check endpoints
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
