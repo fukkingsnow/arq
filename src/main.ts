@@ -64,7 +64,7 @@ async function bootstrap() {
 // Serve static files (frontend)
 import { join } from 'path';
 
-    app.setBaseViewsDir('/opt/arq/src/frontend');
+  
   await app.listen(port, '0.0.0.0');
 
   logger.log(`========================================`);
