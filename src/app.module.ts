@@ -10,6 +10,7 @@ import { CommonModule } from './modules/common.module';
 import { ContextEngineModule } from './context-engine/context-engine.module';
 import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
 import { GitHubModule } from './modules/github.module';
+import { ARQController } from './controllers/arq.controller';
 /**
  * Root Application Module
  *
@@ -43,6 +44,7 @@ import { GitHubModule } from './modules/github.module';
     ContextEngineModule,
     GitHubModule,
   ],
+    controllers: [ARQController],
   providers: [
     {
       provide: APP_FILTER,
