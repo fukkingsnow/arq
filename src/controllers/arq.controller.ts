@@ -15,7 +15,7 @@ interface DevelopmentTask {
   developmentGoals: string[];
 }
 
-@Controller(arqarq')
+@Controller(arq')
 export class ARQController {
   private readonly logger = new Logger('ARQController');
   private taskCounter = 0;
