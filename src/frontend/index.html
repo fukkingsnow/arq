@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARQ - Development Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 800px;
+      padding: 60px 40px;
+      text-align: center;
+    }
+    h1 { color: #1f2937; margin-bottom: 20px; font-size: 36px; }
+    .subtitle { color: #6b7280; margin-bottom: 40px; font-size: 18px; }
+    .status {
+      display: inline-block;
+      background: #d1fae5;
+      color: #065f46;
+      padding: 12px 24px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+    .info {
+      background: #f3f4f6;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0;
+      text-align: left;
+    }
+    .info h3 { color: #1f2937; margin-bottom: 10px; }
+    .info ul { margin-left: 20px; color: #374151; line-height: 1.8; }
+    .endpoints {
+      background: #1f2937;
+      color: #10b981;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 14px;
+      text-align: left;
+    }
+    .button-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 32px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #1f2937;
+    }
+    .btn-secondary:hover { background: #d1d5db; }
+    .icon { font-size: 24px; margin-right: 10px; }
+    .footer { color: #9ca3af; margin-top: 40px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 ARQ Development Platform</h1>
+    <p class="subtitle">Real-time Task Monitoring & API Testing Dashboard</p>
+    
+    <div class="status">✅ Status: Live & Operational</div>
+    
+    <div class="info">
+      <h3>👋 Welcome to Phase 2!</h3>
+      <ul>
+        <li>Real-time task monitoring with auto-refresh</li>
+        <li>Interactive API testing (Postman replacement)</li>
+        <li>Task creation with priority management</li>
+        <li>Server health tracking</li>
+        <li>TypeScript-powered React components</li>
+      </ul>
+    </div>
+
+    <div class="endpoints">
+      <strong>API Base URL:</strong><br>
+      https://arq-ai.ru/api/v1/arq<br><br>
+      <strong>Available Endpoints:</strong><br>
+      GET /health - Server status<br>
+      GET /tasks - List all tasks<br>
+      POST /start-development - Create task<br>
+      GET /tasks/:taskId - Get task detail
+    </div>
+
+    <div class="info">
+      <h3>📚 Documentation</h3>
+      <ul>
+        <li>Frontend Components: /dashboard/</li>
+        <li>Component Docs: Dashboard README.md</li>
+        <li>API Specification: API endpoints above</li>
+        <li>Phase 2 Report: View on GitHub</li>
+      </ul>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-primary" onclick="window.location.href='/api/v1/arq/health'">🔍 Check API Health</button>
+      <button class="btn btn-primary" onclick="window.location.href='/api/v1/arq/tasks'">📋 View Tasks</button>
+      <a class="btn btn-secondary" href="https://github.com/fukkingsnow/arq/tree/main/src/frontend/dashboard" target="_blank">💻 View Source</a>
+    </div>
+
+    <div class="footer">
+      <p>ARQ Self-Development Engine | Phase 2: Frontend Development</p>
+      <p>Deployed: December 16, 2025 | Ready for Production</p>
+    </div>
+  </div>
+</body>
+</html>
