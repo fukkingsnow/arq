@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
-import path from 'path';
-
+import * as path from 'path';
 const srcDir = path.join(process.cwd(), 'src');
 
 export const AppDataSource = new DataSource({
