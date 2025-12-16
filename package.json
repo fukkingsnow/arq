@@ -1,5 +1,6 @@
 {
   "name": "arq",
+    "type": "commonjs",
   "version": "0.1.0",
   "description": "ARQ - AI Assistant Backend with NestJS",
   "author": "fukkingsnow",
