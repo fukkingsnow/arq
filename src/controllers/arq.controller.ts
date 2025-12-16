@@ -96,6 +96,23 @@ export class ARQController {
     };
   }
 
+   @Get()
+  @HttpCode(HttpStatus.OK)
+  getRootInfo() {
+    return {
+      service: 'ARQ Self-Development Engine',
+      version: '1.0.0',
+      status: 'operational',
+      timestamp: new Date(),
+      endpoints: {
+        'POST /start-development': 'Start a new development cycle',
+        'GET /health': 'Check service health',
+        'GET /tasks': 'Get all development tasks',
+        'GET /tasks/:taskId': 'Get specific task status',
+      },
+    };
+  }
+
   private generateIssueDescription(dto: StartDevelopmentDto, taskId: string): string {
     return `## ARQ Self-Development Task
 \nTask ID: ${taskId}
