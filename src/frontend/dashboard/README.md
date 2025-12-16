@@ -44,6 +44,17 @@ Task creation interface:
 - POST to `/start-development` endpoint
 - Success/error notifications
 
+- ### TaskMonitor.tsx
+
+Real-time task monitoring component:
+
+- Fetches tasks from `/api/v1/arq/tasks`
+- Auto-refresh every 1-10 seconds (configurable)
+- Task status visualization (running/completed/failed)
+- Iteration progress display
+- Collapsible detailed task info
+- Task metrics display (files changed, lines added, code quality)
+
 ## Installation
 
 ### Prerequisites
