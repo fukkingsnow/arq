@@ -48,11 +48,11 @@ export class ARQController {
       this.activeTasks.set(taskId, task);
       
       // Create GitHub issue for tracking
-          await this.githubService.createIssue({
+          await this.githubService.createIssue({JSON.stringify(
       title: `[ARQ Auto-Dev] ${dto.developmentGoals[0]}`,
       body: this.generateIssueDescription(dto, taskId),
       labels: ['auto-generated', 'arq-self-development'],
-    });
+    ));
         
       this.logger.log(`[ARQ] Task ${taskId} created successfully`);
       
