@@ -137,5 +137,21 @@ ${dto.priority.toUpperCase()}
   
   
 
+    
+  @Get()
+  getRoot() {
+    return {
+      service: 'ARQ Self-Development Engine',
+      version: '1.0.0',
+      status: 'operational',
+      timestamp: new Date(),
+      endpoints: [
+        { 'POST /start-development': 'Start a new development cycle' },
+        { 'GET /health': 'Check service health' },
+        { 'GET /tasks': 'Get all development tasks' },
+        { 'GET /tasks/:taskId': 'Get specific task status' },
+      ],
+    };
+  }
 }
 }
