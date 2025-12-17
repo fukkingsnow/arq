@@ -2,8 +2,18 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash } from 'crypto';
-import type { Express } from 'express';
-type MulterFile = Express.Multer.File;
+// Type definition for file uploads (compatible with Express/Multer)
+interface MulterFile {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  destination?: string;
+  filename?: string;
+  path?: string;
+  buffer?: Buffer;
+}
   maxFileSize: number; // in bytes
   allowedMimeTypes: string[];
   allowedExtensions: string[];
