@@ -5,6 +5,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import helmet from 'helmet';
 import cors from 'cors';
+import * as express from 'express';
 
 /**
  * ARQ Backend - Main Application Bootstrap
@@ -63,6 +64,9 @@ async function bootstrap() {
   // Listen on configured port
 // Serve static files (frontend)
 import { join } from 'path';
+
+    // Serve frontend static files
+  app.use('/', express.static(join(__dirname, '..', 'frontend')));
 
   
   await app.listen(port, '0.0.0.0');
