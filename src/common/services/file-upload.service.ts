@@ -15,18 +15,14 @@ interface MulterFile {
   buffer?: Buffer;
 }
 
-// Configuration interface for file uploads
 interface UploadConfig {
   uploadDir: string;
-  maxFileSize: number; // in bytes
-  allowedMimeTypes: string[];
-  allowedExtensions: string[];
-}
-  maxFileSize: number; // in bytes
+  maxFileSize: number;
   allowedMimeTypes: string[];
   allowedExtensions: string[];
 }
 
+// Configuration interface for file uploads
 interface UploadResult {
   filename: string;
   originalName: string;
