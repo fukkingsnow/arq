@@ -24,6 +24,8 @@ jobs:
                         - name: Kill old processes on port 8000
               run: lsof -ti:8000 | xargs kill -9 || true
             pm2 restart arq || pm2 start npm --name arq -- start
+                        - name: Reload Nginx
+              run: ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'sudo systemctl reload nginx'
             echo "✅ ARQ deployment completed successfully"
       
       - name: Notify deployment status
