@@ -10,22 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      
-      - name: Install dependencies
-        run: npm install --ignore-scripts
-      
-      - name: Build application
-        run: |
-          rm -rf dist
-          npx nest build
-      
       - name: Deploy via SSH and restart
         uses: appleboy/ssh-action@master
         with:
@@ -37,7 +21,7 @@ jobs:
             git pull origin main
             npm install --ignore-scripts
             npm run build
-            npm restart || npm start
+            pm2 restart arq || pm2 start npm --name arq -- start
             echo "✅ ARQ deployment completed successfully"
       
       - name: Notify deployment status
