@@ -24,7 +24,7 @@ async function bootstrap() {
 
   // Environment Configuration
   const nodeEnv = configService.get<string>('NODE_ENV', 'development');
-  const port = configService.get<number>('PORT', 3000);
+  const port = configService.get<number>('PORT', 8000);
   const apiVersion = configService.get<string>('API_VERSION', 'v1');
   const dbHost = configService.get<string>('DB_HOST', 'localhost');
 
