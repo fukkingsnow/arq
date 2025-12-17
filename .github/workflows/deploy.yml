@@ -19,7 +19,7 @@ jobs:
             git stash
             git pull origin main
             npm install
-npm run build
+ npm run build
  sudo cp /opt/arq/deployment/arq.service /etc/systemd/system/
   sudo systemctl daemon-reload
    sudo systemctl enable arq
