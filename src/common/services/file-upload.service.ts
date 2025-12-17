@@ -2,8 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash } from 'crypto';
-import ile as MulterFile } from 'multer';53
-
+import type { File as MulterFile } from 'multer';
 interface UploadConfig {
   uploadDir: string;
   maxFileSize: number; // in bytes
