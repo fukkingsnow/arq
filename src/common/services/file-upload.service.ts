@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash } from 'crypto';
-import type { Multer } from 'multer';
+import ile as MulterFile } from 'multer';53
 
 interface UploadConfig {
   uploadDir: string;
@@ -50,7 +50,7 @@ export class FileUploadService {
   /**
    * Validate file before upload
    */
-  validateFile(file: Multer.File, config?: Partial<UploadConfig>): boolean {
+  validateFile(file: MulterFile, config?: Partial<UploadConfig>): boolean {
     const finalConfig = { ...this.defaultConfig, ...config };
 
     if (!file) {
@@ -79,7 +79,7 @@ export class FileUploadService {
    * Upload single file
    */
   async uploadFile(
-    file: Multer.File,
+    file: MulterFile,
     config?: Partial<UploadConfig>
   ): Promise<UploadResult> {
     this.validateFile(file, config);
@@ -108,7 +108,7 @@ export class FileUploadService {
    * Upload multiple files
    */
   async uploadFiles(
-    files: Multer.File[],
+    files: MulterFile[],
     config?: Partial<UploadConfig>
   ): Promise<UploadResult[]> {
     return Promise.all(
