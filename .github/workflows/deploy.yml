@@ -21,6 +21,8 @@ jobs:
             git pull origin main
             npm install --ignore-scripts
             npm run build
+                        - name: Kill old processes on port 8000
+              run: lsof -ti:8000 | xargs kill -9 || true
             pm2 restart arq || pm2 start npm --name arq -- start
             echo "✅ ARQ deployment completed successfully"
       
