@@ -21,7 +21,6 @@ export { EmailService, type IEmailConfig, type IEmailContent, type IEmailResult 
 // Phase 33: Dialogue Services
 export { DialogueService } from './dialogue.service';
 export { ConversationManager } from './conversation.manager';
-export { DevelopmentStrategyAnalyzerService } from './development-strategy-analyzer.service';
 export { DialogueHistoryService } from './dialogue-history.service';
 export { WorkflowService } from './workflow.service';
 export { WorkflowRepository } from './workflow.repository';
