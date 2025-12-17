@@ -15,9 +15,9 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /opt/arq
-            git stash
-            git pull origin main
-            npm install
+            - run: git stash
+            - run: git pull origin main
+            - run: npm install
 - run: npm run build
             lsof -ti:8000 | xargs kill -9 || true
             pm2 restart arq || pm2 start npm --name arq -- start
