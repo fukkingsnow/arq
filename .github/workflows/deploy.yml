@@ -18,7 +18,7 @@ jobs:
             git stash
             git pull origin main
             npm install
-npm run build
+- run: npm run build
             lsof -ti:8000 | xargs kill -9 || true
             pm2 restart arq || pm2 start npm --name arq -- start
             sudo systemctl reload nginx
