@@ -2,8 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHash } from 'crypto';
-import type { Multer } from 'multer';
-type MulterFile = Multer.File;
+import type { Express } from 'express';
+type MulterFile = Express.Multer.File;
   maxFileSize: number; // in bytes
   allowedMimeTypes: string[];
   allowedExtensions: string[];
