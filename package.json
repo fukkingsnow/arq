@@ -45,8 +45,11 @@
     "nodemailer": "^6.9.7",
     "typeorm-naming-strategies": "^4.1.0",
         "puppeteer": "^21.0.0",
-    "@octokit/rest": "^20.0.2"
-  },
+    "@octokit/rest": "^20.0.2",
+    "react": "^18.2.0",
+    "@types/react": "^18.2.0"
+  
+    },
   "devDependencies": {
     "@nestjs/cli": "^8.2.8",
     "@nestjs/schematics": "^10.0.3",
