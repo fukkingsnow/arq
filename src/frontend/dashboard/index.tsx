@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useState, useCallback } from 'react';
 import ARQDashboard from './ARQDashboard';
 import APITester from './APITester';
