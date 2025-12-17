@@ -19,11 +19,13 @@ jobs:
             git stash
             git pull origin main
             npm install
-            npm audit fix --force || true
-             deployment completed successfully"
-              sudo cp /opt/arq/deployment/arq.service /etc/systemd/system/
-               sudo systemctl daemon-reload
-                sudo systemctl enable arq
+npm run build
+ sudo cp /opt/arq/deployment/arq.service /etc/systemd/system/
+  sudo systemctl daemon-reload
+   sudo systemctl enable arq
+    sudo systemctl reload nginx
+     sudo systemctl restart arq
+      echo "✅ ARQ deployment completed successfully"
       - name: Notify deployment status
         if: success()
         run: echo "✅ ARQ deployed successfully to ${{ secrets.SERVER_HOST }}"
