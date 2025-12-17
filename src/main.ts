@@ -6,6 +6,7 @@ import { HttpExceptionFilter } from './filters/http-exception.filter';
 import helmet from 'helmet';
 import cors from 'cors';
 import * as express from 'express';
+import { join } from 'path';
 
 /**
  * ARQ Backend - Main Application Bootstrap
@@ -63,7 +64,6 @@ async function bootstrap() {
 
   // Listen on configured port
 // Serve static files (frontend)
-import { join } from 'path';
 
     // Serve frontend static files
   app.use('/', express.static(join(__dirname, '..', 'frontend')));
