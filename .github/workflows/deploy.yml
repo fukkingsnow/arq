@@ -22,6 +22,7 @@ jobs:
             npm audit fix --force || true
             npm run build
             sudo systemctl reload nginx
+                          sudo systemctl restart arq
             echo "✅ ARQ deployment completed successfully"
       - name: Notify deployment status
         if: success()
