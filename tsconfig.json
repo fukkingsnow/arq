@@ -2,7 +2,8 @@
   "compilerOptions": {
     "module": "commonjs",
         "jsx": "react",
-        "esModuleInterop": true,
+        "esModuleInterop": true,,
+    "skipLibCheck": true
         "allowSyntheticDefaultImports": true,
     "declaration": true,
     "removeComments": true,
