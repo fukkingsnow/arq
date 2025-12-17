@@ -1,8 +1,12 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 
+interface TaskResponse {
+  id: string;
+  [key: string]: any;
+}
+
 interface TaskCreatorProps {
-  onTaskCreated?: (task: any) => void;
+  onTaskCreated?: (task: TaskResponse) => void;
 }
 
 const availableGoals = [
@@ -18,12 +22,12 @@ const availableGoals = [
 
 const TaskCreator: React.FC<TaskCreatorProps> = ({ onTaskCreated }) => {
   const [developmentGoals, setDevelopmentGoals] = useState<string[]>(['Improve code quality']);
-  const [maxIterations, setMaxIterations] = useState(3);
+  const [maxIterations, setMaxIterations] = useState<number>(3);
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleGoalToggle = (goal: string) => {
+  const handleGoalToggle = (goal: string): void => {
     setDevelopmentGoals(prev =>
       prev.includes(goal)
         ? prev.filter(g => g !== goal)
@@ -31,7 +35,7 @@ const TaskCreator: React.FC<TaskCreatorProps> = ({ onTaskCreated }) => {
     );
   };
 
-  const handleCreateTask = async () => {
+  const handleCreateTask = async (): Promise<void> => {
     if (developmentGoals.length === 0) {
       setMessage({ type: 'error', text: 'Please select at least one development goal' });
       return;
@@ -50,7 +54,7 @@ const TaskCreator: React.FC<TaskCreatorProps> = ({ onTaskCreated }) => {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data: TaskResponse = await response.json();
         setMessage({ type: 'success', text: `Task created: ${data.id}` });
         setDevelopmentGoals(['Improve code quality']);
         setMaxIterations(3);
@@ -59,8 +63,9 @@ const TaskCreator: React.FC<TaskCreatorProps> = ({ onTaskCreated }) => {
       } else {
         setMessage({ type: 'error', text: `Failed: ${response.status}` });
       }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: `Error: ${error.message}` });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setMessage({ type: 'error', text: `Error: ${errorMessage}` });
     }
     setLoading(false);
   };
@@ -85,20 +90,24 @@ const TaskCreator: React.FC<TaskCreatorProps> = ({ onTaskCreated }) => {
             ))}
           </div>
         </div>
+
         <div style={styles.formGroup}>
-          <label>Priority: <select value={priority} onChange={(e) => setPriority(e.target.value as any)} disabled={loading}>
+          <label>Priority: <select value={priority} onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')} disabled={loading}>
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
           </select></label>
         </div>
+
         <div style={styles.formGroup}>
           <label>Max Iterations: <input type="number" min="1" max="10" value={maxIterations} onChange={(e) => setMaxIterations(Math.max(1, parseInt(e.target.value) || 1))} disabled={loading} /></label>
         </div>
+
         <button onClick={handleCreateTask} disabled={loading} style={{...styles.button, opacity: loading ? 0.6 : 1}}>
           {loading ? 'Starting...' : 'Start Development Cycle'}
         </button>
       </div>
+
       {message && (
         <div style={{
           ...styles.message,
@@ -112,11 +121,11 @@ const TaskCreator: React.FC<TaskCreatorProps> = ({ onTaskCreated }) => {
   );
 };
 
-const styles = {
+const styles: Record<string, React.CSSProperties> = {
   container: { padding: '20px', border: '1px solid #e5e7eb', borderRadius: '8px', marginBottom: '20px' },
   title: { fontSize: '20px', fontWeight: 'bold', marginBottom: '15px' },
-  form: { display: 'flex', flexDirection: 'column' as const, gap: '15px' },
-  formGroup: { display: 'flex', flexDirection: 'column' as const, gap: '8px' },
+  form: { display: 'flex', flexDirection: 'column', gap: '15px' },
+  formGroup: { display: 'flex', flexDirection: 'column', gap: '8px' },
   label: { fontWeight: '600', fontSize: '14px' },
   goalsGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' },
   goalItem: { display: 'flex', alignItems: 'center', gap: '8px', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' },
