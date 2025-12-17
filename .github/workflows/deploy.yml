@@ -1,14 +1,11 @@
 name: Deploy ARQ to Beget Server
-
 on:
   push:
     branches:
       - main
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
     steps:
       - name: Deploy via SSH and restart
         uses: appleboy/ssh-action@master
@@ -21,17 +18,13 @@ jobs:
             git pull origin main
             npm install --ignore-scripts
             npm run build
-                        - name: Kill old processes on port 8000
-              run: lsof -ti:8000 | xargs kill -9 || true
+            lsof -ti:8000 | xargs kill -9 || true
             pm2 restart arq || pm2 start npm --name arq -- start
-                        - name: Reload Nginx
-              run: ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} 'sudo systemctl reload nginx'
+            sudo systemctl reload nginx
             echo "✅ ARQ deployment completed successfully"
-      
       - name: Notify deployment status
         if: success()
         run: echo "🚀 ARQ deployed successfully to ${{ secrets.SERVER_HOST }}"
-      
       - name: Notify deployment failure
         if: failure()
         run: echo "❌ ARQ deployment failed"
