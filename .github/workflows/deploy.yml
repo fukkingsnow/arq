@@ -25,7 +25,6 @@ jobs:
    sudo systemctl enable arq
     sudo systemctl reload nginx
      sudo systemctl restart arq
-      echo "✅ ARQ deployment completed successfully"
       - name: Notify deployment status
         if: success()
         run: echo "✅ ARQ deployed successfully to ${{ secrets.SERVER_HOST }}"
