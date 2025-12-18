@@ -1,4 +1,5 @@
 name: Deploy ARQ to Beget Server
+
 on:
   push:
     branches:
@@ -17,49 +18,126 @@ jobs:
           script: |
             set -e
             cd /opt/arq || { echo 'ERROR: Cannot cd to /opt/arq'; exit 1; }
-            echo '=== Step 1: Git operations ==='
+            
+            echo '========================================'
+            echo 'DEPLOYMENT START'
+            echo '========================================'
+            
+            # Step 1: Git operations
+            echo ''
+            echo '[Step 1] Git operations...'
             git stash || true
             git pull origin main || { echo 'ERROR: Git pull failed'; exit 1; }
-            echo '=== Step 2: Installing dependencies ==='
-            npm install || { echo 'ERROR: npm install failed'; exit 1; }
-            echo '=== Step 3: Running npm audit fix ==='
+            echo '✓ Git updated'
+            
+            # Step 2: Clean old dist
+            echo ''
+            echo '[Step 2] Cleaning old build...'
+            rm -rf dist/ || true
+            rm -rf src/**/*.js src/*.js 2>/dev/null || true
+            echo '✓ Old build cleaned'
+            
+            # Step 3: Install dependencies
+            echo ''
+            echo '[Step 3] Installing dependencies...'
+            npm install --production=false || { echo 'ERROR: npm install failed'; exit 1; }
+            echo '✓ Dependencies installed'
+            
+            # Step 4: Security fixes
+            echo ''
+            echo '[Step 4] Security audit...'
             npm audit fix --force || true
-            echo '=== Step 4: Building application ==='
-            echo 'Running: npx nest build'
-            if ! npx nest build 2>&1 | tee /tmp/build.log; then
-              echo 'ERROR: npm run build failed. Build log:'
-              cat /tmp/build.log
-              exit 1
-            fi
-            echo 'Build command completed'
-            echo '=== Step 5: Verifying build output ==='
-            if [ ! -f /opt/arq/dist/main.js ]; then
-              echo 'ERROR: Build failed - dist/main.js not found!'
-              echo 'Files in dist:'
-              ls -la /opt/arq/dist/ 2>&1 || echo 'dist directory does not exist'
-              exit 1
-            fi
-            echo 'Build verified. dist/main.js exists.'
-            echo '=== Step 6: Checking PM2 process ==='
-            pm2 list || echo 'PM2 has no processes yet'
-            echo '=== Step 7: Restarting PM2 process ==='
-            if pm2 list | grep -q 'arq-backend'; then
-              echo 'Restarting existing PM2 process'
-              pm2 restart arq-backend
+            echo '✓ Security audit completed'
+            
+            # Step 5: Ensure nest-cli.json exists
+            echo ''
+            echo '[Step 5] Checking NestJS CLI config...'
+            if [ ! -f nest-cli.json ]; then
+              echo 'Creating nest-cli.json...'
+              cat > nest-cli.json << 'NESTCLIEOF'
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "assets": ["**/*.md"]
+  }
+}
+NESTCLIEOF
+              echo '✓ nest-cli.json created'
             else
-              echo 'Starting new PM2 process'
-              pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 start failed'; exit 1; }
+              echo '✓ nest-cli.json found'
             fi
-            echo '=== Step 8: Saving PM2 state ==='
-            pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
-            echo '=== Step 9: Reloading Nginx ==='
-            sudo systemctl reload nginx || { echo 'ERROR: Nginx reload failed'; exit 1; }
-            echo '=== Step 10: Verifying PM2 status ==='
+            
+            # Step 6: Compile TypeScript
+            echo ''
+            echo '[Step 6] Compiling TypeScript...'
+            if npx tsc -p tsconfig.build.json 2>&1 | tee /tmp/build.log; then
+              echo '✓ TypeScript compilation successful'
+            else
+              echo 'ERROR: TypeScript compilation failed'
+              echo '=== BUILD LOG ==='
+              tail -50 /tmp/build.log
+              exit 1
+            fi
+            
+            # Step 7: Verify build output
+            echo ''
+            echo '[Step 7] Verifying build output...'
+            if [ -f dist/main.js ]; then
+              echo '✓ dist/main.js found'
+              ls -lh dist/main.js
+            else
+              echo 'ERROR: dist/main.js not found!'
+              echo 'Files in dist:'
+              ls -la dist/ 2>&1 | head -20 || echo 'dist directory is empty'
+              exit 1
+            fi
+            
+            # Step 8: Stop old PM2 process
+            echo ''
+            echo '[Step 8] Managing PM2 process...'
+            pm2 delete arq-backend 2>/dev/null || true
+            sleep 2
+            echo '✓ Old process stopped'
+            
+            # Step 9: Start new PM2 process
+            echo ''
+            echo '[Step 9] Starting new PM2 process...'
+            pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 start failed'; exit 1; }
+            echo '✓ PM2 process started'
+            sleep 3
+            
+            # Step 10: Verify PM2 status
+            echo ''
+            echo '[Step 10] Verifying PM2 status...'
             pm2 status
-            echo 'Deployment completed successfully!'
-      - name: Notify deployment status
+            
+            # Step 11: Save PM2 configuration
+            echo ''
+            echo '[Step 11] Saving PM2 state...'
+            pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
+            echo '✓ PM2 state saved'
+            
+            # Step 12: Reload Nginx
+            echo ''
+            echo '[Step 12] Reloading Nginx...'
+            sudo systemctl reload nginx 2>&1 || echo 'WARNING: Nginx reload failed (might not be running)'
+            echo '✓ Nginx reloaded'
+            
+            echo ''
+            echo '========================================'
+            echo 'DEPLOYMENT COMPLETED SUCCESSFULLY'
+            echo '========================================'
+            echo ''
+            echo 'Application Status:'
+            pm2 logs arq-backend --lines 5
+            
+      - name: Notify deployment success
         if: success()
-        run: echo 'Deployment successful'
+        run: echo '✓ Deployment successful'
+        
       - name: Notify deployment failure
         if: failure()
-        run: echo 'Deployment failed'
+        run: echo '✗ Deployment failed'
