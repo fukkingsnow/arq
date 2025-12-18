@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,7 +25,7 @@ jobs:
             echo '=== Step 3: Running npm audit fix ==='
             npm audit fix --force || true
             echo '=== Step 4: Building application ==='
-            npm run build > /tmp/build.log 2>&1 || { echo 'ERROR: npm run build failed'; echo '=== BUILD OUTPUT ==='; cat /tmp/build.log; exit 1; }
+            npm run build || { echo 'ERROR: npm run build failed'; exit 1; }
             echo '=== Step 5: Verifying build output ==='
             if [ ! -f /opt/arq/dist/main.js ]; then
               echo 'ERROR: Build failed - dist/main.js not found!'
@@ -33,13 +34,21 @@ jobs:
               exit 1
             fi
             echo 'Build verified. dist/main.js exists.'
-            echo '=== Step 6: Restarting PM2 process ==='
-            pm2 restart arq-backend || pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 failed'; exit 1; }
-            echo '=== Step 7: Saving PM2 state ==='
+            echo '=== Step 6: Checking PM2 process ==='
+            pm2 list || echo 'PM2 has no processes yet'
+            echo '=== Step 7: Restarting PM2 process ==='
+            if pm2 list | grep -q 'arq-backend'; then
+              echo 'Restarting existing PM2 process'
+              pm2 restart arq-backend
+            else
+              echo 'Starting new PM2 process'
+              pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 start failed'; exit 1; }
+            fi
+            echo '=== Step 8: Saving PM2 state ==='
             pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
-            echo '=== Step 8: Reloading Nginx ==='
+            echo '=== Step 9: Reloading Nginx ==='
             sudo systemctl reload nginx || { echo 'ERROR: Nginx reload failed'; exit 1; }
-            echo '=== Step 9: Verifying PM2 status ==='
+            echo '=== Step 10: Verifying PM2 status ==='
             pm2 status
             echo 'Deployment completed successfully!'
       - name: Notify deployment status
