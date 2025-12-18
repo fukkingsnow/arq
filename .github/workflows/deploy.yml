@@ -32,9 +32,9 @@ jobs:
             echo "Installing dependencies..."
             npm cache clean --force --silent || true
             rm -rf package-lock.json
-            npm install --production=false --no-audit --no-fund 2>&1 || {
+            npm install  --no-audit --no-fund 2>&1 || {
               echo "npm install failed, trying with ci..."
-              npm ci --production=false --no-audit --no-fund
+              npm ci  --no-audit --no-fund
             }
             
             # Build application
