@@ -21,7 +21,7 @@ jobs:
             npm audit fix --force || true
             npm run build
              pm2 restart arq-backend || pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq
- pm2 save            sudo systemctl reload nginx
+             pm2 save
       - name: Notify deployment status
         if: success()
         run: echo "Deployment successful"
