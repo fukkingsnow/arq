@@ -36,8 +36,7 @@ jobs:
             
             # Build application
             echo "Building application..."
-            npm run build
-            ls -la /opt/arq/dist/ || echo "dist directory not found"
+npm run build 2>&1 | head -200            ls -la /opt/arq/dist/ || echo "dist directory not found"
             
             # Start application
             echo "Starting application..."
