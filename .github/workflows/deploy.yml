@@ -20,9 +20,8 @@ jobs:
             npm install
             npm audit fix --force || true
             npm run build
-            pm2 delete arq-backend || true
-            pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq
-            pm2 save
+             pm2 restart arq-backend || pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq
+            pm2 save  m2 save
             sudo systemctl reload nginx
       - name: Notify deployment status
         if: success()
