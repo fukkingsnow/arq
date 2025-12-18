@@ -48,9 +48,7 @@ jobs:
             # Step 5: Compile TypeScript
             echo ''
             echo '[Step 5] Compiling TypeScript...'
-            if npx tsc -p tsconfig.build.json 2>&1 | tee /tmp/build.log; then
-              echo '[OK] TypeScript compilation successful'
-            else
+            if timeout 300 npx nest build 2>&1 | tee /tmp/build.log; then            else
               echo 'ERROR: TypeScript compilation failed'
               echo '=== BUILD LOG ==='
               tail -50 /tmp/build.log
