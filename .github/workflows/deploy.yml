@@ -28,33 +28,33 @@ jobs:
             echo '[Step 1] Git operations...'
             git stash || true
             git pull origin main || { echo 'ERROR: Git pull failed'; exit 1; }
-            echo '✓ Git updated'
+            echo '[OK] Git updated'
             
             # Step 2: Clean old dist
             echo ''
             echo '[Step 2] Cleaning old build...'
             rm -rf dist/ || true
             rm -rf src/**/*.js src/*.js 2>/dev/null || true
-            echo '✓ Old build cleaned'
+            echo '[OK] Old build cleaned'
             
             # Step 3: Install dependencies
             echo ''
             echo '[Step 3] Installing dependencies...'
             npm install --production=false || { echo 'ERROR: npm install failed'; exit 1; }
-            echo '✓ Dependencies installed'
+            echo '[OK] Dependencies installed'
             
             # Step 4: Security fixes
             echo ''
             echo '[Step 4] Security audit...'
             npm audit fix --force || true
-            echo '✓ Security audit completed'
+            echo '[OK] Security audit completed'
             
             # Step 5: Ensure nest-cli.json exists
             echo ''
             echo '[Step 5] Checking NestJS CLI config...'
             if [ ! -f nest-cli.json ]; then
               echo 'Creating nest-cli.json...'
-              cat > nest-cli.json << 'EOF'
+              cat > nest-cli.json << EOF
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
@@ -65,16 +65,16 @@ jobs:
   }
 }
 EOF
-              echo '✓ nest-cli.json created'
+              echo '[OK] nest-cli.json created'
             else
-              echo '✓ nest-cli.json found'
+              echo '[OK] nest-cli.json found'
             fi
             
             # Step 6: Compile TypeScript
             echo ''
             echo '[Step 6] Compiling TypeScript...'
             if npx tsc -p tsconfig.build.json 2>&1 | tee /tmp/build.log; then
-              echo '✓ TypeScript compilation successful'
+              echo '[OK] TypeScript compilation successful'
             else
               echo 'ERROR: TypeScript compilation failed'
               echo '=== BUILD LOG ==='
@@ -86,7 +86,7 @@ EOF
             echo ''
             echo '[Step 7] Verifying build output...'
             if [ -f dist/main.js ]; then
-              echo '✓ dist/main.js found'
+              echo '[OK] dist/main.js found'
               ls -lh dist/main.js
             else
               echo 'ERROR: dist/main.js not found!'
@@ -100,13 +100,13 @@ EOF
             echo '[Step 8] Managing PM2 process...'
             pm2 delete arq-backend 2>/dev/null || true
             sleep 2
-            echo '✓ Old process stopped'
+            echo '[OK] Old process stopped'
             
             # Step 9: Start new PM2 process
             echo ''
             echo '[Step 9] Starting new PM2 process...'
             pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 start failed'; exit 1; }
-            echo '✓ PM2 process started'
+            echo '[OK] PM2 process started'
             sleep 3
             
             # Step 10: Verify PM2 status
@@ -118,13 +118,13 @@ EOF
             echo ''
             echo '[Step 11] Saving PM2 state...'
             pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
-            echo '✓ PM2 state saved'
+            echo '[OK] PM2 state saved'
             
             # Step 12: Reload Nginx
             echo ''
             echo '[Step 12] Reloading Nginx...'
             sudo systemctl reload nginx 2>&1 || echo 'WARNING: Nginx reload failed (might not be running)'
-            echo '✓ Nginx reloaded'
+            echo '[OK] Nginx reloaded'
             
             echo ''
             echo '========================================'
@@ -136,8 +136,8 @@ EOF
 
       - name: Notify deployment success
         if: success()
-        run: echo '✓ Deployment successful'
+        run: echo 'Deployment successful'
 
       - name: Notify deployment failure
         if: failure()
-        run: echo '✗ Deployment failed'
+        run: echo 'Deployment failed'
