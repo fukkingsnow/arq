@@ -2,8 +2,7 @@ name: Deploy ARQ to Beget Server
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
@@ -18,25 +17,14 @@ jobs:
           script: |
             set -e
             cd /opt/arq
-            echo 'Starting deployment...'
-            git stash
-            git reset --hard HEAD
-            git clean -fd
-            git pull origin main
-            npm install --production=false
+            git fetch origin
+            git reset --hard origin/main
+            npm ci --omit=dev
             npm rebuild
-                        npm cache clean --force
             npm run build
             npm run build:frontend
             sleep 2
-            pnpm start dist/main.js --name "arq-backend" --cwd /opt/arq
+            pnpm start dist/main.js --name arq-backend --cwd /opt/arq
             pnpm save
             sudo systemctl reload nginx
-            pnpm logs arq-backend --lines 20 --nstream
-            echo "=== Backend Health Check ==="
-            curl -f http://localhost:8888 || echo "Backend not responding"
-            echo "=== Nginx Config Check ==="
-            nginx -t || echo "Nginx config invalid"
-            echo "=== Nginx Error Log (last 10 lines) ==="
-            tail -10 /var/log/nginx/error.log || echo "Cannot read nginx error log"
-            echo "=== Deployment completed!"
+            echo 'Deployment completed successfully!'
