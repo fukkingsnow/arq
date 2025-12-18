@@ -24,7 +24,7 @@ jobs:
        echo "Step 3: Running npm audit fix..."
        npm audit fix --force || true
        echo "Step 4: Building application..."
-                    npm run build 2>&1 | tee /tmp/build.log || { echo 'ERROR: npm run build failed'; exit 1; }
+                                 npm run build 2>&1 | tee /tmp/build.log || { echo '\n=== BUILD FAILED ==='; echo 'Build stderr and stdout:'; cat /tmp/build.log; echo '=== CHECKING DIST DIR ==='; ls -la /opt/arq/dist/ 2>&1 || echo 'dist dir does not exist'; exit 1; }
                     
        if [ ! -f /opt/arq/dist/main.js ]; then echo "ERROR: Build failed - dist/main.js not found!"; ls -la /opt/arq/dist/ 2>&1 || echo "dist directory doesn't exist"; exit 1; fi
        echo "Build verified. dist/main.js exists."
