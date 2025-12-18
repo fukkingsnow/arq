@@ -1,371 +1,162 @@
-// @ts-nocheck
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import styles from './ARQDashboard.module.css';
 
 interface Task {
   taskId: string;
+  title: string;
   status: 'queued' | 'in_progress' | 'completed';
   branch: string;
   createdAt: string;
   developmentGoals: string[];
-}
-
-interface DashboardState {
-  totalTasks: number;
-  activeTasks: Task[];
-  systemHealth: {
-    status: string;
-    uptime: number;
-    responseTime: number;
-  };
+  result?: any;
+  logs?: string;
 }
 
 export const ARQDashboard: React.FC = () => {
-  const [dashboard, setDashboard] = useState<DashboardState>({
-    totalTasks: 0,
-    activeTasks: [],
-    systemHealth: { status: 'offline', uptime: 0, responseTime: 0 },
-  });
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({title: '', description: '', priority: 'HIGH'});
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [activeTab, setActiveTab] = useState<'create' | 'list' | 'details'>('list');
+
+  // Fetch tasks
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch('https://arq-ai.ru/api/v1/arq/tasks');
+      setTasks(await res.json());
+    } catch (e) { console.error(e); }
+  };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        // Fetch tasks
-        const tasksResponse = await fetch('https://arq-ai.ru/api/v1/arq/tasks');
-        const tasksData = await tasksResponse.json();
-
-        // Fetch health
-        const healthResponse = await fetch('https://arq-ai.ru/api/v1/arq/health');
-        const healthData = await healthResponse.json();
-
-        setDashboard({
-          totalTasks: tasksData.total || 0,
-          activeTasks: tasksData.tasks || [],
-          systemHealth: {
-            status: healthData.status || 'offline',
-            uptime: healthData.uptime || 0,
-            responseTime: healthData.responseTime || 0,
-          },
-        });
-        setLoading(false);
-      } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-    // Refresh every 5 seconds for real-time updates
-    const interval = setInterval(fetchDashboardData, 5000);
+    fetchTasks();
+    const interval = setInterval(fetchTasks, 3000);
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return <div className="dashboard-loading">Loading ARQ Dashboard...</div>;
-  }
+  // Create task
+  const handleCreateTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.title.trim()) return;
+    setLoading(true);
+    try {
+      const res = await fetch('https://arq-ai.ru/api/v1/arq/start-development', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority
+        })
+      });
+      const task = await res.json();
+      setTasks([task, ...tasks]);
+      setFormData({title: '', description: '', priority: 'HIGH'});
+      alert('✅ Task created: ' + task.taskId);
+      setActiveTab('list');
+    } catch (e) {
+      alert('❌ Error: ' + (e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="arq-dashboard">
-      <header className="dashboard-header">
-        <h1>🚀 ARQ Self-Development Engine Dashboard</h1>
-        <div className="system-status">
-          <span className={`status-badge ${dashboard.systemHealth.status}`}>
-            {dashboard.systemHealth.status.toUpperCase()}
-          </span>
+    <div className={styles.container}>
+      <h1 className={styles.title}>🚀 ARQ Task Management Dashboard</h1>
+      
+      {/* Tabs */}
+      <div className={styles.tabs}>
+        <button className={activeTab === 'create' ? styles.activeTab : ''} onClick={() => setActiveTab('create')}>+ Create Task</button>
+        <button className={activeTab === 'list' ? styles.activeTab : ''} onClick={() => setActiveTab('list')}>📋 Task List ({tasks.length})</button>
+        <button className={activeTab === 'details' ? styles.activeTab : ''} onClick={() => setActiveTab('details')} disabled={!selectedTask}>📊 Task Details</button>
+      </div>
+
+      {/* Create Task Tab */}
+      {activeTab === 'create' && (
+        <div className={styles.section}>
+          <h2>Create New Task</h2>
+          <form onSubmit={handleCreateTask} className={styles.form}>
+            <input
+              type="text"
+              placeholder="Task Title (required)"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              required
+              className={styles.input}
+            />
+            <textarea
+              placeholder="Task Description"
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className={styles.textarea}
+            />
+            <select
+              value={formData.priority}
+              onChange={(e) => setFormData({...formData, priority: e.target.value})}
+              className={styles.select}
+            >
+              <option>LOW</option>
+              <option>MEDIUM</option>
+              <option selected>HIGH</option>
+              <option>URGENT</option>
+            </select>
+            <button type="submit" disabled={loading} className={styles.button}>
+              {loading ? '⏳ Creating...' : '✅ Create Task'}
+            </button>
+          </form>
         </div>
-      </header>
+      )}
 
-      <div className="dashboard-grid">
-        {/* System Health Section */}
-        <section className="card system-health">
-          <h2>System Health</h2>
-          <div className="health-metrics">
-            <div className="metric">
-              <label>Status:</label>
-              <span>{dashboard.systemHealth.status}</span>
-            </div>
-            <div className="metric">
-              <label>Response Time:</label>
-              <span>{dashboard.systemHealth.responseTime}ms</span>
-            </div>
-            <div className="metric">
-              <label>Active Tasks:</label>
-              <span className="badge-primary">{dashboard.totalTasks}</span>
-            </div>
-          </div>
-        </section>
-
-        {/* Development Tasks Section */}
-        <section className="card development-tasks">
-          <h2>Development Tasks ({dashboard.totalTasks})</h2>
-          <div className="tasks-list">
-            {dashboard.activeTasks.length > 0 ? (
-              dashboard.activeTasks.map((task) => (
-                <div key={task.taskId} className="task-card">
-                  <div className="task-header">
-                    <h3>{task.taskId}</h3>
-                    <span className={`status-badge ${task.status}`}>
-                      {task.status.replace(/_/g, ' ').toUpperCase()}
+      {/* Task List Tab */}
+      {activeTab === 'list' && (
+        <div className={styles.section}>
+          <h2>Active Tasks</h2>
+          {tasks.length === 0 ? (
+            <p style={{textAlign: 'center', color: '#888', padding: '20px'}}>No tasks yet. Create one to get started!</p>
+          ) : (
+            <div className={styles.taskList}>
+              {tasks.map(task => (
+                <div key={task.taskId} className={styles.taskCard} onClick={() => {setSelectedTask(task); setActiveTab('details');}}>
+                  <div className={styles.taskHeader}>
+                    <h3>{task.title}</h3>
+                    <span className={`${styles.badge} ${styles['badge-' + task.status]}`}>
+                      {task.status === 'in_progress' ? '⚙️ Running' : task.status === 'completed' ? '✅ Done' : '⏳ Queued'}
                     </span>
                   </div>
-                  <div className="task-details">
-                    <p><strong>Branch:</strong> {task.branch}</p>
-                    <p><strong>Created:</strong> {new Date(task.createdAt).toLocaleString()}</p>
-                    <div className="goals">
-                      <strong>Goals:</strong>
-                      <ul>
-                        {task.developmentGoals.map((goal, idx) => (
-                          <li key={idx}>{goal}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
+                  <p style={{fontSize: '12px', color: '#666'}}>{new Date(task.createdAt).toLocaleString()}</p>
+                  <p style={{margin: '10px 0', fontSize: '14px'}}>{task.branch || 'main'}</p>
                 </div>
-              ))
-            ) : (
-              <p className="no-tasks">No active tasks</p>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Task Details Tab */}
+      {activeTab === 'details' && selectedTask && (
+        <div className={styles.section}>
+          <h2>Task Details</h2>
+          <div className={styles.details}>
+            <p><strong>ID:</strong> {selectedTask.taskId}</p>
+            <p><strong>Title:</strong> {selectedTask.title}</p>
+            <p><strong>Status:</strong> {selectedTask.status}</p>
+            <p><strong>Created:</strong> {new Date(selectedTask.createdAt).toLocaleString()}</p>
+            <p><strong>Branch:</strong> {selectedTask.branch}</p>
+            {selectedTask.result && (
+              <div>
+                <p><strong>Result:</strong></p>
+                <pre className={styles.resultBox}>{JSON.stringify(selectedTask.result, null, 2)}</pre>
+              </div>
+            )}
+            {selectedTask.logs && (
+              <div>
+                <p><strong>Logs:</strong></p>
+                <pre className={styles.logsBox}>{selectedTask.logs}</pre>
+              </div>
             )}
           </div>
-        </section>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="dashboard-actions">
-        <button className="btn btn-primary" onClick={() => window.location.reload()}>
-          🔄 Refresh Dashboard
-        </button>
-        <button className="btn btn-success" onClick={() => alert('New task creation UI coming soon!')}>
-          ➕ Start New Task
-        </button>
-      </div>
-
-      <style jsx>{`
-        .arq-dashboard {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          padding: 24px;
-          max-width: 1400px;
-          margin: 0 auto;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          min-height: 100vh;
-        }
-
-        .dashboard-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 32px;
-          color: white;
-        }
-
-        .dashboard-header h1 {
-          font-size: 32px;
-          margin: 0;
-        }
-
-        .system-status {
-          display: flex;
-          gap: 16px;
-        }
-
-        .status-badge {
-          padding: 8px 16px;
-          border-radius: 24px;
-          font-weight: bold;
-          text-transform: uppercase;
-          font-size: 12px;
-        }
-
-        .status-badge.healthy,
-        .status-badge.in_progress {
-          background: #10b981;
-          color: white;
-        }
-
-        .status-badge.offline {
-          background: #ef4444;
-          color: white;
-        }
-
-        .dashboard-grid {
-          display: grid;
-          grid-template-columns: 1fr 2fr;
-          gap: 24px;
-          margin-bottom: 24px;
-        }
-
-        .card {
-          background: white;
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h2 {
-          margin: 0 0 16px 0;
-          font-size: 20px;
-          color: #1f2937;
-        }
-
-        .health-metrics {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .metric {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 12px;
-          background: #f3f4f6;
-          border-radius: 8px;
-        }
-
-        .metric label {
-          font-weight: 600;
-          color: #4b5563;
-        }
-
-        .metric span {
-          font-size: 18px;
-          font-weight: bold;
-          color: #667eea;
-        }
-
-        .badge-primary {
-          background: #667eea;
-          color: white;
-          padding: 4px 12px;
-          border-radius: 12px;
-          font-weight: bold;
-        }
-
-        .tasks-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .task-card {
-          border-left: 4px solid #667eea;
-          padding: 16px;
-          background: #f9fafb;
-          border-radius: 8px;
-        }
-
-        .task-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
-
-        .task-header h3 {
-          margin: 0;
-          font-size: 16px;
-          color: #1f2937;
-        }
-
-        .task-details p {
-          margin: 4px 0;
-          font-size: 14px;
-          color: #6b7280;
-        }
-
-        .goals {
-          margin-top: 8px;
-        }
-
-        .goals strong {
-          display: block;
-          margin-bottom: 8px;
-          color: #1f2937;
-        }
-
-        .goals ul {
-          margin: 0;
-          padding-left: 20px;
-          list-style: none;
-        }
-
-        .goals li {
-          padding: 4px 0;
-          color: #4b5563;
-        }
-
-        .goals li:before {
-          content: '✓ ';
-          color: #10b981;
-          font-weight: bold;
-          margin-right: 8px;
-        }
-
-        .no-tasks {
-          text-align: center;
-          color: #9ca3af;
-          padding: 24px;
-        }
-
-        .dashboard-actions {
-          display: flex;
-          gap: 16px;
-          justify-content: center;
-        }
-
-        .btn {
-          padding: 12px 24px;
-          border: none;
-          border-radius: 8px;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-          background: white;
-          color: #667eea;
-        }
-
-        .btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .btn-success {
-          background: #10b981;
-          color: white;
-        }
-
-        .btn-success:hover {
-          background: #059669;
-          transform: translateY(-2px);
-        }
-
-        .dashboard-loading {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          font-size: 24px;
-          color: #667eea;
-        }
-
-        @media (max-width: 768px) {
-          .dashboard-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .dashboard-header {
-            flex-direction: column;
-            gap: 16px;
-          }
-
-          .dashboard-header h1 {
-            font-size: 24px;
-          }
-        }
-      `}</style>
+        </div>
+      )}
     </div>
   );
 };
