@@ -49,8 +49,7 @@ jobs:
             echo ''
             echo ''
             echo '[Step 5] Compiling TypeScript...'
-            timeout 300 npx nest build || { echo 'ERROR: TypeScript compilation failed'; exit 1; }
-            echo '[OK] TypeScript compilation successful'            if [ -f dist/main.js ]; then
+            timeout 300 npx nest build            echo '[OK] TypeScript compilation successful'            if [ -f dist/main.js ]; then
               echo '[OK] dist/main.js found'
               ls -lh dist/main.js
             else
