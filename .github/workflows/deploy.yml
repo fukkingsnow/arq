@@ -25,6 +25,8 @@ jobs:
             echo ''
             echo '[Step 1] Git operations...'
             git stash || true
+            git reset --hard HEAD
+            git clean -fd
             git pull origin main || { echo 'ERROR: Git pull failed'; exit 1; }
             echo '[OK] Git updated'
             # Step 2: Clean old dist
@@ -43,27 +45,9 @@ jobs:
             echo '[Step 4] Security audit...'
             npm audit fix --force || true
             echo '[OK] Security audit completed'
-            # Step 5: Ensure nest-cli.json exists
+            # Step 5: Compile TypeScript
             echo ''
-            echo '[Step 5] Checking NestJS CLI config...'
-            if [ ! -f nest-cli.json ]; then
-              echo 'Creating nest-cli.json...'
-              echo '{' > nest-cli.json
-              echo '  "\$schema": "https://json.schemastore.org/nest-cli",' >> nest-cli.json
-              echo '  "collection": "@nestjs/schematics",' >> nest-cli.json
-              echo '  "sourceRoot": "src",' >> nest-cli.json
-              echo '  "compilerOptions": {' >> nest-cli.json
-              echo '    "deleteOutDir": true,' >> nest-cli.json
-              echo '    "assets": ["**/*.md"]' >> nest-cli.json
-              echo '  }' >> nest-cli.json
-              echo '}' >> nest-cli.json
-              echo '[OK] nest-cli.json created'
-            else
-              echo '[OK] nest-cli.json found'
-            fi
-            # Step 6: Compile TypeScript
-            echo ''
-            echo '[Step 6] Compiling TypeScript...'
+            echo '[Step 5] Compiling TypeScript...'
             if npx tsc -p tsconfig.build.json 2>&1 | tee /tmp/build.log; then
               echo '[OK] TypeScript compilation successful'
             else
@@ -72,9 +56,9 @@ jobs:
               tail -50 /tmp/build.log
               exit 1
             fi
-            # Step 7: Verify build output
+            # Step 6: Verify build output
             echo ''
-            echo '[Step 7] Verifying build output...'
+            echo '[Step 6] Verifying build output...'
             if [ -f dist/main.js ]; then
               echo '[OK] dist/main.js found'
               ls -lh dist/main.js
@@ -84,30 +68,30 @@ jobs:
               ls -la dist/ 2>&1 | head -20 || echo 'dist directory is empty'
               exit 1
             fi
-            # Step 8: Stop old PM2 process
+            # Step 7: Stop old PM2 process
             echo ''
-            echo '[Step 8] Managing PM2 process...'
+            echo '[Step 7] Managing PM2 process...'
             pm2 delete arq-backend 2>/dev/null || true
             sleep 2
             echo '[OK] Old process stopped'
-            # Step 9: Start new PM2 process
+            # Step 8: Start new PM2 process
             echo ''
-            echo '[Step 9] Starting new PM2 process...'
+            echo '[Step 8] Starting new PM2 process...'
             pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 start failed'; exit 1; }
             echo '[OK] PM2 process started'
             sleep 3
-            # Step 10: Verify PM2 status
+            # Step 9: Verify PM2 status
             echo ''
-            echo '[Step 10] Verifying PM2 status...'
+            echo '[Step 9] Verifying PM2 status...'
             pm2 status
-            # Step 11: Save PM2 configuration
+            # Step 10: Save PM2 configuration
             echo ''
-            echo '[Step 11] Saving PM2 state...'
+            echo '[Step 10] Saving PM2 state...'
             pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
             echo '[OK] PM2 state saved'
-            # Step 12: Reload Nginx
+            # Step 11: Reload Nginx
             echo ''
-            echo '[Step 12] Reloading Nginx...'
+            echo '[Step 11] Reloading Nginx...'
             sudo systemctl reload nginx 2>&1 || echo 'WARNING: Nginx reload failed (might not be running)'
             echo '[OK] Nginx reloaded'
             echo ''
