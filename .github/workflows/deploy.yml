@@ -27,6 +27,7 @@ jobs:
                 rm -f package-lock.json
             npm install --production=false
                         chmod +x node_modules/.bin/*
+                            pm2 delete arq-backend || true
             npm run build
             sleep 2
             pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
