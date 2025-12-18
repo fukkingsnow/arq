@@ -9,7 +9,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy via SSH and restart with PM2
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -17,85 +17,17 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             set -e
-            cd /opt/arq || { echo 'ERROR: Cannot cd to /opt/arq'; exit 1; }
-            echo '========================================'
-            echo 'DEPLOYMENT START'
-            echo '========================================'
-            # Step 1: Git operations
-            echo ''
-            echo '[Step 1] Git operations...'
-            git stash || true
+            cd /opt/arq
+            echo 'Starting deployment...'
+            git stash
             git reset --hard HEAD
             git clean -fd
-            git pull origin main || { echo 'ERROR: Git pull failed'; exit 1; }
-            echo '[OK] Git updated'
-            # Step 2: Clean old dist
-            echo ''
-            echo '[Step 2] Cleaning old build...'
-            rm -rf dist/ || true
-            rm -rf src/**/*.js src/*.js 2>/dev/null || true
-            echo '[OK] Old build cleaned'
-            # Step 3: Install dependencies
-            echo ''
-            echo '[Step 3] Installing dependencies...'
-            npm install --production=false || { echo 'ERROR: npm install failed'; exit 1; }
-            echo '[OK] Dependencies installed'
-            # Step 4: Security fixes
-            echo ''
-            echo '[Step 4] Security audit...'
-            npm audit fix --force || true
-            echo '[OK] Security audit completed'
-            # Step 5: Compile TypeScript
-            echo ''
-            echo ''
-            echo '[Step 5] Compiling TypeScript...'
-            timeout 300 npx nest build            echo '[OK] TypeScript compilation successful'            if [ -f dist/main.js ]; then
-              echo '[OK] dist/main.js found'
-              ls -lh dist/main.js
-            else
-              echo 'ERROR: dist/main.js not found!'
-              echo 'Files in dist:'
-              ls -la dist/ 2>&1 | head -20 || echo 'dist directory is empty'
-              exit 1
-            fi
-            # Step 7: Stop old PM2 process
-            echo ''
-            echo '[Step 7] Managing PM2 process...'
-            pm2 delete arq-backend 2>/dev/null || true
+            git pull origin main
+            npm install --production=false
+            npx nest build
+            pm2 delete arq-backend
             sleep 2
-            echo '[OK] Old process stopped'
-            # Step 8: Start new PM2 process
-            echo ''
-            echo '[Step 8] Starting new PM2 process...'
-            pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 start failed'; exit 1; }
-            echo '[OK] PM2 process started'
-            sleep 3
-            # Step 9: Verify PM2 status
-            echo ''
-            echo '[Step 9] Verifying PM2 status...'
-            pm2 status
-            # Step 10: Save PM2 configuration
-            echo ''
-            echo '[Step 10] Saving PM2 state...'
-            pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
-            echo '[OK] PM2 state saved'
-            # Step 11: Reload Nginx
-            echo ''
-            echo '[Step 11] Reloading Nginx...'
-            sudo systemctl reload nginx 2>&1 || echo 'WARNING: Nginx reload failed (might not be running)'
-            echo '[OK] Nginx reloaded'
-            echo ''
-            echo '========================================'
-            echo 'DEPLOYMENT COMPLETED SUCCESSFULLY'
-            echo '========================================'
-            echo ''
-            echo 'Application Status:'
-            pm2 logs arq-backend --lines 5
-
-      - name: Notify deployment success
-        if: success()
-        run: echo 'Deployment successful'
-
-      - name: Notify deployment failure
-        if: failure()
-        run: echo 'Deployment failed'
+            pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
+            pm2 save
+            sudo systemctl reload nginx
+            echo 'Deployment completed!'
