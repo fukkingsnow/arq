@@ -24,6 +24,7 @@ jobs:
             git clean -fd
             git pull origin main
             npm install --production=false
+                        chmod +x node_modules/.bin/*
             npm run build
             sleep 2
             pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
