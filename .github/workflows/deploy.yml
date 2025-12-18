@@ -23,6 +23,8 @@ jobs:
             git reset --hard HEAD
             git clean -fd
             git pull origin main
+                rm -rf node_modules
+                rm -f package-lock.json
             npm install --production=false
                         chmod +x node_modules/.bin/*
             npm run build
