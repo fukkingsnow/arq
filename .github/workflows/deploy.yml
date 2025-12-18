@@ -41,10 +41,12 @@ jobs:
             # Build application
             echo "Building application..."
             npm run build
-            
+
+            echo "Checking if dist/main.js exists at /apt/arq/dist/main.js:" && ls -la /apt/arq/dist/main.js
             # Start application
             echo "Starting application..."
-            pm2 start dist/main.js --name arq-backend --cwd /opt/arq
+            pm2 start /apt/arq/dist/main.js --name arq-backend
+            echo "Listing dist directory contents:" && ls -la /apt/arq/dist/
             pm2 save
             
             # Reload nginx
