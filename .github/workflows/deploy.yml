@@ -25,12 +25,18 @@ jobs:
             echo '=== Step 3: Running npm audit fix ==='
             npm audit fix --force || true
             echo '=== Step 4: Building application ==='
-            npm run build || { echo 'ERROR: npm run build failed'; exit 1; }
+            echo 'Running: npx nest build'
+            npx nest build --debug 2>&1 || { echo 'ERROR: npm run build failed'; exit 1; }
+            echo 'Build command completed'
+            echo 'Checking build output...'
+            ls -la dist/ 2>&1 || echo 'dist directory not found'
             echo '=== Step 5: Verifying build output ==='
             if [ ! -f /opt/arq/dist/main.js ]; then
               echo 'ERROR: Build failed - dist/main.js not found!'
               echo 'Files in dist:'
               ls -la /opt/arq/dist/ 2>&1 || echo 'dist directory does not exist'
+              echo 'Contents of dist:'  
+              find /opt/arq/dist -type f 2>&1 | head -20 || echo 'Cannot find dist files'
               exit 1
             fi
             echo 'Build verified. dist/main.js exists.'
