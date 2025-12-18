@@ -19,6 +19,7 @@ jobs:
             cd /opt/arq
             git fetch origin
             git reset --hard origin/main
+                        npm config set audit false
             npm install --production=false --ignore-scripts
             npm rebuild
             npm run build
