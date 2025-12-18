@@ -26,7 +26,7 @@ jobs:
             npm audit fix --force || true
             echo '=== Step 4: Building application ==='
             echo 'Running: npx nest build'
-            npx nest build --debug 2>&1 || { echo 'ERROR: npm run build failed'; exit 1; }
+            npx nest build  2>&1 || { echo 'ERROR: npm run build failed'; exit 1; }
             echo 'Build command completed'
             echo 'Checking build output...'
             ls -la dist/ 2>&1 || echo 'dist directory not found'
