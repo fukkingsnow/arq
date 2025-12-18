@@ -1,45 +1,50 @@
 name: Deploy ARQ to Beget Server
 on:
- push:
-  branches:
-   - main
+  push:
+    branches:
+      - main
 jobs:
- deploy:
-  runs-on: ubuntu-latest
-  steps:
-   - name: Deploy via SSH and restart with PM2
-     uses: appleboy/ssh-action@master
-     with:
-      host: ${{ secrets.SERVER_HOST }}
-      username: ${{ secrets.SERVER_USER }}
-      key: ${{ secrets.SERVER_SSH_KEY }}
-      script: |
-       set -e
-       cd /opt/arq || { echo "ERROR: Cannot cd to /opt/arq"; exit 1; }
-       echo "Step 1: Git operations..."
-       git stash || true
-       git pull origin main || { echo "ERROR: Git pull failed"; exit 1; }
-       echo "Step 2: Installing dependencies..."
-       npm install || { echo "ERROR: npm install failed"; exit 1; }
-       echo "Step 3: Running npm audit fix..."
-       npm audit fix --force || true
-       echo "Step 4: Building application..."
-                                 npm run build 2>&1 | tee /tmp/build.log || { echo '\n=== BUILD FAILED ==='; echo 'Build stderr and stdout:'; cat /tmp/build.log; echo '=== CHECKING DIST DIR ==='; ls -la /opt/arq/dist/ 2>&1 || echo 'dist dir does not exist'; exit 1; }
-                    
-       if [ ! -f /opt/arq/dist/main.js ]; then echo "ERROR: Build failed - dist/main.js not found!"; ls -la /opt/arq/dist/ 2>&1 || echo "dist directory doesn't exist"; exit 1; fi
-       echo "Build verified. dist/main.js exists."
-       echo "Step 6: Restarting PM2 process..."
-       pm2 restart arq-backend || pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq || { echo "ERROR: PM2 start/restart failed"; exit 1; }
-       echo "Step 7: Saving PM2 state..."
-       pm2 save || { echo "ERROR: pm2 save failed"; exit 1; }
-       echo "Step 8: Reloading Nginx..."
-       sudo systemctl reload nginx || { echo "ERROR: Nginx reload failed"; exit 1; }
-       echo "Step 9: Verifying PM2 status..."
-       pm2 status
-       echo "\nDeployment completed successfully!"
-   - name: Notify deployment status
-     if: success()
-     run: echo "Deployment successful"
-   - name: Notify deployment failure
-     if: failure()
-     run: echo "Deployment failed"
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH and restart with PM2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/arq || { echo 'ERROR: Cannot cd to /opt/arq'; exit 1; }
+            echo '=== Step 1: Git operations ==='
+            git stash || true
+            git pull origin main || { echo 'ERROR: Git pull failed'; exit 1; }
+            echo '=== Step 2: Installing dependencies ==='
+            npm install || { echo 'ERROR: npm install failed'; exit 1; }
+            echo '=== Step 3: Running npm audit fix ==='
+            npm audit fix --force || true
+            echo '=== Step 4: Building application ==='
+            npm run build || { echo 'ERROR: npm run build failed'; npm run build 2>&1; exit 1; }
+            echo '=== Step 5: Verifying build output ==='
+            if [ ! -f /opt/arq/dist/main.js ]; then
+              echo 'ERROR: Build failed - dist/main.js not found!'
+              echo 'Files in dist:'
+              ls -la /opt/arq/dist/ 2>&1 || echo 'dist directory does not exist'
+              exit 1
+            fi
+            echo 'Build verified. dist/main.js exists.'
+            echo '=== Step 6: Restarting PM2 process ==='
+            pm2 restart arq-backend || pm2 start /opt/arq/dist/main.js --name "arq-backend" --cwd /opt/arq || { echo 'ERROR: PM2 failed'; exit 1; }
+            echo '=== Step 7: Saving PM2 state ==='
+            pm2 save || { echo 'ERROR: pm2 save failed'; exit 1; }
+            echo '=== Step 8: Reloading Nginx ==='
+            sudo systemctl reload nginx || { echo 'ERROR: Nginx reload failed'; exit 1; }
+            echo '=== Step 9: Verifying PM2 status ==='
+            pm2 status
+            echo 'Deployment completed successfully!'
+      - name: Notify deployment status
+        if: success()
+        run: echo 'Deployment successful'
+      - name: Notify deployment failure
+        if: failure()
+        run: echo 'Deployment failed'
