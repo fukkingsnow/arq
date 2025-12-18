@@ -40,7 +40,7 @@ jobs:
             
             # Build application
             echo "Building application..."
-npm run build
+ npm run build
             echo "Checking if dist/main.js exists at /apt/arq/dist/main.js:" && ls -la /apt/arq/dist/main.js
             # Start application
             echo "Starting application..."
