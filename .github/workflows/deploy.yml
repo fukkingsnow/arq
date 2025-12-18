@@ -54,7 +54,7 @@ jobs:
             echo '[Step 5] Checking NestJS CLI config...'
             if [ ! -f nest-cli.json ]; then
               echo 'Creating nest-cli.json...'
-              cat > nest-cli.json << 'NESTCLIEOF'
+              cat > nest-cli.json << 'EOF'
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
@@ -64,7 +64,7 @@ jobs:
     "assets": ["**/*.md"]
   }
 }
-NESTCLIEOF
+EOF
               echo '✓ nest-cli.json created'
             else
               echo '✓ nest-cli.json found'
@@ -133,11 +133,11 @@ NESTCLIEOF
             echo ''
             echo 'Application Status:'
             pm2 logs arq-backend --lines 5
-            
+
       - name: Notify deployment success
         if: success()
         run: echo '✓ Deployment successful'
-        
+
       - name: Notify deployment failure
         if: failure()
         run: echo '✗ Deployment failed'
