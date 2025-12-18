@@ -33,4 +33,5 @@ jobs:
             pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
             pm2 save
             sudo systemctl reload nginx
+                pm2 logs arq-backend --lines 20 --nostream
             echo 'Deployment completed!'
