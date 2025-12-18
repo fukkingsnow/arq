@@ -36,4 +36,10 @@ jobs:
             pm2 save
             sudo systemctl reload nginx
                 pm2 logs arq-backend --lines 20 --nostream
+                echo '=== Backend Health Check ==='
+                curl -I http://localhost:8000 || echo 'Backend not responding'
+                echo '=== Nginx Config Check ==='
+                nginx -t || echo 'Nginx config invalid'
+                echo '=== Nginx Error Log (last 10 lines) ==='
+                tail -10 /var/log/nginx/error.log || echo 'Cannot read nginx error log'
             echo 'Deployment completed!'
