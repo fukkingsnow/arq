@@ -47,17 +47,10 @@ jobs:
             echo '[OK] Security audit completed'
             # Step 5: Compile TypeScript
             echo ''
-            echo '[Step 5] Compiling TypeScript...'
-            if timeout 300 npx nest build 2>&1 | tee /tmp/build.log; then            else
-              echo 'ERROR: TypeScript compilation failed'
-              echo '=== BUILD LOG ==='
-              tail -50 /tmp/build.log
-              exit 1
-            fi
-            # Step 6: Verify build output
             echo ''
-            echo '[Step 6] Verifying build output...'
-            if [ -f dist/main.js ]; then
+            echo '[Step 5] Compiling TypeScript...'
+            timeout 300 npx nest build || { echo 'ERROR: TypeScript compilation failed'; exit 1; }
+            echo '[OK] TypeScript compilation successful'            if [ -f dist/main.js ]; then
               echo '[OK] dist/main.js found'
               ls -lh dist/main.js
             else
