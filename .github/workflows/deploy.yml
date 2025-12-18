@@ -25,6 +25,7 @@ jobs:
             git pull origin main
             npm install --production=false
             npm rebuild
+                        npm cache clean --force
             npm run build
             npm run build:frontend
             sleep 2
