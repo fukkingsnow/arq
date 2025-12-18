@@ -36,7 +36,9 @@ jobs:
             
             # Build application
             echo "Building application..."
- npm run build 2>&1            
+            npm run build
+            ls -la /opt/arq/dist/ || echo "dist directory not found"
+            
             # Start application
             echo "Starting application..."
             pm2 start /opt/arq/dist/main.js --name arq-backend || echo "Failed to start app"
