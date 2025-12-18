@@ -1,5 +1,4 @@
 name: Deploy ARQ to Beget Server
-
 on:
   push:
     branches: [main]
@@ -17,15 +16,44 @@ jobs:
           script: |
             set -e
             cd /opt/arq
+            echo "=== Starting deployment ==="
+            
+            # Kill existing processes
+            echo "Stopping old processes..."
+            pm2 delete arq-backend 2>/dev/null || true
+            fuser -k 8000/tcp 2>/dev/null || true
+            
+            # Update repository
+            echo "Fetching updates..."
             git fetch origin
             git reset --hard origin/main
-                        npm config set audit false
+            git clean -fd
+            
+            # Clean and install dependencies
+            echo "Installing dependencies..."
+            npm cache clean --force
             npm install --production=false --ignore-scripts
-            npm rebuild
+            
+            # Build application
+            echo "Building application..."
             npm run build
-            npm run build:frontend
-            sleep 2
-            pnpm start dist/main.js --name arq-backend --cwd /opt/arq
-            pnpm save
+            
+            # Start application
+            echo "Starting application..."
+            pm2 start dist/main.js --name arq-backend --cwd /opt/arq
+            pm2 save
+            
+            # Reload nginx
+            echo "Reloading nginx..."
             sudo systemctl reload nginx
-            echo 'Deployment completed successfully!'
+            
+            # Health check
+            echo "Running health check..."
+            sleep 3
+            curl -f http://localhost:8000/health || {
+              echo "Health check failed!"
+              pm2 stop arq-backend
+              exit 1
+            }
+            
+            echo "=== Deployment completed successfully! ==="
