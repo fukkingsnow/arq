@@ -25,6 +25,7 @@ jobs:
             git pull origin main
             npm install --production=false
                         chmod +x node_modules/.bin/*
+                                            npm rebuild
                             pm2 kill
                    npm run build
                                npm run build:frontend
