@@ -40,4 +40,6 @@ jobs:
                 nginx -t || echo 'Nginx config invalid'
                 echo '=== Nginx Error Log (last 10 lines) ==='
                 tail -10 /var/log/nginx/error.log || echo 'Cannot read nginx error log'
+                echo '=== Nginx Server Config ==='
+                cat /etc/nginx/sites-enabled/arq-ai.ru 2>/dev/null || cat /etc/nginx/sites-enabled/default 2>/dev/null || echo 'Config not found'
             echo 'Deployment completed!'
