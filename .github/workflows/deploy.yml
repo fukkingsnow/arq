@@ -19,7 +19,7 @@ jobs:
             cd /opt/arq
             git fetch origin
             git reset --hard origin/main
-            npm install --production=false
+            npm install --production=false --ignore-scripts
             npm rebuild
             npm run build
             npm run build:frontend
