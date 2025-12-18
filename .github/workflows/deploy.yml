@@ -24,8 +24,7 @@ jobs:
             git clean -fd
             git pull origin main
             npm install --production=false
-            npx nest build
-            pm2 delete arq-backend
+            npm run build
             sleep 2
             pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
             pm2 save
