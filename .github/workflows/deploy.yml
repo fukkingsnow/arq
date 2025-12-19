@@ -37,8 +37,8 @@ jobs:
             # Build application
             echo "Building application..."
             npm run build
-echo "Checking build artifacts..." && find /opt/arq/dist -type f -name '*.js' 2>/dev/null || echo "No JS files found in dist" && ls -la /opt/arq/dist/ 2>/dev/null || echo "dist directory not found"
- if [ -f /opt/arq/dist/main.js ]; then echo "✓ Build successful: dist/main.js found"; else echo "Build complete but dist/main.js not found - checking alternatives..."; fi
+             ls -la /opt/arq/dist/ || echo "Build completed, dist directory check:"
+              
             
             # Start application
             echo "Starting application..."
