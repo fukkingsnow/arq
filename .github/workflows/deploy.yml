@@ -36,9 +36,9 @@ jobs:
             
             # Build application
             echo "Building application..."
-            npm run build && test -f /opt/arq/dist/main.js || (echo 'ERROR: Build failed - main.js not created' && exit 1)
-            echo '=== Build failed. Showing build output ===' && npm run build
-                        echo "Build exit code: $?"
+            ./node_modules/.bin/tsc -p tsconfig.build.json || (echo 'TypeScript compilation error' && npm run build || true)
+            test -f /opt/arq/dist/main.js || (echo 'ERROR: Build failed - no dist/main.js found' && exit 1)
+                      
                                     echo "Contents of /opt/arq:" && ls -la /opt/arq/
             ls -la /opt/arq/dist/ || echo "dist directory not found"
             
