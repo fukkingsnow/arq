@@ -37,6 +37,8 @@ jobs:
             # Build application
             echo "Building application..."
             npm run build
+                        echo "Build exit code: $?"
+                                    echo "Contents of /opt/arq:" && ls -la /opt/arq/
             ls -la /opt/arq/dist/ || echo "dist directory not found"
             
             # Start application
