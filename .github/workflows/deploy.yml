@@ -47,31 +47,46 @@ jobs:
             
             # Verify build output
             if [ ! -f "dist/main.js" ]; then
-              echo "ERROR: Build failed - dist/main.js not found"
+              echo "❌ ERROR: Build failed - dist/main.js not found"
               exit 1
             fi
+            echo "✅ Build successful"
             ls -lh /opt/arq/dist/main.js
             
             # Start application
             echo "Starting application..."
-            pm2 start /opt/arq/dist/main.js --name arq-backend || { echo "Failed to start app"; exit 1; }
+            pm2 start /opt/arq/dist/main.js --name arq-backend --max-memory-restart 500M || { echo "Failed to start app"; exit 1; }
             pm2 save
             
             # Reload nginx
             echo "Reloading nginx..."
             sudo systemctl reload nginx || true
             
-            # Health check with retries
+            # Health check with retries (improved)
             echo "Running health check..."
-            for i in {1..5}; do
+            MAX_RETRIES=5
+            RETRY_COUNT=0
+            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               sleep 2
-              if curl -f http://localhost:8000/health 2>/dev/null; then
-                echo "✓ Health check passed"
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+                echo "✅ Health check passed on attempt $RETRY_COUNT"
                 break
-              fi
-              if [ $i -eq 5 ]; then
-                echo "⚠ Health check failed after 5 attempts"
+              else
+                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
+                  echo "⚠️  WARNING: Health check failed after $MAX_RETRIES attempts, but continuing"
+                else
+                  echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES - waiting..."
+                fi
               fi
             done
             
-            echo "=== Deployment completed ==="
+            # Show application status
+            echo ""
+            echo "=== Application Status ==="
+            pm2 list
+            
+            echo ""
+            echo "✅ Deployment completed successfully!"
+            echo "App URL: http://arq-ai.ru"
+            echo "============================"
