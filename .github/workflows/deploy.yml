@@ -1,11 +1,19 @@
 name: Deploy ARQ to Beget Server
+
 on:
   push:
     branches: [main]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    
     steps:
+      - name: Checkout code (shallow clone for speed)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -22,36 +30,48 @@ jobs:
             pm2 delete arq-backend 2>/dev/null || true
             fuser -k 8000/tcp 2>/dev/null || true
             
-            # Update repository
+            # Update repository (shallow clone already used above)
             echo "Fetching updates..."
-            git fetch origin
+            git fetch origin --depth 1
             git reset --hard origin/main
             
-            # Clean and install dependencies
+            # Clean and install dependencies optimized
             echo "Installing dependencies..."
             npm cache clean --force --silent || true
-            rm -rf package-lock.json
-            rm -rf node_modules
-            npm install --no-audit --no-fund 2>&1 || npm ci --no-audit --no-fund
+            rm -rf package-lock.json node_modules
+            npm ci --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund
             
-            # Build application
+            # Build application with webpack for reliability
             echo "Building application..."
-            npm run build
-             ls -la /opt/arq/dist/ || echo "Build completed, dist directory check:"
-              
+            npm run build || npm run build:webpack
+            
+            # Verify build output
+            if [ ! -f "dist/main.js" ]; then
+              echo "ERROR: Build failed - dist/main.js not found"
+              exit 1
+            fi
+            ls -lh /opt/arq/dist/main.js
             
             # Start application
             echo "Starting application..."
-            pm2 start /opt/arq/dist/main.js --name arq-backend || echo "Failed to start app"
+            pm2 start /opt/arq/dist/main.js --name arq-backend || { echo "Failed to start app"; exit 1; }
             pm2 save
             
             # Reload nginx
             echo "Reloading nginx..."
             sudo systemctl reload nginx || true
             
-            # Health check
+            # Health check with retries
             echo "Running health check..."
-            sleep 3
-            curl -f http://localhost:8000/health || echo "Health check failed, but continuing"
+            for i in {1..5}; do
+              sleep 2
+              if curl -f http://localhost:8000/health 2>/dev/null; then
+                echo "✓ Health check passed"
+                break
+              fi
+              if [ $i -eq 5 ]; then
+                echo "⚠ Health check failed after 5 attempts"
+              fi
+            done
             
             echo "=== Deployment completed ==="
