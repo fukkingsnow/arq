@@ -36,7 +36,7 @@ jobs:
             
             # Build application
             echo "Building application..."
-            ./node_modules/.bin/tsc -p tsconfig.build.json || (echo 'TypeScript compilation error' && npm run build || true)
+            npm run build
             test -f /opt/arq/dist/main.js || (echo 'ERROR: Build failed - no dist/main.js found' && exit 1)
                       
                                     echo "Contents of /opt/arq:" && ls -la /opt/arq/
