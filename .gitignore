@@ -204,3 +204,42 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# NestJS / Node build optimization
+node_modules/
+dist/
+.next/
+build/
+
+# Environment files - NEVER commit
+.env
+.env.local
+.env.*.local
+
+# Lock files - optional (can be committed)
+# package-lock.json
+# yarn.lock
+
+# OS files
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Test & Coverage
+coverage/
+.nyc_output/
+
+# Production
+*.tgz
