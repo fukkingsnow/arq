@@ -1,3 +1,4 @@
+41
 name: Deploy ARQ to Beget Server
 
 on:
@@ -38,8 +39,7 @@ jobs:
             # Clean and install dependencies optimized
             echo "Installing dependencies..."
             npm cache clean --force --silent || true
-            rm -rf package-lock.json node_modules
-            npm ci --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund
+rm -rf node_modules            npm ci --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund
             
             # Build application with webpack for reliability
             echo "Building application..."
