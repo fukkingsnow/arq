@@ -11,6 +11,7 @@ import { ContextEngineModule } from './context-engine/context-engine.module';
 import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
 import { GitHubModule } from './modules/github.module';
 import { ARQController } from './controllers/arq.controller';
+import { AppController } from './app.controller';
 /**
  * Root Application Module
  *
@@ -44,7 +45,7 @@ import { ARQController } from './controllers/arq.controller';
     ContextEngineModule,
     GitHubModule,
   ],
-    controllers: [ARQController],
+    controllers: [AppController, ARQController],
   providers: [
     {
       provide: APP_FILTER,
