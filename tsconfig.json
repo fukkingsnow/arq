@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+        "incremental": true,
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "module": "commonjs",
     "target": "ES2021",
     "lib": ["ES2021"],
