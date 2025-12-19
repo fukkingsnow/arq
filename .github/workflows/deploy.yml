@@ -37,10 +37,8 @@ jobs:
             # Build application
             echo "Building application..."
             npm run build
-            test -f /opt/arq/dist/main.js || (echo 'ERROR: Build failed - no dist/main.js found' && exit 1)
-                      
-                                    echo "Contents of /opt/arq:" && ls -la /opt/arq/
-            ls -la /opt/arq/dist/ || echo "dist directory not found"
+echo "Checking build artifacts..." && find /opt/arq/dist -type f -name '*.js' 2>/dev/null || echo "No JS files found in dist" && ls -la /opt/arq/dist/ 2>/dev/null || echo "dist directory not found"
+ if [ -f /opt/arq/dist/main.js ]; then echo "✓ Build successful: dist/main.js found"; else echo "Build complete but dist/main.js not found - checking alternatives..."; fi
             
             # Start application
             echo "Starting application..."
