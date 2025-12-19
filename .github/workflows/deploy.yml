@@ -36,7 +36,7 @@ jobs:
             
             # Build application
             echo "Building application..."
-            npm run build
+            npm run build && test -f /opt/arq/dist/main.js || (echo 'ERROR: Build failed - main.js not created' && exit 1)
                         echo "Build exit code: $?"
                                     echo "Contents of /opt/arq:" && ls -la /opt/arq/
             ls -la /opt/arq/dist/ || echo "dist directory not found"
