@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ARQDashboard.module.css';
 import TaskMonitor from './TaskMonitor';
+import HealthCheckModal from '../components/HealthCheckModal';
 
 interface Task {
   taskId: string;
@@ -22,13 +23,16 @@ export const ARQDashboard: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [activeTab, setActiveTab] = useState<'create' | 'list' | 'details'>('list');
   const [taskStartTimes, setTaskStartTimes] = useState<Record<string, number>>({});
+  const [showHealthModal, setShowHealthModal] = useState(false);
 
   // Fetch tasks
   const fetchTasks = async () => {
     try {
       const res = await fetch('https://arq-ai.ru/api/v1/arq/tasks');
       setTasks(await res.json());
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {
@@ -55,9 +59,14 @@ export const ARQDashboard: React.FC = () => {
       const newTask = await res.json();
       setTasks([newTask, ...tasks]);
       setFormData({ title: '', description: '', priority: 'HDN' });
-      setTaskStartTimes({ ...taskStartTimes, [newTask.taskId]: Date.now() });
+      setTaskStartTimes({
+        ...taskStartTimes,
+        [newTask.taskId]: Date.now()
+      });
       setActiveTab('list');
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -73,185 +82,165 @@ export const ARQDashboard: React.FC = () => {
   const getElapsedTime = (task: Task): string => {
     const startTime = taskStartTimes[task.taskId] || new Date(task.createdAt).getTime();
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    if (elapsed < 60) return `${elapsed}s`;
-    if (elapsed < 3600) return `${Math.floor(elapsed / 60)}m`;
-    return `${Math.floor(elapsed / 3600)}h`;
-  };
-
-  const getStatusColor = (status: string): string => {
-    switch (status) {
-      case 'completed': return '#10B981';
-      case 'in_progress': return '#3B82F6';
-      default: return '#F59E0B';
-    }
+    const hours = Math.floor(elapsed / 3600);
+    const minutes = Math.floor((elapsed % 3600) / 60);
+    const seconds = elapsed % 60;
+    return `${hours}h ${minutes}m ${seconds}s`;
   };
 
   return (
-    <div className={styles.dashboardContainer}>
-      <div className={styles.header}>
-        <h1>🚀 ARQ Task Management</h1>
-        <p>Visual Monitoring & Metrics Dashboard</p>
-      </div>
+    <div className={styles.container}>
+      <h1 className={styles.title}>ARQ Task Creator</h1>
+      <p className={styles.subtitle}>Create and submit development tasks</p>
+      <p className={styles.status}>✓ Service Online</p>
 
-      <div className={styles.tabs}>
+      <div className={styles.tabContainer}>
         <button
-          className={`${styles.tab} ${activeTab === 'list' ? styles.activeTab : ''}`}
-          onClick={() => setActiveTab('list')}
-        >
-          📋 Tasks
-        </button>
-        <button
-          className={`${styles.tab} ${activeTab === 'create' ? styles.activeTab : ''}`}
+          className={`${styles.tabButton} ${activeTab === 'create' ? styles.active : ''}`}
           onClick={() => setActiveTab('create')}
         >
-          ➕ Create
+          Create Task
         </button>
-        {selectedTask && (
-          <button
-            className={`${styles.tab} ${activeTab === 'details' ? styles.activeTab : ''}`}
-            onClick={() => setActiveTab('details')}
-          >
-            📊 Details
-          </button>
-        )}
+        <button
+          className={`${styles.tabButton} ${activeTab === 'list' ? styles.active : ''}`}
+          onClick={() => setActiveTab('list')}
+        >
+          Active Tasks
+        </button>
+        <button
+          className={`${styles.tabButton} ${activeTab === 'details' ? styles.active : ''}`}
+          onClick={() => setActiveTab('details')}
+        >
+          Task Details
+        </button>
       </div>
 
       {activeTab === 'create' && (
-        <div className={styles.section}>
-          <form onSubmit={handleCreateTask} className={styles.form}>
-            <div>
-              <label>Task Title</label>
-              <input
-                type="text"
-                placeholder="e.g., Implement real-time metrics"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
-            <div>
-              <label>Description</label>
-              <textarea
-                placeholder="Detailed task description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
-            <div>
-              <label>Priority</label>
-              <select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
-                <option value="HDN">High</option>
-                <option value="MDN">Medium</option>
-                <option value="LDN">Low</option>
-              </select>
-            </div>
-            <button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create Task'}</button>
-          </form>
-        </div>
+        <form onSubmit={handleCreateTask} className={styles.form}>
+          <h2 className={styles.subtitle}>Development Goal #1</h2>
+          <input
+            type="text"
+            placeholder="Enter development goal"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+            className={styles.input}
+          />
+
+          <h2 className={styles.subtitle}>Development Goal #2</h2>
+          <input
+            type="text"
+            placeholder="Enter development goal"
+            className={styles.input}
+          />
+
+          <h2 className={styles.subtitle}>Development Goal #3</h2>
+          <input
+            type="text"
+            placeholder="Enter development goal"
+            className={styles.input}
+          />
+
+          <button type="submit" className={styles.button} disabled={loading}>
+            {loading ? 'Submitting...' : 'Submit Task'}
+          </button>
+        </form>
       )}
 
       {activeTab === 'list' && (
-        <div className={styles.section}>
-          <div className={styles.taskList}>
-            {tasks.map((task) => {
-              const progress = getProgressPercent(task);
-              const elapsed = getElapsedTime(task);
-              const statusColor = getStatusColor(task.status);
-              return (
-                <div key={task.taskId} className={styles.taskCard} onClick={() => { setSelectedTask(task); setActiveTab('details'); }}>
-                  <div className={styles.taskHeader}>
-                    <h3>{task.title}</h3>
-                    <span className={styles.status} style={{ backgroundColor: statusColor }}>{task.status}</span>
-                  </div>
-                  <div className={styles.metrics}>
-                    <div className={styles.metric}>
-                      <span className={styles.metricLabel}>Progress</span>
-                      <div className={styles.progressBar}>
-                        <div className={styles.progressFill} style={{ width: `${progress}%`, backgroundColor: statusColor }}></div>
-                      </div>
-                      <span className={styles.metricValue}>{progress}%</span>
-                    </div>
-                    <div className={styles.metric}>
-                      <span className={styles.metricLabel}>Elapsed</span>
-                      <span className={styles.metricValue} style={{ fontSize: '18px', fontWeight: 'bold' }}>{elapsed}</span>
-                    </div>
-                    {task.iterationsMax && (
-                      <div className={styles.metric}>
-                        <span className={styles.metricLabel}>Iterations</span>
-                        <span className={styles.metricValue}>{task.iterationsCurrent || 0}/{task.iterationsMax}</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className={styles.taskMeta}>
-                    <small>📅 {new Date(task.createdAt).toLocaleString()}</small>
-                    <small>🌿 {task.branch}</small>
-                  </div>
+        <div className={styles.taskList}>
+          <h2>Active Tasks</h2>
+          <div className={styles.taskListContainer}>
+            <button
+              onClick={() => setShowHealthModal(true)}
+              className={styles.button}
+              style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#4CAF50' }}
+            >
+              Check Health
+            </button>
+            {tasks.map((task) => (
+              <div key={task.taskId} className={styles.taskItem}>
+                <div className={styles.taskHeader}>
+                  <strong>{task.title}</strong>
+                  <span className={styles.status}>
+                    {task.status === 'completed' ? '✓' : task.status === 'in_progress' ? '⟳' : '⧗'}
+                  </span>
                 </div>
-              );
-            })}
+                <div className={styles.taskMeta}>
+                  <span className={styles.createdTime}>{new Date(task.createdAt).toLocaleDateString()}</span>
+                </div>
+                <div className={styles.progressContainer}>
+                  <div
+                    className={styles.progressBar}
+                    style={{
+                      width: `${getProgressPercent(task)}%`,
+                      backgroundColor: getStatusColor(task.status)
+                    }}
+                  />
+                </div>
+                <div className={styles.progressStats}>
+                  <span>{getProgressPercent(task)}% Complete</span>
+                  <span>Elapsed: {getElapsedTime(task)}</span>
+                  {selectedTask?.iterationsCurrent !== undefined && (
+                    <div>Iterations: {selectedTask.iterationsCurrent} / {selectedTask.iterationsMax}</div>
+                  )}
+                </div>
+                <div className={styles.logSection}>
+                  {selectedTask?.logs ? (
+                    <pre>{selectedTask.logs}</pre>
+                  ) : (
+                    <p className={styles.noLogs}>No logs available yet</p>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {activeTab === 'details' && selectedTask && (
-        <div className={styles.section}>
-          <div className={styles.detailsPanel}>
-            <h2>{selectedTask.title}</h2>
-            <div className={styles.detailsGrid}>
-              <div className={styles.detailItem}>
-                <strong>Status:</strong> <span style={{ color: getStatusColor(selectedTask.status) }}>{selectedTask.status}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <strong>Task ID:</strong> <code>{selectedTask.taskId}</code>
-              </div>
-              <div className={styles.detailItem}>
-                <strong>Created:</strong> {new Date(selectedTask.createdAt).toLocaleString()}
-              </div>
-              <div className={styles.detailItem}>
-                <strong>Branch:</strong> {selectedTask.branch}
-              </div>
+      {activeTab === 'details' && selectedTask ? (
+        <div className={styles.detailsSection}>
+          <h2>Task Details</h2>
+          {selectedTask.result ? (
+            <div className={styles.resultBox}>
+              <h3>Result Verification</h3>
+              <pre>{JSON.stringify(selectedTask.result, null, 2)}</pre>
             </div>
-            <div className={styles.progressSection}>
-              <h3>📈 Progress Tracking</h3>
-              <div className={styles.largeProgressBar}>
-                <div className={styles.progressFill} style={{ width: `${getProgressPercent(selectedTask)}%`, backgroundColor: getStatusColor(selectedTask.status) }}></div>
-              </div>
-              <div className={styles.progressStats}>
-                <div>{getProgressPercent(selectedTask)}% Complete</div>
-                <div>Elapsed: {getElapsedTime(selectedTask)}</div>
-                {selectedTask.iterationsMax && <div>Iterations: {selectedTask.iterationsCurrent || 0}/{selectedTask.iterationsMax}</div>}
-              </div>
+          ) : (
+            <div className={styles.resultBox}>
+              <h3>No Result</h3>
+              <p className={styles.noResult}>Awaiting task completion...</p>
             </div>
-            <div className={styles.resultsSection}>
-              <h3>✅ Result Verification</h3>
-              {selectedTask.result ? (
-                <div className={styles.resultBox}>
-                  <pre>{JSON.stringify(selectedTask.result, null, 2)}</pre>
-                </div>
-              ) : (
-                <p className={styles.noResult}>Awaiting task completion...</p>
-              )}
-            </div>
-            <div className={styles.logsSection}>
-              <h3>📝 Execution Logs</h3>
-              {selectedTask.logs ? (
-                <div className={styles.logsBox}>
-                  <pre>{selectedTask.logs}</pre>
-                </div>
-              ) : (
-                <p className={styles.noLogs}>No logs available yet</p>
-              )}
-            </div>
+          )}
+          <div className={styles.logSection}>
+            <h3>Execution Logs</h3>
+            {selectedTask.logs ? (
+              <pre>{selectedTask.logs}</pre>
+            ) : (
+              <p className={styles.noLogs}>No logs available yet</p>
+            )}
           </div>
-      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+        </div>
+      ) : null}
+
+      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e5e5' }}>
         <h3>Active Tasks - Real-time Monitoring</h3>
         <TaskMonitor />
-      </div>        <h3>Active Tasks - Real-time Monitoring</h3>
-        <TaskMonitor />
       </div>
-        </div>
-      )}
+
+      <HealthCheckModal isOpen={showHealthModal} onClose={() => setShowHealthModal(false)} />
     </div>
   );
 };
 
-export default ARQDashboard;
+function getStatusColor(status: string): string {
+  switch (status) {
+    case 'completed':
+      return '#4CAF50';
+    case 'in_progress':
+      return '#2196F3';
+    case 'queued':
+      return '#FFC107';
+    default:
+      return '#999';
+  }
+}
