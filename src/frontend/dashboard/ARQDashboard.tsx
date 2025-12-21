@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './ARQDashboard.module.css';
+import TaskMonitor from './TaskMonitor';
 
 interface Task {
   taskId: string;
@@ -241,6 +242,12 @@ export const ARQDashboard: React.FC = () => {
               )}
             </div>
           </div>
+      <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e5e7eb' }}>
+        <h3>Active Tasks - Real-time Monitoring</h3>
+        <TaskMonitor />
+      </div>        <h3>Active Tasks - Real-time Monitoring</h3>
+        <TaskMonitor />
+      </div>
         </div>
       )}
     </div>
