@@ -7,8 +7,7 @@
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "nest build",
-    "build:webpack": "nest build --webpack",
+"build": "npm run build:frontend && nest build && npm run copy:frontend",    "build:webpack": "nest build --webpack",
     "format": "prettier --write src test",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -25,7 +24,7 @@
     "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "build:frontend": "cd src/frontend && npm install && npm run build",
-    "audit:fix": "npm audit fix --force"
+"copy:frontend": "mkdir -p dist && cp -r src/frontend dist/frontend",    "audit:fix": "npm audit fix --force"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.0",
