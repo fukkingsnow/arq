@@ -13,6 +13,11 @@ export class AppController {
     };
   }
 
+    @Get('/')
+  root() {
+    return this.getStatus();
+  }
+
   @Get('health')
   health() {
     return {
