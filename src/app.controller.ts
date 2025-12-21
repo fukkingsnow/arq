@@ -3,6 +3,7 @@ import { Controller, Get } from '@nestjs/common';
 @Controller()
 export class AppController {
   @Get()
+    @Get('/')
   getRoot() {
     return {
       message: 'ARQ API is running successfully',
@@ -11,11 +12,6 @@ export class AppController {
       environment: process.env.NODE_ENV || 'development',
       uptime: process.uptime()
     };
-  }
-
-    @Get('/')
-  root() {
-    return this.getStatus();
   }
 
   @Get('health')
