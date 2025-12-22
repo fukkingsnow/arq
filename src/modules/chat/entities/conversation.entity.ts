@@ -1,8 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, Index } from 'typeorm';
-import { Task } from '../../arq/entities/task.entity';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, Index } from 'typeorm';@Entity('conversations')
 
-@Entity('conversations')
-@Index(['taskId', 'createdAt'])
 export class Conversation {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -10,9 +7,7 @@ export class Conversation {
   @Column()
   taskId: string;
 
-  @ManyToOne(() => Task)
-  task: Task;
-
+  
   @Column()
   role: 'user' | 'assistant';
 
