@@ -11,6 +11,7 @@ import { ContextEngineModule } from './context-engine/context-engine.module';
 import { RequestLoggingMiddleware, CompressionRequestMiddleware } from './common/middleware';
 import { GitHubModule } from './modules/github.module';
 import { ARQController } from './controllers/arq.controller';
+import { AssistantModule } from './modules/assistant/assistant.module';
 import { AppController } from './app.controller';
 /**
  * Root Application Module
@@ -44,6 +45,7 @@ import { AppController } from './app.controller';
     // Phase 10: Advanced Context Management
     ContextEngineModule,
     GitHubModule,
+        AssistantModule,
   ],
     controllers: [AppController, ARQController],
   providers: [
