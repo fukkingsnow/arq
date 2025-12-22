@@ -50,6 +50,12 @@ jobs:
           fi
           echo "✅ Build successful"
           ls -lh /opt/arq/dist/main.js
+           
+            # Copy frontend static files
+            echo "Copying frontend files..."
+            mkdir -p /opt/arq/dist/frontend
+            cp -r src/frontend/dist/* /opt/arq/dist/frontend/ || true
+            echo "✅ Frontend files copied successfully!"
           
           # Start application
           echo "Starting application..."
