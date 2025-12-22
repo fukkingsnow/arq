@@ -2,7 +2,6 @@ import { Controller, Post, Get, Body, Param } from '@nestjs/common';
 import { QueryAnalyzerService } from './services/query-analyzer.service';
 import { StatusQueryService } from './services/status-query.service';
 import { ErrorDetectionService } from './services/error-detection.service';
-import { RecommendationService } from './services/recommendation.service';
 import { QueryDto } from './dto/query.dto';
 
 @Controller('api/v1/assistant')
@@ -11,7 +10,6 @@ export class AssistantController {
     private readonly queryAnalyzer: QueryAnalyzerService,
     private readonly statusQuery: StatusQueryService,
     private readonly errorDetection: ErrorDetectionService,
-    private readonly recommendation: RecommendationService,
   ) {}
 
   @Post('query')
@@ -23,8 +21,6 @@ export class AssistantController {
         return await this.statusQuery.getTaskStatus(analysis.entityId);
       case 'ERROR':
         return await this.errorDetection.detectErrors(analysis.entityId);
-      case 'HELP':
-        return this.recommendation.getRecommendations(analysis.context);
       default:
         return { response: 'Query understood but no specific action', analysis };
     }
@@ -38,10 +34,5 @@ export class AssistantController {
   @Get('errors/:taskId')
   async getErrors(@Param('taskId') taskId: string) {
     return await this.errorDetection.detectErrors(taskId);
-  }
-
-  @Get('recommendations')
-  async getRecommendations() {
-    return await this.recommendation.getRecommendations({});
   }
 }
