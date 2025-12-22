@@ -9,6 +9,13 @@ sudo cp $(dirname $0)/nginx/arq-ai.ru.conf /etc/nginx/sites-available/arq-ai.ru
 sudo ln -sf /etc/nginx/sites-available/arq-ai.ru /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 
+# Copy frontend static files
+echo "Copying frontend files..."
+mkdir -p /opt/arq/dist/frontend
+cp -r $(dirname $0)/../src/frontend/dist/* /opt/arq/dist/frontend/ || true
+echo "Frontend files copied successfully!"
+
+
 # Test nginx config
 echo "Testing nginx configuration..."
 sudo nginx -t
