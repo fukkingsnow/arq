@@ -1,0 +1,57 @@
+name: Auto-create ARQ tasks from GitHub branch pushes
+
+on:
+  push:
+    branches:
+      - 'feature/arq-*'
+      - 'fix/arq-*'
+
+jobs:
+  create-task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract branch info
+        id: branch_info
+        run: |
+          BRANCH_NAME=${{ github.ref_name }}
+          COMMIT_SHA=${{ github.sha }}
+          COMMIT_MESSAGE=${{ github.event.head_commit.message }}
+          COMMIT_AUTHOR=${{ github.event.head_commit.author.name }}
+          COMMIT_EMAIL=${{ github.event.head_commit.author.email }}
+          
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "commit_sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+          echo "commit_message=${COMMIT_MESSAGE}" >> $GITHUB_OUTPUT
+          echo "commit_author=${COMMIT_AUTHOR}" >> $GITHUB_OUTPUT
+          echo "commit_email=${COMMIT_EMAIL}" >> $GITHUB_OUTPUT
+          echo "repo_url=${{ github.event.repository.html_url }}" >> $GITHUB_OUTPUT
+
+      - name: Create ARQ task
+        id: create_task
+        run: |
+          BRANCH_CLEAN=$(echo "${{ steps.branch_info.outputs.branch_name }}" | sed 's|^feature/arq-||;s|^fix/arq-||')
+          TASK_TITLE="${BRANCH_CLEAN} - ${{ steps.branch_info.outputs.commit_message }}"
+          
+          TASK_DESCRIPTION="Branch: ${{ steps.branch_info.outputs.branch_name }}\nRepository: ${{ github.repository }}\nCommit: ${{ steps.branch_info.outputs.commit_sha }}\nAuthor: ${{ steps.branch_info.outputs.commit_author }} <${{ steps.branch_info.outputs.commit_email }}>\nRepository URL: ${{ steps.branch_info.outputs.repo_url }}/tree/${{ steps.branch_info.outputs.branch_name }}"
+          
+          RESPONSE=$(curl -s -X POST "${{ secrets.ARQ_API_URL }}/api/tasks" \
+            -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"title\": \"${TASK_TITLE}\",
+              \"description\": \"${TASK_DESCRIPTION}\",
+              \"status\": \"in_progress\",
+              \"branch\": \"${{ steps.branch_info.outputs.branch_name }}\",
+              \"commit_sha\": \"${{ steps.branch_info.outputs.commit_sha }}\",
+              \"created_timestamp\": \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\"
+            }")
+          
+          echo "response=${RESPONSE}" >> $GITHUB_OUTPUT
+          echo "Task created successfully for branch: ${{ steps.branch_info.outputs.branch_name }}"
+
+      - name: Handle errors
+        if: failure()
+        run: |
+          echo "Failed to create ARQ task for branch: ${{ steps.branch_info.outputs.branch_name }}"
+          echo "Response: ${{ steps.create_task.outputs.response }}"
+          exit 1
