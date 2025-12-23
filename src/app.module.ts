@@ -13,7 +13,7 @@ import { GitHubModule } from './modules/github.module';
 import { ARQController } from './controllers/arq.controller';
 import { AssistantModule } from './modules/assistant/assistant.module';
 import { AppController } from './app.controller';
-import { AutonomousStrategyAnalyzer } from './modules/autonomous-strategy.analyzer';
+import { AutonomousStrategyAnalyzer } from './services/autonomous-strategy.analyzer';
 /**
  * Root Application Module
  *
