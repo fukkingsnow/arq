@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GitHubService } from './github.service';
-import { LLMService } from '../llm_layer/llm.service';
 
 interface PRConfig {
   title: string;
