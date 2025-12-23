@@ -1,5 +1,7 @@
 import { Controller, Post, Body, Get, HttpCode, HttpStatus, Logger, Param, Patch } from '@nestjs/common';
 import { GitHubService } from '../services/github.service';
+import { PullRequestManager } from '../services/pull-request.manager';
+import { AutonomousStrategyAnalyzer } from '../services/autonomous-strategy.analyzer';
 
 interface StartDevelopmentDto {
   developmentGoals: string[];
@@ -34,6 +36,8 @@ export class ARQController {
   private readonly logger = new Logger('ARQController');
   private taskCounter = 0;
   private activeTasks: Map<string, DevelopmentTask> = new Map();
+    private readonly pullRequestManager: PullRequestManager,
+    private readonly strategyAnalyzer: AutonomousStrategyAnalyzer,
 
   constructor(private readonly githubService: GitHubService) {}
 
@@ -207,5 +211,86 @@ ${dto.priority.toUpperCase()}
 \`feature/arq-improvement-${taskId}\`
 ### Status
 🚀 In Progress`;
+  
+
+  /**
+   * Analyze development strategy
+   */
+  @Get('strategy/analyze')
+  @HttpCode(HttpStatus.OK)
+  async analyzeStrategy() {
+    this.logger.log('[ARQ] Analyzing development strategy...');
+    try {
+      const strategy = await this.strategyAnalyzer.analyzeStrategy();
+      return {
+        success: true,
+        strategy,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      this.logger.error(`[ARQ] Error analyzing strategy: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
   }
+
+  /**
+   * Execute current strategy
+   */
+  @Post('strategy/execute')
+  @HttpCode(HttpStatus.OK)
+  async executeStrategy() {
+    this.logger.log('[ARQ] Executing development strategy...');
+    try {
+      const strategy = await this.strategyAnalyzer.analyzeStrategy();
+      await this.strategyAnalyzer.executeStrategy(strategy);
+      return {
+        success: true,
+        message: 'Strategy execution initiated',
+        strategy,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      this.logger.error(`[ARQ] Error executing strategy: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  /**
+   * Get PR status
+   */
+  @Get('pr-status/:prNumber')
+  @HttpCode(HttpStatus.OK)
+  getPRStatus(@Param('prNumber') prNumber: string) {
+    this.logger.log(`[ARQ] Getting PR #${prNumber} status`);
+    const status = this.pullRequestManager.getPRStatus(parseInt(prNumber));
+    return {
+      prNumber,
+      status,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Get all monitored PRs
+   */
+  @Get('pr-status')
+  @HttpCode(HttpStatus.OK)
+  getAllPRStatuses() {
+    this.logger.log('[ARQ] Getting all PR statuses');
+    const statuses = this.pullRequestManager.getAllPRStatuses();
+    return {
+      count: statuses.length,
+      statuses,
+      timestamp: new Date().toISOString(),
+    };
+  }
+}
 }
