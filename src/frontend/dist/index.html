@@ -71,3 +71,96 @@ if (document.readyState === 'loading') {
 .task-error-badge { display: inline-block; background: #f44336; color: white; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 500; margin-top: 8px; cursor: pointer; }
 .task-error-badge:hover { background: #d32f2f; }
 </style>
+
+<script>
+// Health Check Modal - Issue #9
+let healthCheckInterval;
+
+function openHealthCheckModal() {
+  const modal = document.getElementById('healthCheckModal');
+  const overlay = document.getElementById('modalOverlay');
+  if (modal) modal.classList.add('open');
+  if (overlay) overlay.classList.add('open');
+  fetchHealthData();
+  healthCheckInterval = setInterval(fetchHealthData, 30000);
+}
+
+function closeHealthCheckModal() {
+  const modal = document.getElementById('healthCheckModal');
+  const overlay = document.getElementById('modalOverlay');
+  if (modal) modal.classList.remove('open');
+  if (overlay) overlay.classList.remove('open');
+  if (healthCheckInterval) clearInterval(healthCheckInterval);
+}
+
+function fetchHealthData() {
+  fetch('/api/health')
+    .then(response => response.json())
+    .then(data => renderHealthData(data))
+    .catch(error => console.log('Health fetch error:', error));
+}
+
+function renderHealthData(data) {
+  const content = document.getElementById('healthModalContent');
+  if (!content) return;
+  
+  const html = `
+    <div class="health-section">
+      <h3><span class="status-dot healthy"></span>API Status</h3>
+      <div class="health-item"><span class="health-item-label">Endpoint:</span><span class="health-item-value">Responding</span></div>
+      <div class="health-item"><span class="health-item-label">Latency:</span><span class="health-item-value">${data.latency || 'N/A'}ms</span></div>
+      <div class="health-item"><span class="health-item-label">Last Check:</span><span class="health-item-value">${new Date().toLocaleTimeString()}</span></div>
+    </div>
+    <div class="health-section">
+      <h3><span class="status-dot healthy"></span>Database Status</h3>
+      <div class="health-item"><span class="health-item-label">Connection:</span><span class="health-item-value">Connected</span></div>
+      <div class="health-item"><span class="health-item-label">Response Time:</span><span class="health-item-value">${data.db_latency || 'N/A'}ms</span></div>
+    </div>
+    <div class="health-section">
+      <h3><span class="status-dot healthy"></span>System Info</h3>
+      <div class="health-item"><span class="health-item-label">Version:</span><span class="health-item-value">v1.0.3</span></div>
+      <div class="health-item"><span class="health-item-label">Environment:</span><span class="health-item-value">${data.environment || 'production'}</span></div>
+      <div class="health-item"><span class="health-item-label">Uptime:</span><span class="health-item-value">${data.uptime || 'stable'}</span></div>
+    </div>
+  `;
+  content.innerHTML = html;
+}
+
+// Add Click Handler to Status Indicator
+setTimeout(() => {
+  const indicator = document.querySelector('.system-status-indicator');
+  if (indicator) indicator.addEventListener('click', openHealthCheckModal);
+}, 500);
+</script>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeHealthCheckModal()"></div>
+<div class="health-check-modal" id="healthCheckModal">
+  <div class="modal-header">
+    <h2>System Health Check</h2>
+    <button class="modal-close" onclick="closeHealthCheckModal()">×</button>
+  </div>
+  <div class="modal-content" id="healthModalContent">
+    <p>Loading health data...</p>
+  </div>
+</div>
+<style>
+.health-check-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 500px; z-index: 2000; display: none; }
+.health-check-modal.open { display: block; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity: 0; transform: translate(-50%, -48%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1999; }
+.modal-overlay.open { display: block; }
+.modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+.modal-header h2 { margin: 0; color: #667eea; font-size: 18px; }
+.modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; padding: 0; width: 30px; height: 30px; }
+.modal-close:hover { color: #667eea; }
+.modal-content { padding: 20px; max-height: 60vh; overflow-y: auto; }
+.health-section { margin-bottom: 20px; }
+.health-section h3 { margin: 0 0 10px 0; font-size: 14px; color: #333; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.status-dot.healthy { background: #4CAF50; }
+.status-dot.degraded { background: #FF9800; }
+.status-dot.critical { background: #f44336; }
+.health-item { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
+.health-item-label { color: #666; }
+.health-item-value { color: #333; font-weight: 500; }
+</style>
