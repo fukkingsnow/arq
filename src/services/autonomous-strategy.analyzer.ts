@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GitHubService } from './github.service';
 import { MetricsService } from './metrics.service';
-import { LLMService } from '../llm_layer/llm.service';
 
 interface StrategyScore {
   category: string;
@@ -41,7 +40,6 @@ export class AutonomousStrategyAnalyzer {
   constructor(
     private readonly githubService: GitHubService,
     private readonly metricsService: MetricsService,
-    private readonly llmService: LLMService,
   ) {
     this.logger.log('AutonomousStrategyAnalyzer initialized');
   }
