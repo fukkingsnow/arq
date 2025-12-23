@@ -238,5 +238,114 @@ export class GitHubService {
       this.logger.error(`Failed to list commits: ${error.message}`);
       throw error;
     }
+  
+
+  /**
+   * Get a specific pull request
+   */
+  async getPullRequest(prNumber: number) {
+    try {
+      const { data } = await this.octokit.pulls.get({
+        owner: this.owner,
+        repo: this.repo,
+        pull_number: prNumber,
+      });
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to get PR #${prNumber}: ${error.message}`);
+      throw error;
+    }
   }
+
+  /**
+   * List pull requests by state
+   */
+  async listPullRequests(state: 'open' | 'closed' | 'all' = 'open') {
+    try {
+      const { data } = await this.octokit.pulls.list({
+        owner: this.owner,
+        repo: this.repo,
+        state,
+        per_page: 100,
+      });
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to list pull requests: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Get PR check runs
+   */
+  async getPRCheckRuns(prNumber: number) {
+    try {
+      const pr = await this.getPullRequest(prNumber);
+      const { data } = await this.octokit.checks.listForRef({
+        owner: this.owner,
+        repo: this.repo,
+        ref: pr.head.sha,
+      });
+      return data.check_runs;
+    } catch (error) {
+      this.logger.error(`Failed to get PR checks: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Update PR labels
+   */
+  async updatePRLabels(prNumber: number, labels: string[]) {
+    try {
+      const { data } = await this.octokit.issues.setLabels({
+        owner: this.owner,
+        repo: this.repo,
+        issue_number: prNumber,
+        labels,
+      });
+      this.logger.log(`Updated labels for PR #${prNumber}`);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to update PR labels: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Request review for PR
+   */
+  async requestReview(prNumber: number, reviewers: string[]) {
+    try {
+      const { data } = await this.octokit.pulls.requestReviewers({
+        owner: this.owner,
+        repo: this.repo,
+        pull_number: prNumber,
+        reviewers,
+      });
+      this.logger.log(`Requested review for PR #${prNumber}`);
+      return data;
+    } catch (error) {
+      this.logger.error(`Failed to request review: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a branch
+   */
+  async deleteBranch(branchName: string) {
+    try {
+      await this.octokit.git.deleteRef({
+        owner: this.owner,
+        repo: this.repo,
+        ref: `heads/${branchName}`,
+      });
+      this.logger.log(`Deleted branch: ${branchName}`);
+    } catch (error) {
+      this.logger.error(`Failed to delete branch: ${error.message}`);
+      throw error;
+    }
+  }
+}
 }
