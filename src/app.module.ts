@@ -13,6 +13,7 @@ import { GitHubModule } from './modules/github.module';
 import { ARQController } from './controllers/arq.controller';
 import { AssistantModule } from './modules/assistant/assistant.module';
 import { AppController } from './app.controller';
+import { AutonomousStrategyAnalyzer } from './modules/autonomous-strategy.analyzer';
 /**
  * Root Application Module
  *
@@ -53,6 +54,7 @@ import { AppController } from './app.controller';
       provide: APP_FILTER,
       useClass: ValidationExceptionFilter,
     },
+        AutonomousStrategyAnalyzer,
   ],
 })
 export class AppModule implements NestModule {
