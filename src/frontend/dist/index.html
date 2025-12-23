@@ -164,3 +164,70 @@ setTimeout(() => {
 .health-item-label { color: #666; }
 .health-item-value { color: #333; font-weight: 500; }
 </style>
+
+<script>
+// Git/PR and CI/CD Status Integration - Issue #11
+let ciStatusCache = {};
+let ciUpdateInterval;
+
+function initGitPRCI() {
+  startCIStatusUpdates();
+}
+
+function startCIStatusUpdates() {
+  updateAllCIStatus();
+  ciUpdateInterval = setInterval(updateAllCIStatus, 90000);
+}
+
+function updateAllCIStatus() {
+  const taskCards = document.querySelectorAll('.task-card');
+  taskCards.forEach(card => {
+    const taskId = card.getAttribute('data-task-id');
+    if (taskId) fetchCIStatus(taskId, card);
+  });
+}
+
+function fetchCIStatus(taskId, card) {
+  const branch = card.getAttribute('data-branch');
+  if (!branch) return;
+  fetch('/api/ci-status?branch=' + encodeURIComponent(branch))
+    .then(r => r.json())
+    .then(data => {
+      ciStatusCache[taskId] = data;
+      updateTaskCardGitInfo(card, data);
+    })
+    .catch(e => console.log('CI fetch:', e));
+}
+
+function updateTaskCardGitInfo(card, ciData) {
+  let gitInfo = card.querySelector('.git-pr-ci-info');
+  if (!gitInfo) {
+    gitInfo = document.createElement('div');
+    gitInfo.className = 'git-pr-ci-info';
+    card.appendChild(gitInfo);
+  }
+  const branch = card.getAttribute('data-branch') || 'feature/arq';
+  const branchUrl = 'https://github.com/fukkingsnow/arq/tree/' + branch;
+  const status = ciData.status || 'pending';
+  const icon = status === 'passed' ? '✅' : status === 'failed' ? '❌' : status === 'running' ? '⏳' : '⏱️';
+  const color = status === 'passed' ? '#4CAF50' : status === 'failed' ? '#f44336' : status === 'running' ? '#FF9800' : '#9E9E9E';
+  gitInfo.innerHTML = '<a href="' + branchUrl + '" target="_blank" style="color: #667eea; text-decoration: none; margin-right: 10px;">🌿 ' + branch + '</a><span style="background: ' + color + '; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px;">' + icon + ' ' + status.toUpperCase() + '</span>';
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGitPRCI);
+} else {
+  initGitPRCI();
+}
+
+window.addEventListener('beforeunload', () => {
+  if (ciUpdateInterval) clearInterval(ciUpdateInterval);
+});
+</script>
+<style>
+.git-pr-ci-info { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
+.git-pr-ci-info a { color: #667eea; text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 4px; }
+.git-pr-ci-info a:hover { text-decoration: underline; }
+.ci-status-badge { display: inline-flex; align-items: center; gap: 4px; background: #9E9E9E; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
+.ci-status-badge:hover { transform: scale(1.05); }
+</style>
