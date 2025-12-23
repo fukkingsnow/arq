@@ -93,7 +93,7 @@ export class AutonomousStrategyAnalyzer {
       ]);
 
       // Get metrics from MetricsService
-    const metrics = { openIssues: 0, openPRs: 0, failedTests: 0, codeQualityScore: 85, performanceMetrics: {} };
+    const metrics = { openIssues: 0, openPRs: 0, failedTests: 0, codeQualityScore: 85, performance: {} };
       return {
         openIssues: openIssues.length,
         openPRs: openPRs.length,
