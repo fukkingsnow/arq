@@ -238,7 +238,7 @@ export class GitHubService {
       this.logger.error(`Failed to list commits: ${error.message}`);
       throw error;
     }
-  
+  }
 
   /**
    * Get a specific pull request
@@ -347,5 +347,4 @@ export class GitHubService {
       throw error;
     }
   }
-}
 }
