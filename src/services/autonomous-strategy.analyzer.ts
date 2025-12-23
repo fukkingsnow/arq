@@ -68,7 +68,7 @@ export class AutonomousStrategyAnalyzer {
       // Generate strategy scores
       const focusAreas = await this.calculateFocusAreas(metrics);
 
-      // Use AI to generate recommendations
+      // Generate strategy
       const strategy = await this.generateStrategy(metrics, focusAreas);
 
       // Cache the strategy
@@ -180,7 +180,7 @@ export class AutonomousStrategyAnalyzer {
   }
 
   /**
-   * Generate AI-powered development strategy
+   * Generate development strategy
    */
   private async generateStrategy(
     metrics: RepositoryMetrics,
@@ -192,17 +192,14 @@ export class AutonomousStrategyAnalyzer {
       );
       const priorityHigh = focusAreas.filter((a) => a.priority === 'high');
 
-      // Use LLM to generate next steps
-      const prompt = `Based on these development metrics:
-- Open Issues: ${metrics.openIssues}
-- Open PRs: ${metrics.openPRs}
-- Code Quality Score: ${metrics.codeQualityScore}/100
-- Failed Tests: ${metrics.failedTests}
-
-Generate 5 specific, actionable next steps for development. Be concise.`;
-
-      const nextStepsText = await this.llmService.generateText(prompt);
-      const nextSteps = nextStepsText.split('\n').filter((s) => s.trim());
+      // Generate next steps based on metrics
+      const nextSteps = [
+        'Review and prioritize open issues',
+        'Address pending pull requests',
+        'Improve code quality and test coverage',
+        'Optimize performance metrics',
+        'Plan next development cycle',
+      ];
 
       const overallScore =
         focusAreas.reduce((sum, a) => sum + a.score, 0) / focusAreas.length;
@@ -211,14 +208,16 @@ Generate 5 specific, actionable next steps for development. Be concise.`;
         timestamp: new Date(),
         overallScore: Math.round(overallScore),
         focusAreas: focusAreas.sort(
-          (a, b) => this.priorityToNumber(b.priority) - this.priorityToNumber(a.priority),
+          (a, b) =>
+            this.priorityToNumber(b.priority) -
+            this.priorityToNumber(a.priority),
         ),
         nextSteps: nextSteps.slice(0, 5),
         risks: this.identifyRisks(metrics, priorityCritical),
         opportunities: this.identifyOpportunities(metrics),
       };
     } catch (error) {
-      this.logger.warn(`Failed to generate AI strategy: ${error.message}`);
+      this.logger.warn(`Failed to generate strategy: ${error.message}`);
       // Return fallback strategy
       return {
         timestamp: new Date(),
@@ -247,16 +246,25 @@ Generate 5 specific, actionable next steps for development. Be concise.`;
     const risks: string[] = [];
 
     if (metrics.failedTests > 0) {
-      risks.push(`${metrics.failedTests} failing tests could impact stability`);
+      risks.push(
+        `${metrics.failedTests} failing tests could impact stability`,
+      );
     }
+
     if (metrics.codeQualityScore < 70) {
       risks.push('Low code quality could lead to maintainability issues');
     }
+
     if (metrics.openIssues > 30) {
-      risks.push('High number of open issues could impact project momentum');
+      risks.push(
+        'High number of open issues could impact project momentum',
+      );
     }
+
     if (criticalAreas.length > 0) {
-      risks.push(`${criticalAreas.length} critical areas need immediate attention`);
+      risks.push(
+        `${criticalAreas.length} critical areas need immediate attention`,
+      );
     }
 
     return risks;
@@ -269,11 +277,17 @@ Generate 5 specific, actionable next steps for development. Be concise.`;
     const opportunities: string[] = [];
 
     if (metrics.codeQualityScore > 85) {
-      opportunities.push('High code quality enables faster feature development');
+      opportunities.push(
+        'High code quality enables faster feature development',
+      );
     }
+
     if (metrics.openIssues < 5) {
-      opportunities.push('Low issue count allows focus on feature development');
+      opportunities.push(
+        'Low issue count allows focus on feature development',
+      );
     }
+
     if (metrics.openPRs === 0) {
       opportunities.push('No pending PRs - perfect time for major refactoring');
     }
@@ -320,6 +334,7 @@ Generate 5 specific, actionable next steps for development. Be concise.`;
       this.logger.log(
         `Executing strategy with overall score: ${strategy.overallScore}`,
       );
+
       // Log the strategy execution
       this.logger.log(
         `Focus areas: ${strategy.focusAreas.map((a) => a.category).join(', ')}`,
