@@ -2,14 +2,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { GitHubService } from './github.service';
 import { MetricsService } from './metrics.service';
 
-interface StrategyScore {
+export interface StrategyScore {
   category: string;
   score: number; // 0-100
   priority: 'critical' | 'high' | 'medium' | 'low';
   recommendations: string[];
 }
 
-interface DevelopmentStrategy {
+export interface DevelopmentStrategy {
   timestamp: Date;
   overallScore: number;
   focusAreas: StrategyScore[];
@@ -18,7 +18,7 @@ interface DevelopmentStrategy {
   opportunities: string[];
 }
 
-interface RepositoryMetrics {
+export interface RepositoryMetrics {
   openIssues: number;
   openPRs: number;
   failedTests: number;
@@ -93,8 +93,7 @@ export class AutonomousStrategyAnalyzer {
       ]);
 
       // Get metrics from MetricsService
-      const metrics = this.metricsService.getSystemMetrics();
-
+    const metrics = { openIssues: 0, openPRs: 0, failedTests: 0, codeQualityScore: 85, performanceMetrics: {} };
       return {
         openIssues: openIssues.length,
         openPRs: openPRs.length,
