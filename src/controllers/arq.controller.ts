@@ -1,8 +1,6 @@
 import { Controller, Post, Body, Get, HttpCode, HttpStatus, Logger, Param, Patch } from '@nestjs/common';
 import { GitHubService } from '../services/github.service';
-import { PullRequestManager } from '../services/pull-request.manager';
 import { AutonomousStrategyAnalyzer } from '../services/autonomous-strategy.analyzer';
-
 interface StartDevelopmentDto {
   developmentGoals: string[];
   maxIterations: number;
@@ -36,7 +34,6 @@ export class ARQController {
   private readonly logger = new Logger('ARQController');
   private taskCounter = 0;
   private activeTasks: Map<string, DevelopmentTask> = new Map();
-    private readonly pullRequestManager: PullRequestManager,
     private readonly strategyAnalyzer: AutonomousStrategyAnalyzer,
 
   constructor(private readonly githubService: GitHubService) {}
@@ -270,8 +267,7 @@ ${dto.priority.toUpperCase()}
   @HttpCode(HttpStatus.OK)
   getPRStatus(@Param('prNumber') prNumber: string) {
     this.logger.log(`[ARQ] Getting PR #${prNumber} status`);
-    const status = this.pullRequestManager.getPRStatus(parseInt(prNumber));
-    return {
+    const statuses = [];   return {
       prNumber,
       status,
       timestamp: new Date().toISOString(),
