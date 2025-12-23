@@ -321,7 +321,7 @@ export class GitHubService {
         owner: this.owner,
         repo: this.repo,
         pull_number: prNumber,
-        reviewers,
+        reviewers: reviewers,
       });
       this.logger.log(`Requested review for PR #${prNumber}`);
       return data;
