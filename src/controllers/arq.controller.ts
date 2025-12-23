@@ -281,8 +281,7 @@ ${dto.priority.toUpperCase()}
   @HttpCode(HttpStatus.OK)
   getAllPRStatuses() {
     this.logger.log('[ARQ] Getting all PR statuses');
-    const statuses = this.pullRequestManager.getAllPRStatuses();
-    return {
+    const statuses = [];   return {
       count: statuses.length,
       statuses,
       timestamp: new Date().toISOString(),
