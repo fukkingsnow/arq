@@ -1,16 +1,11 @@
 {
   "name": "arq",
-  "type": "commonjs",
-  "version": "1.0.1",
-  "description": "ARQ - AI Assistant Backend with NestJS",
+  "version": "1.0.0",
+  "description": "Advanced Request Queue - High-performance task processing system",
   "author": "fukkingsnow",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "npm run build:frontend && nest build && npm run copy:frontend",
-    "build:webpack": "nest build --webpack",
-    "format": "prettier --write src test",
-    "start": "nest start",
+    "start": "node dist/main",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -82,6 +77,6 @@
     "ts-loader": "9.5.1",
     "ts-node": "10.9.2",
     "tsconfig-paths": "4.2.0",
-"typescript": "5.5.4"
+    "typescript": "5.5.4"
   }
 }
