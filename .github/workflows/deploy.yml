@@ -60,7 +60,11 @@ jobs:
           # Start application
           echo "Starting application..."
                     mkdir -p logs
-            pm2 start ecosystem.config.js || { echo 'Failed to start app'; exit 1; }                        pm2 save
+            pm2 start ecosystem.config.js
+                      if [ $? -ne 0 ]; then
+                                  echo "❌ Failed to start application"
+                                              exit 1
+                                                        fi
           # Reload nginx
           echo "Reloading nginx..."
           sudo systemctl reload nginx || true
