@@ -270,6 +270,46 @@ The repository includes GitHub Actions CI/CD pipeline that automatically:
 2. Configure `.env` on your Beget hosting with required variables
 
 3. Push to main branch to trigger automatic deployment
+4. 
+### Production deployment with PM2
+
+For production deployments on servers with PM2, the backend is managed through a single process:
+
+**Process Management**
+```bash
+# First deployment - create process from config
+pm2 start ecosystem.config.js
+
+# Subsequent deployments - restart by name (recommended)
+pm2 restart arq-backend || pm2 start ecosystem.config.js
+
+# View logs
+pm2 logs arq-backend
+
+# Check status
+pm2 status arq-backend
+```
+
+**Configuration Requirements**
+- Backend port: 8000 (fixed in ecosystem.config.js)
+- Process name: `arq-backend` (single instance, single name)
+- Health check: GET /health on port 8000
+- wait_ready: false (external curl health check in CI)
+
+**Deployment Flow**
+1. GitHub Actions CI/CD runs `pm2 delete arq-backend || true` to clean old processes
+2. Runs `fuser -k 8000/tcp || true` to ensure port is free
+3. Executes `pm2 restart arq-backend || pm2 start ecosystem.config.js` to start/restart
+4. Performs health check via curl to verify service is ready
+5. Reloads nginx if configured
+
+**Important Notes**
+- ✅ Ручные запуски `node dist/main.js` на продовом сервере **запрещены**
+- ✅ All production launches must use PM2 process manager
+- ✅ Idempotent deployment: multiple deploys won't create duplicate processes
+- ✅ Health check is external to PM2 (no wait_ready conflicts)
+
+See `ecosystem.config.js` and `.github/workflows/deploy.yml` for implementation details.
 
 ## Development
 
