@@ -25,6 +25,27 @@ jobs:
             pm2 delete arq-backend 2>/dev/null || true
             fuser -k 8000/tcp 2>/dev/null || true
             sleep 1
+                      
+          # Deep cleanup to free disk space
+          echo "🧹 Cleaning server to free disk space..."
+          
+          # Remove old node_modules and build artifacts
+          rm -rf node_modules dist .next .cache
+          
+          # Clean npm cache aggressively
+          npm cache clean --force 2>/dev/null || true
+          
+          # Clean PM2 logs
+          pm2 flush 2>/dev/null || true
+          rm -rf ~/.pm2/logs/* 2>/dev/null || true
+          
+          # Remove old log files
+          find logs -type f -mtime +7 -delete 2>/dev/null || true
+          
+          # Clean git garbage
+          git gc --aggressive --prune=now 2>/dev/null || true
+          
+          echo "✅ Cleanup completed"
             # Update repository (shallow clone already used above)
             echo "Fetching updates..."
             git fetch origin --depth 1
@@ -73,7 +94,7 @@ jobs:
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               sleep 2
               RETRY_COUNT=$((RETRY_COUNT + 1))
-              if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
+              if curl -sf http://localhost:8000 > /dev/null 2>&1; then
                 echo "✅ Health check passed on attempt $RETRY_COUNT"
                 break
               else
