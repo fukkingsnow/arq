@@ -9,6 +9,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+        "build": "nest build",
     "build:watch": "nest build --watch",
     "start:dev:opt": "npm run build:watch & npm run start:dev",
     "build:prod": "nest build --webpack --webpackPath webpack-hmr.config.js",
