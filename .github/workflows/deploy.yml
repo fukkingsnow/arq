@@ -36,7 +36,6 @@ jobs:
           # Clean and install dependencies optimized
           echo "Installing dependencies..."
 
-          51
 rm -rf node_modules
  npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
           # Build application with webpack for reliability
