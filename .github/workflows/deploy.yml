@@ -24,6 +24,22 @@ jobs:
             echo "Stopping old processes..."
             pm2 delete arq-backend 2>/dev/null || true
             fuser -k 8000/tcp 2>/dev/null || true
+                      lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+                                pkill -9 -f "node.*dist/main" 2>/dev/null || true
+                                          rm -rf node_modules dist
+                      
+          # Aggressive port cleanup
+          echo "Killing all processes on port 8000..."
+          lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+          pkill -9 -f "node.*dist/main" 2>/dev/null || true
+          pkill -9 -f "nest" 2>/dev/null || true
+          sleep 2
+          
+          # Disk cleanup
+          echo "Cleaning disk space..."
+          rm -rf node_modules
+          rm -rf dist
+          npm cache clean --force 2>/dev/null || true
             sleep 1
             # Update repository (shallow clone already used above)
             echo "Fetching updates..."
@@ -73,8 +89,7 @@ jobs:
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               sleep 2
               RETRY_COUNT=$((RETRY_COUNT + 1))
-              if curl -sf http://localhost:8000/health > /dev/null 2>&1; then
-                echo "✅ Health check passed on attempt $RETRY_COUNT"
+          if curl -sf http://localhost:8000/api/v1/health > /dev/null 2>&1; then                echo "✅ Health check passed on attempt $RETRY_COUNT"
                 break
               else
                 if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
