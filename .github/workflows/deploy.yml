@@ -24,15 +24,10 @@ jobs:
             echo "Stopping old processes..."
             pm2 delete arq-backend 2>/dev/null || true
             fuser -k 8000/tcp 2>/dev/null || true
-                      lsof -ti:8000 | xargs kill -9 2>/dev/null || true
-                                pkill -9 -f "node.*dist/main" 2>/dev/null || true
-                                          rm -rf node_modules dist
+                                lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+                                          pkill -9 -f "node.*dist/main" 2>/dev/null || true
+                                                    rm -rf node_modules dist
                       
-          # Aggressive port cleanup
-          echo "Killing all processes on port 8000..."
-          lsof -ti:8000 | xargs kill -9 2>/dev/null || true
-          pkill -9 -f "node.*dist/main" 2>/dev/null || true
-          pkill -9 -f "nest" 2>/dev/null || true
           sleep 2
           
           # Disk cleanup
