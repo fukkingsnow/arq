@@ -36,11 +36,6 @@ jobs:
           # Clean and install dependencies optimized
           echo "Installing dependencies..."
 
-rm -rf node_modules
- npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
-          # Build application with webpack for reliability
-          echo "Building application..."
-          npm run build || npm run build:webpack
           
           # Verify build output
           if [ ! -f "dist/main.js" ]; then
