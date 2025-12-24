@@ -19,7 +19,7 @@ module.exports = {
       // Настройки для предотвращения проблем с портами
       listen_timeout: 10000,
       kill_timeout: 5000,
-      wait_ready: true,
+      wait_ready: false,
       // Restart delay для стабильности
       min_uptime: '10s',
       max_restarts: 10,
