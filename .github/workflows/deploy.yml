@@ -1,15 +1,19 @@
 name: Deploy ARQ to Beget Server
+
 on:
   push:
     branches: [main]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code (shallow clone for speed)
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
@@ -19,17 +23,21 @@ jobs:
           script: |
             set -e
             cd /opt/arq
+
             echo "=== Starting deployment ==="
+
             # Kill existing processes
             echo "Stopping old processes..."
             pm2 delete arq-backend 2>/dev/null || true
             fuser -k 8000/tcp 2>/dev/null || true
             sleep 1
+
             # Update repository (shallow clone already used above)
             echo "Fetching updates..."
             git fetch origin --depth 1
             git reset --hard origin/main
-                        # Deep disk cleanup to free space
+
+            # Deep disk cleanup to free space
             echo "Cleaning disk space..."
             pm2 flush 2>/dev/null || true
             pm2 logs --nostream --lines 0 2>/dev/null || true
@@ -38,50 +46,50 @@ jobs:
             rm -rf ~/.npm/_cacache 2>/dev/null || true
             find /tmp -name 'npm-*' -type d -mtime +1 -exec rm -rf {} + 2>/dev/null || true
             docker system prune -af 2>/dev/null || true
+
             # Clean and install dependencies optimized
             echo "Installing dependencies..."
             npm cache clean --force --silent || true
             rm -rf node_modules
             npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
+
             # Build application with webpack for reliability
             echo "Building application..."
             npm run build || npm run build:webpack
+
             # Verify build output
             if [ ! -f "dist/main.js" ]; then
               echo "❌ ERROR: Build failed - dist/main.js not found"
               exit 1
             fi
+
             echo "✅ Build successful"
             ls -lh /opt/arq/dist/main.js
+
             # Copy frontend static files
             echo "Copying frontend files..."
             mkdir -p /opt/arq/dist/frontend
             cp -r src/frontend/dist/* /opt/arq/dist/frontend/ || true
             echo "✅ Frontend files copied successfully!"
-            # Start application
-            echo "Starting application..."
-            mkdir -p logs
-            pm2 delete arq-backend 2>/dev/null || true
-            if [ -f "ecosystem.config.js" ]; then
-              pm2 start ecosystem.config.js
-            else
-              pm2 start dist/main.js --name "arq-backend" --instances 1 --exec-mode cluster
-            fi
-            if [ $? -ne 0 ]; then
-              echo "❌ Failed to start application"
-              exit 1
-            fi
-            sleep 2
+
+            # Start application using force-restart script
+            echo "Starting application with force-restart..."
+            chmod +x scripts/force-restart.sh
+            bash scripts/force-restart.sh
+
             # Reload nginx
             echo "Reloading nginx..."
             sudo systemctl reload nginx || true
+
             # Health check with retries (improved to 15 attempts)
             echo "Running health check..."
             MAX_RETRIES=15
             RETRY_COUNT=0
+
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               sleep 2
               RETRY_COUNT=$((RETRY_COUNT + 1))
+
               if curl -sf http://localhost:8000/api/v1/health > /dev/null 2>&1; then
                 echo "✅ Health check passed on attempt $RETRY_COUNT"
                 break
@@ -95,11 +103,13 @@ jobs:
                 fi
               fi
             done
+
             # Show application status
             echo ""
             echo "=== Application Status ==="
             pm2 list
             echo ""
+
             echo "✅ Deployment completed successfully!"
             echo "App URL: http://arq-ai.ru"
             echo "============================"
