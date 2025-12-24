@@ -36,18 +36,6 @@ jobs:
           # Clean and install dependencies optimized
           echo "Installing dependencies..."
 
-           # Regenerate package-lock.json if needed
- echo "Checking package-lock.json completeness..."
- if [ ! -f package-lock.json ] || [ $(wc -l < package-lock.json) -lt 100 ]; then
-   echo "Lock file is incomplete, regenerating..."
-   npm install --legacy-peer-deps --package-lock-only
-   git config user.name "GitHub Actions"
-   git config user.email "actions@github.com"
-   git add package-lock.json
-   git commit -m "fix: Regenerate package-lock.json with all dependencies" || true
-   git push || true
-   echo "Package-lock.json regenerated and pushed"
- fi
           51
 rm -rf node_modules
  npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
