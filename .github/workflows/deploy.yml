@@ -33,7 +33,7 @@ jobs:
             echo "Installing dependencies..."
             npm cache clean --force --silent || true
             rm -rf node_modules
-            npm ci --no-audit --no-fund --prefer-offline --legacy-peer-deps || npm install --no-audit --no-fund --legacy-peer-deps
+            npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
             # Build application with webpack for reliability
             echo "Building application..."
             npm run build || npm run build:webpack
@@ -66,9 +66,9 @@ jobs:
             # Reload nginx
             echo "Reloading nginx..."
             sudo systemctl reload nginx || true
-            # Health check with retries (improved)
+            # Health check with retries (improved to 15 attempts)
             echo "Running health check..."
-            MAX_RETRIES=5
+            MAX_RETRIES=15
             RETRY_COUNT=0
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
               sleep 2
@@ -78,7 +78,9 @@ jobs:
                 break
               else
                 if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                  echo "⚠️  WARNING: Health check failed after $MAX_RETRIES attempts, but continuing"
+                  echo "⚠️ WARNING: Health check failed after $MAX_RETRIES attempts"
+                  echo "Getting application logs for diagnostics..."
+                  pm2 logs arq-backend --lines 50 || true
                 else
                   echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES - waiting..."
                 fi
