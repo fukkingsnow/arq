@@ -1,3 +1,13 @@
+/**
+ * PM2 Configuration for ARQ Backend
+ * 
+ * Production deployment strategy:
+ * - Name: arq-backend (single process name)
+ * - Method: pm2 restart arq-backend || pm2 start ecosystem.config.js
+ * - First deploy creates process; subsequent deploys restart by name
+ * - Health check: GET /health on port 8000
+ * - wait_ready: false (external curl health check in CI handles readiness)
+ */
 module.exports = {
   apps: [
     {
