@@ -28,7 +28,7 @@ jobs:
                                           pkill -9 -f "node.*dist/main" 2>/dev/null || true
                                                     rm -rf node_modules dist
                       
-          sleep 2
+                    sleep 2
           
           # Disk cleanup
           echo "Cleaning disk space..."
