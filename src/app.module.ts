@@ -14,6 +14,7 @@ import { ARQController } from './controllers/arq.controller';
 import { AssistantModule } from './modules/assistant/assistant.module';
 import { AppController } from './app.controller';
 import { AutonomousStrategyAnalyzer } from './services/autonomous-strategy.analyzer';
+import { MetricsService } from './services/metrics.service';
 /**
  * Root Application Module
  *
@@ -55,6 +56,7 @@ import { AutonomousStrategyAnalyzer } from './services/autonomous-strategy.analy
       useClass: ValidationExceptionFilter,
     },
         AutonomousStrategyAnalyzer,
+        MetricsService,
   ],
 })
 export class AppModule implements NestModule {
