@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-interface QueryAnalysis {
+export interface QueryAnalysis {
   intent: 'STATUS' | 'ERROR' | 'HELP' | 'ANALYSIS' | 'OPTIMIZATION' | 'UNKNOWN';
   entityId?: string;
   context: Record<string, any>;
