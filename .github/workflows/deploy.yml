@@ -60,7 +60,7 @@ jobs:
           # Start application
           echo "Starting application..."
                     mkdir -p logs
-            pm2 start ecosystem.config.js
+            pm2 restart arq-backend || pm2 start ecosystem.config.js
                       if [ $? -ne 0 ]; then
                                   echo "❌ Failed to start application"
                                               exit 1
