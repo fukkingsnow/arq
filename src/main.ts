@@ -1,3 +1,7 @@
+// Fix for TypeORM crypto issue - import and make crypto globally available
+import * as crypto from 'crypto';
+(global as any).crypto = crypto;
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
