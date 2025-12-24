@@ -59,8 +59,7 @@ jobs:
           
           # Start application
           echo "Starting application..."
-          pm2 start /opt/arq/dist/main.js --name arq-backend - -i 1-max-memory-restart 500M || { echo "Failed to start app"; exit 1; }
-          pm2 save
+            pm2 start /opt/arq/dist/main.js --name arq-backend -i 1 --max-memory-restart 500M || { echo "Failed to start app"; exit 1; }          pm2 save
           
           # Reload nginx
           echo "Reloading nginx..."
