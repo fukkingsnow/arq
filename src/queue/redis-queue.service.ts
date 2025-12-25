@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // @ts-nocheck
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Worker, Queue, Job } from 'bullmq';
 import Redis from 'ioredis';
 
@@ -34,7 +36,6 @@ export class RedisQueueService {
       password: config.password,
       db: config.db || 0,
     });
-
     this.redis.on('error', (err) => {
       console.error('Redis connection error:', err);
     });
@@ -83,20 +84,16 @@ export class RedisQueueService {
     if (this.workers.has(queueName)) {
       return;
     }
-
     const worker = new Worker(queueName, processor, {
       connection: this.redis,
       concurrency: 5,
     });
-
     worker.on('completed', (job) => {
       console.log(`Job ${job.id} completed`);
     });
-
     worker.on('failed', (job, err) => {
       console.error(`Job ${job?.id} failed:`, err);
     });
-
     this.workers.set(queueName, worker);
   }
 
