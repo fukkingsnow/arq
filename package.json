@@ -25,8 +25,10 @@
     "copy:frontend": "mkdir -p dist && cp -r src/frontend dist/frontend",
     "audit:fix": "npm audit fix --force",
     "audit:strict": "npm audit --audit-level=moderate",
-    "quality:check": "npm run lint:strict && npm run audit:strict && npm test",
-    "quality:fix": "npm run lint -- --fix && npm audit fix"
+    "quality:check": "npm run lint:strict && npm run audit:strict && npm test",,
+    "quality:fix": "npm run lint -- --fix && npm audit fix",
+        "build:webpack": "nest build"
+    
   },
   "dependencies": {
     "@nestjs/common": "10.3.0",
