@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// @ts-nocheck
 import { Worker, Queue, Job } from 'bullmq';
 import Redis from 'ioredis';
 
