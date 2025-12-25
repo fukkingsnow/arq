@@ -33,6 +33,7 @@
     "noFallthroughCasesInSwitch": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+        "skipLibCheck": true,
     "paths": {
       "@/*": ["src/*"]
     }
