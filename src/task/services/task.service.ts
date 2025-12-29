@@ -27,7 +27,7 @@ export class TaskService {
         ...taskData,
         status: taskData.status || 'PENDING',
         progress: taskData.progress || 0,
-        metrics: taskData.metrics || { success: false, executionTime: 0 },
+        metrics: taskData.metrics || { lineAdded: 0, lineModified: 0, filesChanged: 0, codeQualityScore: 0 },
       } as DevelopmentTaskEntity;
       this.tasks.push(newTask);
       return newTask;
@@ -67,9 +67,11 @@ export class TaskService {
       
       task.status = 'COMPLETED';
       task.progress = 100;
-      if (task.metrics) {
-        task.metrics.success = result.success !== false;
-        task.metrics.result = result;
+      if (task.metrics && result) {
+        if (result.lineAdded !== undefined) task.metrics.lineAdded = result.lineAdded;
+        if (result.lineModified !== undefined) task.metrics.lineModified = result.lineModified;
+        if (result.filesChanged !== undefined) task.metrics.filesChanged = result.filesChanged;
+        if (result.codeQualityScore !== undefined) task.metrics.codeQualityScore = result.codeQualityScore;
       }
       return task;
     } catch (error) {
@@ -99,10 +101,6 @@ export class TaskService {
       if (!task) return null;
       task.status = 'FAILED';
       task.progress = 100;
-      if (task.metrics) {
-        task.metrics.success = false;
-        task.metrics.errorMessage = error;
-      }
       return task;
     } catch (error) {
       this.logger.error(`Failed to fail task: ${error.message}`, error.stack);
