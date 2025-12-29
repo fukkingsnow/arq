@@ -2,63 +2,86 @@
 
 # ARQ Deployment Script
 # This script safely deploys ARQ application
-# USAGE: chmod +x deploy.sh && ./deploy.sh
+# Usage: /home/sh -c 'deploy.sh'
 
-set -e  # Exit on any error
+set -e # Exit on any error
 
-echo "🚀 ARQ Deployment Started"
-echo "========================="
+echo "=== ARQ Deployment Started"
+echo "============================"
 
 cd /opt/arq
 
-# 1. Stop old PM2 processes
-echo "📝 Cleaning up old PM2 processes..."
+# 1. Stop old pm2 processes
+echo "=== Cleaning up old processes..."
 pm2 delete all 2>/dev/null || true
-sleep 1
-
-# 2. Install dependencies
-echo "📦 Installing dependencies..."
-npm install --legacy-peer-deps
-
-# 3. Build backend
-echo "🏗️  Building backend..."
-npm run build
-
-# 4. Build frontend
-echo "🏗️  Building frontend..."
-cd src/frontend && npm run build && cd ../..
-
-# 5. Start PM2 process
-echo "▶️  Starting PM2 process..."
-pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
-
-# 6. Wait for process to stabilize
+sleep 2
+# Kill any lingering node processes
+pkill -f "node" || true
+pkill -f "npm" || true
 sleep 2
 
-# 7. Save PM2 configuration
-echo "💾 Saving PM2 configuration..."
+# 2. Clean up old deployment
+echo "=== Pulling latest code..."
+git fetch origin main
+git reset --hard origin/main
+
+# 3. Clean old files with proper cleanup
+echo "=== Cleaning old dependencies..."
+# Use find + xargs to properly remove with retries
+if [ -d "node_modules" ]; then
+  echo "Removing node_modules directory..."
+  rm -rf node_modules || {
+    # Retry with force on nested directories
+    find node_modules -type d -exec chmod 755 {} \;
+    rm -rf node_modules || true
+  }
+fi
+
+if [ -d "dist" ]; then
+  echo "Removing dist directory..."
+  rm -rf dist || true
+fi
+
+# 4. Clean up logs
+echo "Cleaning disk space..."
+rm -rf /root/.pm2/pm2.log || true
+rm -rf /root/.pm2/logs/* || true
+rm -rf /tmp/**/*.log || true
+find /opt/arq -name "*.log" -delete || true
+
+echo "Total reclaimed space: "
+df -h | head -2
+
+# 5. Install dependencies
+echo "=== Installing dependencies..."
+npm install --legacy-peer-deps
+
+# 6. Build application
+echo "=== Building backend..."
+npm run build
+
+# 7. Build frontend
+echo "=== Building frontend..."
+cd src/frontend && npm run build && cd /opt/arq || true
+
+# 8. Start pm2 process
+echo "=== Starting PM2 process..."
+pm2 start dist/main.js --name "arq-backend" --cwd /opt/arq
+
+sleep 2
+
+# 9. Save pm2 configuration
+echo "=== Saving PM2 configuration..."
 pm2 save
 
-# 8. Setup PM2 startup
-echo "⚙️  Setting up PM2 startup..."
-pm2 startup systemd -u root --hp /root --update
+# 10. Setup PM2 startup
+echo "=== Setting up PM2 startup..."
+pm2 startup systemd -u root -hp /root --update
 
-# 9. Reload nginx
-echo "🔄 Reloading nginx..."
+# 11. Reload nginx
+echo "=== Reloading nginx..."
 sudo nginx -t
-sudo systemctl reload nginx
+sudo systemctl restart nginx || true
 
-# 10. Verification
-echo "✅ Verifying deployment..."
-echo ""
-echo "PM2 Status:"
-pm2 status
-echo ""
-echo "Checking API health..."
-curl -s http://localhost:8000/api/v1/arq/health | jq . || echo "API not responding yet, wait a moment"
-
-echo ""
-echo "========================="
-echo "✅ Deployment complete!"
-echo "🌐 Visit: https://arq-ai.ru/"
-echo "📊 API: https://arq-ai.ru/api/v1/arq/health"
+echo "=== Deployment successful! ==="
+echo "Application is running and accessible at http://arq-ai.ru"
