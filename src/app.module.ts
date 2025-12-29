@@ -15,6 +15,7 @@ import { AssistantModule } from './modules/assistant/assistant.module';
 import { AppController } from './app.controller';
 import { AutonomousStrategyAnalyzer } from './services/autonomous-strategy.analyzer';
 import { MetricsService } from './services/metrics.service';
+import { TaskModule } from './task/task.module';
 /**
  * Root Application Module
  *
@@ -48,6 +49,7 @@ import { MetricsService } from './services/metrics.service';
     ContextEngineModule,
     GitHubModule,
         AssistantModule,
+        TaskModule,
   ],
     controllers: [AppController, ARQController],
   providers: [
