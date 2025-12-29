@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TaskRepository } from '../repositories/task.repository';
+import { TaskRepository } from './repositories/task.repository';
 import { DevelopmentTaskEntity } from '../../entities/development-task.entity';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class TaskService {
 
   async createTask(taskData: Partial<DevelopmentTaskEntity>): Promise<DevelopmentTaskEntity> {
     try {
-      this.logger.log(`Creating new task: ${taskData.title}`);
+      this.logger.log(`Creating new task`);
       return await this.taskRepository.createTask({
         ...taskData,
         status: taskData.status || 'PENDING',
