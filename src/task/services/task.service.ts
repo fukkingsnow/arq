@@ -68,9 +68,8 @@ export class TaskService {
       task.status = 'COMPLETED';
       task.progress = 100;
       if (task.metrics && result) {
-        if (result.lineAdded !== undefined) task.metrics.lineAdded = result.lineAdded;
-        if (result.lineModified !== undefined) task.metrics.lineModified = result.lineModified;
-        if (result.filesChanged !== undefined) task.metrics.filesChanged = result.filesChanged;
+    if (result.linesAdded !== undefined) task.metrics.linesAdded = result.linesAdded;
+    if (result.linesModified !== undefined) task.metrics.linesModified = result.linesModified;        if (result.filesChanged !== undefined) task.metrics.filesChanged = result.filesChanged;
         if (result.codeQualityScore !== undefined) task.metrics.codeQualityScore = result.codeQualityScore;
       }
       return task;
