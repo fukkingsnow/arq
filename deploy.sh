@@ -114,5 +114,17 @@ systemctl enable nginx || true
 
 
 
+# 12. Setup systemd service for direct port 80 access
+echo "=== Setting up systemd service..."
+if [ -f "config/arq.service" ]; then
+  cp config/arq.service /etc/systemd/system/arq.service || true
+  systemctl daemon-reload || true
+  systemctl stop arq || true
+  systemctl start arq || true
+  systemctl enable arq || true
+  echo "✅ ARQ systemd service configured and running"
+fi
+
+
 echo "=== Deployment successful! ==="
 echo "Application is running and accessible at http://arq-ai.ru"
