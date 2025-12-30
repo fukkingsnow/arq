@@ -78,37 +78,41 @@ pm2 save
 echo "=== Setting up PM2 startup..."
 pm2 startup systemd -u root -hp /root --update
 
-# 10.5. Setup nginx (if not installed)
-echo "=== Setting up nginx..."
+# 10.5. Setup nginx (mandatory reverse proxy)
+echo "=== Setting up nginx reverse proxy..."
+
+# Install nginx if not present
 if ! command -v nginx &> /dev/null; then
   echo "Installing nginx..."
-  apt-get update -qq
+  apt-get update -qq 2>&1 | tail -1
   apt-get install -y nginx > /dev/null 2>&1
+  echo "✅ nginx installed"
 fi
 
-# Copy nginx configuration from repo
+# Ensure nginx config directory exists
+mkdir -p /etc/nginx/sites-available /etc/nginx/sites-enabled
+
+# Copy and setup nginx config
 if [ -f "config/nginx.conf" ]; then
-  echo "Copying nginx configuration..."
-  cp config/nginx.conf /etc/nginx/sites-available/arq-ai.ru || true
-  ln -sf /etc/nginx/sites-available/arq-ai.ru /etc/nginx/sites-enabled/arq-ai.ru || true
-  nginx -t || true
+  cp config/nginx.conf /etc/nginx/sites-available/arq || true
+  rm -f /etc/nginx/sites-enabled/default /etc/nginx/sites-enabled/arq || true
+  ln -sf /etc/nginx/sites-available/arq /etc/nginx/sites-enabled/arq || true
+  
+  # Validate and reload nginx
+  nginx -t 2>&1 | grep -q "successful" && {
+    systemctl restart nginx || {
+      echo "Restarting nginx with service..."
+      service nginx restart || true
+    }
+    sleep 1
+  }
 fi
 
-
-# 11. Reload nginx (if available)
-echo "=== Reloading nginx..."
-systemctl start nginx || true
+# Ensure nginx is started and enabled
+systemctl start nginx || service nginx start || true
 systemctl enable nginx || true
 
-if command -v nginx &> /dev/null; then
-  if systemctl is-active --quiet nginx; then
-    systemctl restart nginx || true
-  else
-    echo "nginx is installed but not running. Skipping reload."
-  fi
-else
-  echo "nginx is not installed. Skipping reload."
-fi
+
 
 echo "=== Deployment successful! ==="
 echo "Application is running and accessible at http://arq-ai.ru"
