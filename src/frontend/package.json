@@ -1,7 +1,6 @@
 {
   "name": "arq-dashboard",
-  "version": "0.1.0",
-  "type": "module",
+  "version": "1.1.0",  "type": "module",
   "description": "ARQ Development Dashboard Frontend",
   "scripts": {
     "dev": "vite",
