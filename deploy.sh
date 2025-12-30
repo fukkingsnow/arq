@@ -78,10 +78,17 @@ pm2 save
 echo "=== Setting up PM2 startup..."
 pm2 startup systemd -u root -hp /root --update
 
-# 11. Reload nginx
+# 11. Reload nginx (if available)
 echo "=== Reloading nginx..."
-sudo nginx -t
-sudo systemctl restart nginx || true
+if command -v nginx &> /dev/null; then
+  if systemctl is-active --quiet nginx; then
+    systemctl restart nginx || true
+  else
+    echo "nginx is installed but not running. Skipping reload."
+  fi
+else
+  echo "nginx is not installed. Skipping reload."
+fi
 
 echo "=== Deployment successful! ==="
 echo "Application is running and accessible at http://arq-ai.ru"
