@@ -114,6 +114,11 @@ if [ -f "config/nginx.conf" ]; then
   }
 fi
 
+# 3.1. Setup nginx log directories
+mkdir -p /var/log/nginx
+touch /var/log/nginx/error.log /var/log/nginx/access.log
+chown -R www-data:www-data /var/log/nginx
+chmod 755 /var/log/nginx
 # Ensure nginx is started and enabled
 systemctl start nginx || service nginx start || true
 systemctl enable nginx || true
