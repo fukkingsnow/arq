@@ -13,6 +13,12 @@ cd /opt/arq
 
 # 1. Stop old pm2 processes
 echo "=== Cleaning up old processes..."
+# Kill processes on ports 8000 and 80
+fuser -k 8000/tcp 2>/dev/null || true
+fuser -k 80/tcp 2>/dev/null || true
+lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+lsof -ti:80 | xargs kill -9 2>/dev/null || true
+
 pm2 delete all 2>/dev/null || true
 sleep 2
 # Kill any lingering node processes
