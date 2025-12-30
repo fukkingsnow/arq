@@ -78,8 +78,28 @@ pm2 save
 echo "=== Setting up PM2 startup..."
 pm2 startup systemd -u root -hp /root --update
 
+# 10.5. Setup nginx (if not installed)
+echo "=== Setting up nginx..."
+if ! command -v nginx &> /dev/null; then
+  echo "Installing nginx..."
+  apt-get update -qq
+  apt-get install -y nginx > /dev/null 2>&1
+fi
+
+# Copy nginx configuration from repo
+if [ -f "config/nginx.conf" ]; then
+  echo "Copying nginx configuration..."
+  cp config/nginx.conf /etc/nginx/sites-available/arq-ai.ru || true
+  ln -sf /etc/nginx/sites-available/arq-ai.ru /etc/nginx/sites-enabled/arq-ai.ru || true
+  nginx -t || true
+fi
+
+
 # 11. Reload nginx (if available)
 echo "=== Reloading nginx..."
+systemctl start nginx || true
+systemctl enable nginx || true
+
 if command -v nginx &> /dev/null; then
   if systemctl is-active --quiet nginx; then
     systemctl restart nginx || true
