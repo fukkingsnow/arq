@@ -11,6 +11,8 @@ import helmet from 'helmet';
 import cors from 'cors';
 import * as express from 'express';
 import { join } from 'path';
+import { taskControllerRoutes } from './controllers/task.controller';
+
 
 /**
  * ARQ Backend - Main Application Bootstrap
@@ -73,6 +75,7 @@ async function bootstrap() {
   app.use('/', express.static(join(__dirname, '..', 'frontend')));
 
   
+  taskControllerRoutes(app);
   await app.listen(port, '0.0.0.0');
 
   logger.log(`========================================`);
