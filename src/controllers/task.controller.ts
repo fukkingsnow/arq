@@ -1,7 +1,8 @@
 import {
   Controller,
   Post,
-  Get,
+  Get,,
+ Put
   Body,
   Param,
   HttpStatus,
@@ -61,5 +62,29 @@ export class TaskController {
       progress: status.progress,
       data: status.data,
     };
+  
+  @Post('complete/:taskId')
+  @HttpCode(HttpStatus.OK)
+  async completeTask(@Param('taskId') taskId: string, @Body() body: any) {
+    const result = await this.taskConsumerService.completeTask(taskId, body);
+    
+    return {
+      taskId,
+      status: 'completed',
+      message: 'Task marked as completed',
+      result
+    };
+  }
+
+  @Put('status/:taskId')
+  async updateTaskStatus(@Param('taskId') taskId: string, @Body() body: { status: string; progress?: number; data?: any }) {
+    const updated = await this.taskConsumerService.updateTaskStatus(taskId, body.status, body.progress, body.data);
+    return {
+      taskId,
+      status: body.status,
+      message: 'Task status updated',
+      updated
+    };
+  }
   }
 }
