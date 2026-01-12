@@ -1,8 +1,8 @@
 import {
   Controller,
   Post,
-  Get,,
- Put
+  Get,
+  Put,
   Body,
   Param,
   HttpStatus,
@@ -33,7 +33,6 @@ export class TaskController {
       priority: dto.priority,
       retries: dto.retries,
     };
-
     const jobId = await this.taskConsumerService.submitTask(payload);
     
     return {
@@ -55,14 +54,14 @@ export class TaskController {
         message: 'Task not found in queue',
       };
     }
-
     return {
       taskId,
       status: status.state,
       progress: status.progress,
       data: status.data,
     };
-  
+  }
+
   @Post('complete/:taskId')
   @HttpCode(HttpStatus.OK)
   async completeTask(@Param('taskId') taskId: string, @Body() body: any) {
@@ -85,6 +84,5 @@ export class TaskController {
       message: 'Task status updated',
       updated
     };
-  }
   }
 }
