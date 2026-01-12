@@ -1,5 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
-import { WebSocketGateway, WebSocketServer, SubscribeMessage } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
 
 interface AIQueryRequest {
   message: string;
