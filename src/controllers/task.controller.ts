@@ -1,52 +1,38 @@
-import { Controller, Post, Get, Body, Param, HttpStatus, HttpCode } from '@nestjs/common';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 const TASKS_FILE = join(process.cwd(), 'data', 'tasks.json');
+let tasksCache = [];
 
-export class SubmitTaskDto {
-  type: string;
-  data: any;
+// Load tasks from file on startup
+if (existsSync(TASKS_FILE)) {
+  try {
+    const content = readFileSync(TASKS_FILE, 'utf8');
+    tasksCache = JSON.parse(content);
+  } catch (err) {
+    console.error('Error loading tasks:', err);
+    tasksCache = [];
+  }
 }
 
-@Controller('api/tasks')
-export class TaskController {
-  private tasks: any[] = [];
-
-  constructor() {
-    this.loadTasks();
+function saveTasks() {
+  try {
+    writeFileSync(TASKS_FILE, JSON.stringify(tasksCache, null, 2));
+  } catch (err) {
+    console.error('Error saving tasks:', err);
   }
+}
 
-  private loadTasks() {
-    try {
-      if (existsSync(TASKS_FILE)) {
-        const content = readFileSync(TASKS_FILE, 'utf8');
-        this.tasks = JSON.parse(content);
-      } else {
-        this.tasks = [];
-        this.saveTasks();
-      }
-    } catch (err) {
-      console.error('Error loading tasks:', err);
-      this.tasks = [];
-    }
-  }
-
-  private saveTasks() {
-    try {
-      writeFileSync(TASKS_FILE, JSON.stringify(this.tasks, null, 2));
-    } catch (err) {
-      console.error('Error saving tasks:', err);
-    }
-  }
-
-  @Post('submit')
-  @HttpCode(HttpStatus.ACCEPTED)
-  async submitTask(@Body() dto: SubmitTaskDto) {
+export const taskControllerRoutes = (app) => {
+  // Submit new task
+  app.post('/api/v1/arq/tasks/submit', (req, res) => {
+    const { type, data, goal, description, taskType } = req.body;
+    
     const taskId = `task_${Date.now()}`;
     const task = {
       id: taskId,
-      ...dto,
+      type,
+      data: data || { goal, description, taskType },
       status: 'active',
       createdAt: new Date().toISOString(),
       logs: [
@@ -62,44 +48,43 @@ export class TaskController {
         },
         {
           timestamp: new Date().toISOString(),
-          message: `Processing... (estimated time: 2h)`,
+          message: 'Processing... (estimated time: 2h)',
           level: 'warning'
         }
       ]
     };
-
-    this.tasks.push(task);
-    this.saveTasks();
-
-    return {
+    
+    tasksCache.push(task);
+    saveTasks();
+    
+    res.status(202).json({
       taskId,
       status: 'accepted',
       message: 'Task submitted successfully'
-    };
-  }
-
-  @Get()
-  async getAllTasks() {
-    this.loadTasks();
-    return this.tasks;
-  }
-
-  @Get('status/:taskId')
-  async getTaskStatus(@Param('taskId') taskId: string) {
-    this.loadTasks();
-    const task = this.tasks.find(t => t.id === taskId);
+    });
+  });
+  
+  // Get all tasks
+  app.get('/api/v1/arq/tasks', (req, res) => {
+    res.json(tasksCache);
+  });
+  
+  // Get task status
+  app.get('/api/v1/arq/tasks/status/:taskId', (req, res) => {
+    const task = tasksCache.find(t => t.id === req.params.taskId);
     if (task) {
-      return {
-        taskId,
+      res.json({
+        taskId: req.params.taskId,
         status: task.status,
         data: task.data,
         logs: task.logs
-      };
+      });
+    } else {
+      res.status(404).json({
+        taskId: req.params.taskId,
+        status: 'not_found',
+        message: 'Task not found'
+      });
     }
-    return {
-      taskId,
-      status: 'not_found',
-      message: 'Task not found'
-    };
-  }
-}
+  });
+};
