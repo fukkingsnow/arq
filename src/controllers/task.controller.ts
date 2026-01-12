@@ -1,7 +1,20 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-const TASKS_FILE = join(process.cwd(), 'data', 'tasks.json');
+// Use /tmp for storing tasks (writable location in Docker)
+const DATA_DIR = '/tmp/arq_data';
+const TASKS_FILE = join(DATA_DIR, 'tasks.json');
+
+// Ensure data directory exists
+if (!existsSync(DATA_DIR)) {
+  try {
+    mkdirSync(DATA_DIR, { recursive: true });
+    console.log('Created data directory:', DATA_DIR);
+  } catch (err) {
+    console.error('Error creating data directory:', err);
+  }
+}
+
 let tasksCache = [];
 
 // Load tasks from file on startup
@@ -9,6 +22,7 @@ if (existsSync(TASKS_FILE)) {
   try {
     const content = readFileSync(TASKS_FILE, 'utf8');
     tasksCache = JSON.parse(content);
+    console.log('Loaded', tasksCache.length, 'tasks from', TASKS_FILE);
   } catch (err) {
     console.error('Error loading tasks:', err);
     tasksCache = [];
@@ -18,6 +32,7 @@ if (existsSync(TASKS_FILE)) {
 function saveTasks() {
   try {
     writeFileSync(TASKS_FILE, JSON.stringify(tasksCache, null, 2));
+    console.log('Saved', tasksCache.length, 'tasks to', TASKS_FILE);
   } catch (err) {
     console.error('Error saving tasks:', err);
   }
@@ -26,6 +41,8 @@ function saveTasks() {
 export const taskControllerRoutes = (app) => {
   // Submit new task
   app.post('/api/v1/arq/tasks/submit', (req, res) => {
+    console.log('POST /api/v1/arq/tasks/submit - Body:', req.body);
+    
     const { type, data, goal, description, taskType } = req.body;
     
     const taskId = `task_${Date.now()}`;
@@ -54,6 +71,7 @@ export const taskControllerRoutes = (app) => {
       ]
     };
     
+    console.log('Creating task:', taskId);
     tasksCache.push(task);
     saveTasks();
     
@@ -66,6 +84,7 @@ export const taskControllerRoutes = (app) => {
   
   // Get all tasks
   app.get('/api/v1/arq/tasks', (req, res) => {
+    console.log('GET /api/v1/arq/tasks - Returning', tasksCache.length, 'tasks');
     res.json(tasksCache);
   });
   
