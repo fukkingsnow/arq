@@ -16,6 +16,7 @@ import { AppController } from './app.controller';
 import { AutonomousStrategyAnalyzer } from './services/autonomous-strategy.analyzer';
 import { MetricsService } from './services/metrics.service';
 import { TaskModule } from './task/task.module';
+import { TasksModule } from './modules/tasks.module';
 /**
  * Root Application Module
  *
@@ -50,6 +51,7 @@ import { TaskModule } from './task/task.module';
     GitHubModule,
         AssistantModule,
         TaskModule,
+        TasksModule,
   ],
     controllers: [AppController, ARQController],
   providers: [
