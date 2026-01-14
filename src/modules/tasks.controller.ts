@@ -3,8 +3,7 @@ import { TasksService } from './tasks.service';
 import { CreateTaskDto } from '../dto/create-task.dto';
 import { Task } from '../entities/task.entity';
 
-@Controller('api/v1/arq/tasks')
-export class TasksController {
+@Controller('v1/arq/tasks')export class TasksController {
   constructor(private tasksService: TasksService) {}
 
   @Post('submit')
