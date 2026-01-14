@@ -30,8 +30,7 @@ const Analytics: React.FC = () => {
   const fetchStats = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('/api/tasks');
-      const tasks = data || [];
+axios.get('/api/v1/arq/tasks')      const tasks = data || [];
       
       const completed = tasks.filter((t: any) => t.status === 'completed').length;
       const pending = tasks.filter((t: any) => t.status === 'pending').length;
