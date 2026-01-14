@@ -10,7 +10,7 @@ export class TasksService {
     private readonly taskRepository: Repository<Task>,
   ) {}
 
-  async create(data: any) {
+  async create(data: any): Promise<Task> {
     const task = this.taskRepository.create({
       ...data,
       status: 'pending',
@@ -22,7 +22,7 @@ export class TasksService {
     return this.taskRepository.find();
   }
 
-  async findOne(id: string): Promise<Task> {
+  async findOne(id: string): Promise<Task | null> {
     return this.taskRepository.findOne({ where: { id } });
   }
 
