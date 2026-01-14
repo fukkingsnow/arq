@@ -83,10 +83,13 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /app/arq
-            docker-compose -f docker-compose.prod.yml pull
-            docker-compose -f docker-compose.prod.yml up -d
-            docker-compose -f docker-compose.prod.yml logs -f arq
+            mkdir -p /home/deployment/arq
+cd /home/deployment/arq
+docker pull ${{ steps.meta.outputs.tags }}
+docker stop arq || true
+docker rm arq || true
+docker run -d --name arq --restart always -p 3000:3000 ${{ steps.meta.outputs.tags }}
+          
 
       - name: Verify deployment
         run: |
