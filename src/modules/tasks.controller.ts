@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+createTaskDto  dataimport { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from '../entities/task.entity';
 
@@ -7,7 +7,7 @@ import { Task } from '../entities/task.entity';
 
   @Post('submit')
   async create(@Body() data: any): Promise<Task> {
-    return this.tasksService.create(createTaskDto);
+    return this.tasksService.create(data);
   }
 
   @Get()
@@ -23,9 +23,9 @@ import { Task } from '../entities/task.entity';
   @Put(':id')
   async update(
     @Param('id') id: string,
-    @Body() createTaskDto: CreateTaskDto,
+    @Body() data: any,
   ): Promise<Task> {
-    return this.tasksService.update(id, createTaskDto);
+    return this.tasksService.update(id, data);
   }
 
   @Delete(':id')
