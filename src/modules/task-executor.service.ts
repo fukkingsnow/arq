@@ -1,4 +1,4 @@
-task-executor.service.tsimport { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
@@ -10,7 +10,7 @@ export class TaskExecutorService implements OnModuleInit {
 
   constructor(
     @InjectRepository(Task)
-    private tasksRepository: Repository<Task>,
+    private taskRepository: Repository<Task>,
   ) {}
 
   onModuleInit() {
@@ -27,7 +27,7 @@ export class TaskExecutorService implements OnModuleInit {
 
   private async processPendingTasks() {
     try {
-      const pendingTasks = await this.tasksRepository.find({
+      const pendingTasks = await this.taskRepository.find({
         where: { status: 'pending' },
       });
 
@@ -42,28 +42,21 @@ export class TaskExecutorService implements OnModuleInit {
   private async executeTask(task: Task) {
     try {
       this.logger.log(`Executing task: ${task.title}`);
-      
+
       // Simulate task execution
       // In a real system, this would:
       // 1. Call AI service to process task
-      // 2. Execute subtasks
-      // 3. Generate reports
-      
+      // 2. Execute the task steps
+      // 3. Update task status based on result
+
       // Update task status to completed
       task.status = 'completed';
-      await this.tasksRepository.save(task);
-      
-      this.logger.log(`Task completed: ${task.title}`);
+      task.completedAt = new Date();
+      await this.taskRepository.save(task);
     } catch (error) {
       this.logger.error(`Error executing task ${task.id}:`, error);
       task.status = 'failed';
-      await this.tasksRepository.save(task);
-    }
-  }
-
-  onModuleDestroy() {
-    if (this.executionInterval) {
-      clearInterval(this.executionInterval);
+      await this.taskRepository.save(task);
     }
   }
 }
