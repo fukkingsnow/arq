@@ -66,23 +66,50 @@ class TaskExecutor extends EventEmitter {
   }
 
   async _executeFeature(goal, description) {
+    re// Simulate feature development with steps
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Step 1: Design
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Designing feature architecture...' });
+    
+    await new Promise(resolve => setTimeout(resolve, 1200)); // Step 2: Implementation
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Implementing ' + goal + '...' });
+    
+    await new Promise(resolve => setTimeout(resolve, 800)); // Step 3: Testing
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Running unit and integration tests...' });
+    
+    await new Promise(resolve => setTimeout(resolve, 600)); // Step 4: Documentation
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Feature complete and documented.' });
+    
     return {
       type: 'feature',
       goal,
       implementation: description,
       status: 'implemented',
-      duration: '4h 30m'
-    };
-  }
+      duration: '3.6s',
+      result: 'Feature successfully developed and tested'
+    }
 
   async _executeBugFix(goal, description) {
+    // Simulate bug fix execution with steps
+    await new Promise(resolve => setTimeout(resolve, 500)); // Step 1: Analyze bug
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Analyzing bug: ' + goal });
+    
+    await new Promise(resolve => setTimeout(resolve, 800)); // Step 2: Implement fix
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Implementing fix...' });
+    
+    await new Promise(resolve => setTimeout(resolve, 600)); // Step 3: Testing
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Testing solution...' });
+    
+    await new Promise(resolve => setTimeout(resolve, 400)); // Step 4: Verification
+    this.emit('task:log', { message: '[' + new Date().toLocaleTimeString() + '] Verifying fix completed.' });
+    
     return {
       type: 'bug',
       issue: goal,
       fix: description,
       status: 'resolved',
-      duration: '1h'
-    };
+      duration: '2s',
+      result: 'Bug successfully fixed and tested'
+    }
   }
 
   async _executeRefactor(goal, description) {
