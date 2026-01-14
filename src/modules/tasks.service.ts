@@ -15,7 +15,8 @@ export class TasksService {
       ...data,
       status: 'pending',
     });
-    return this.taskRepository.save(task) as Promise<Task>;
+    const savedTask = await this.taskRepository.save(task);
+    return Array.isArray(savedTask) ? savedTask[0] : savedTask;
   }
 
   async findAll(): Promise<Task[]> {
