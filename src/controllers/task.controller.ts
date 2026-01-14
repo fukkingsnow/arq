@@ -105,5 +105,79 @@ export const taskControllerRoutes = (app) => {
         message: 'Task not found'
       });
     }
-  });
+  
+   
+ // Get analytics data
+ app.get('/api/v1/arq/analytics', (req, res) => {
+   const completed = tasksCache.filter(t => t.status === 'completed').length;
+   const total = tasksCache.length;
+   const successRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+   const avgDuration = calculateAverageDuration();
+   
+   const byType = {};
+   tasksCache.forEach(task => {
+     const type = task.data.taskType || task.type || 'unknown';
+     if (!byType[type]) {
+       byType[type] = { count: 0, completed: 0, avgDuration: 0 };
+     }
+     byType[type].count++;
+     if (task.status === 'completed') {
+       byType[type].completed++;
+     }
+   });
+   
+   res.json({
+     totalTasks: total,
+     completedTasks: completed,
+     successRate,
+     avgDuration: avgDuration || '0h',
+     byType
+   });
+ });
+ 
+ // Update task status based on elapsed time
+ function updateTaskStatuses() {
+   const now = new Date();
+   tasksCache.forEach(task => {
+     if (task.status === 'active' && task.createdAt) {
+       const createdTime = new Date(task.createdAt);
+       const elapsedMinutes = (now - createdTime) / (1000 * 60);
+       const estimatedMinutes = 120; // 2 hours estimated time
+       
+       if (elapsedMinutes >= estimatedMinutes) {
+         task.status = 'completed';
+         task.completedAt = now.toISOString();
+         task.logs.push({
+           timestamp: now.toISOString(),
+           message: 'Task completed',
+           level: 'success'
+         });
+       }
+     }
+   });
+   saveTasks();
+ }
+ 
+ // Calculate average duration
+ function calculateAverageDuration() {
+   const completedTasks = tasksCache.filter(t => t.completedAt);
+   if (completedTasks.length === 0) return '0h';
+   
+   const totalMs = completedTasks.reduce((sum, task) => {
+     const created = new Date(task.createdAt);
+     const completed = new Date(task.completedAt);
+     return sum + (completed - created);
+   }, 0);
+   
+   const avgHours = totalMs / completedTasks.length / (1000 * 60 * 60);
+   return avgHours.toFixed(1) + 'h';
+ }
+ 
+ // Update statuses periodically
+ setInterval(() => {
+   updateTaskStatuses();
+ }, 30000); // Check every 30 seconds
+ 
+ // Update on startup
+ updateTaskStatuses();});
 };
