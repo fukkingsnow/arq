@@ -16,7 +16,7 @@ RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
 COPY src ./src
 
 # Build application
-RUN npm run build
+RUN npm run build --verbose
 
 # Stage 2: Runtime
 FROM node:18-alpine
