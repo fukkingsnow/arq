@@ -1,11 +1,13 @@
-// @ts-nocheck
 import React, { useState, useCallback } from 'react';
 import ARQDashboard from './ARQDashboard';
 import APITester from './APITester';
 import TaskCreator from './TaskCreator';
 import TaskMonitor from './TaskMonitor';
+import History from '../components/History';
+import Analytics from '../components/Analytics';
+import AssistantChat from '../components/AssistantChat';
 
-type Tab = 'dashboard' | 'api' | 'tasks' | 'monitor';
+type Tab = 'dashboard' | 'api' | 'tasks' | 'monitor' | 'history' | 'analytics' | 'assistant';
 
 const DashboardApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -32,48 +34,54 @@ const DashboardApp: React.FC = () => {
   }, []);
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1 style={styles.title}>ARQ Development Dashboard</h1>
-        <div style={styles.statusBar}>
-          <span style={{...styles.status, color: serverStatus === 'online' ? '#10b981' : '#ef4444'}}>
-            {serverStatus === 'online' ? '🟢 Server Online' : '🔴 Server Offline'}
-          </span>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', fontFamily: 'Arial, sans-serif' }}>
+      <header style={{ backgroundColor: '#f8f9fa', padding: '20px', borderBottom: '2px solid #e9ecef' }}>
+        <h1 style={{ margin: 0, fontSize: '24px', marginBottom: '10px' }}>ARQ Development Dashboard</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '14px' }}>
+          <span>Server Status: <strong style={{ color: serverStatus === 'online' ? '#28a745' : '#dc3545' }}>{serverStatus === 'online' ? '🟢 Server Online' : '🔴 Server Offline'}</strong></span>
         </div>
       </header>
 
-      <nav style={styles.nav}>
-        {(['dashboard', 'api', 'tasks', 'monitor'] as const).map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)} style={{...styles.navButton, backgroundColor: activeTab === tab ? '#3b82f6' : '#e5e7eb', color: activeTab === tab ? 'white' : '#111827'}}>
-            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+      <nav style={{ display: 'flex', gap: '5px', padding: '15px', backgroundColor: '#ffffff', borderBottom: '1px solid #dee2e6', flexWrap: 'wrap' }}>
+        {([
+          { id: 'dashboard', label: 'Dashboard', icon: '📈' },
+          { id: 'api', label: 'API Tester', icon: '🔧' },
+          { id: 'tasks', label: 'Create Tasks', icon: '✏️' },
+          { id: 'monitor', label: 'Monitor', icon: '👁️' },
+          { id: 'history', label: 'History', icon: '📜' },
+          { id: 'analytics', label: 'Analytics', icon: '📊' },
+          { id: 'assistant', label: 'AI Assistant', icon: '🤖' },
+        ] as const).map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              padding: '8px 16px',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              backgroundColor: activeTab === tab.id ? '#007bff' : '#e9ecef',
+              color: activeTab === tab.id ? 'white' : 'black',
+              fontSize: '14px',
+              fontWeight: activeTab === tab.id ? 'bold' : 'normal',
+            }}
+          >
+            {tab.icon} {tab.label}
           </button>
         ))}
       </nav>
 
-      <main style={styles.main}>
+      <main style={{ flex: 1, overflowY: 'auto', padding: '20px', backgroundColor: '#f8f9fa' }}>
         {activeTab === 'dashboard' && <ARQDashboard />}
         {activeTab === 'api' && <APITester />}
         {activeTab === 'tasks' && <TaskCreator onTaskCreated={handleTaskCreated} />}
         {activeTab === 'monitor' && <TaskMonitor />}
+        {activeTab === 'history' && <History />}
+        {activeTab === 'analytics' && <Analytics />}
+        {activeTab === 'assistant' && <AssistantChat />}
       </main>
-
-      <footer style={styles.footer}>
-        <p>© 2025 ARQ AI Assistant Backend</p>
-      </footer>
     </div>
   );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-  container: { minHeight: '100vh', backgroundColor: '#f3f4f6', display: 'flex', flexDirection: 'column' },
-  header: { backgroundColor: '#1f2937', color: 'white', padding: '20px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' },
-  title: { margin: '0 0 10px 0', fontSize: '28px', fontWeight: 'bold' },
-  statusBar: { display: 'flex', gap: '10px', alignItems: 'center' },
-  status: { fontSize: '14px', fontWeight: '600' },
-  nav: { backgroundColor: 'white', padding: '15px 20px', display: 'flex', gap: '10px', borderBottom: '1px solid #e5e7eb' },
-  navButton: { padding: '10px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' },
-  main: { flex: 1, padding: '20px', overflowY: 'auto' },
-  footer: { backgroundColor: '#111827', color: '#9ca3af', padding: '15px 20px', textAlign: 'center', fontSize: '12px' },
 };
 
 export default DashboardApp;
