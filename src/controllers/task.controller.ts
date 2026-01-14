@@ -141,7 +141,7 @@ export const taskControllerRoutes = (app) => {
    tasksCache.forEach(task => {
      if (task.status === 'active' && task.createdAt) {
        const createdTime = new Date(task.createdAt);
-       const elapsedMinutes = (now - createdTime) / (1000 * 60);
+const elapsedMinutes = (now.getTime() - new Date(task.createdAt).getTime()) / (1000 * 60);
        const estimatedMinutes = 120; // 2 hours estimated time
        
        if (elapsedMinutes >= estimatedMinutes) {
@@ -166,7 +166,7 @@ export const taskControllerRoutes = (app) => {
    const totalMs = completedTasks.reduce((sum, task) => {
      const created = new Date(task.createdAt);
      const completed = new Date(task.completedAt);
-     return sum + (completed - created);
+return sum + (new Date(completed).getTime() - new Date(created).getTime());
    }, 0);
    
    const avgHours = totalMs / completedTasks.length / (1000 * 60 * 60);
