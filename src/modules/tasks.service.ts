@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
-import { CreateTaskDto } from './dto/create-task.dto';
 
 @Injectable()
 export class TasksService {
@@ -11,9 +10,9 @@ export class TasksService {
     private readonly taskRepository: Repository<Task>,
   ) {}
 
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+  async create(data:: any any): Promise<Task> {
     const task = this.taskRepository.create({
-      ...createTaskDto,
+      ...data,
       status: 'pending',
     });
     return this.taskRepository.save(task);
@@ -27,8 +26,8 @@ export class TasksService {
     return this.taskRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, createTaskDto: CreateTaskDto): Promise<Task> {
-    await this.taskRepository.update(id, createTaskDto);
+  async update(id: string, data: any): Promise<Task> {
+    await this.taskRepository.update(id, data);
     return this.findOne(id);
   }
 
