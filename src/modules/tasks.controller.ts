@@ -1,8 +1,9 @@
-createTaskDto  dataimport { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Task } from '../entities/task.entity';
 
-@Controller('v1/arq/tasks')export class TasksController {
+@Controller('v1/arq/tasks')
+export class TasksController {
   constructor(private tasksService: TasksService) {}
 
   @Post('submit')
