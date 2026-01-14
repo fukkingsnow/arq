@@ -10,7 +10,7 @@ export class TasksService {
     private readonly taskRepository: Repository<Task>,
   ) {}
 
-  async create(data:: any any): Promise<Task> {
+  async create(data: any) {
     const task = this.taskRepository.create({
       ...data,
       status: 'pending',
