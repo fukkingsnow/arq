@@ -25,4 +25,6 @@ export class Task {
 
   @UpdateDateColumn()
   updatedAt: Date;
-}
+
+  @Column({ nullable: true })
+  completedAt?: Date;}
