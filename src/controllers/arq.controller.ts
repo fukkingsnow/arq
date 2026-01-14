@@ -129,6 +129,7 @@ export class ARQController {
         taskId,
       };
     }
+      task.emit('pause', `[${new Date().toISOString().split('T')[1].split('Z')[0]}] Task paused`);
     task.status = 'paused';
     task.lastUpdate = new Date().toISOString();
     return task;
@@ -144,6 +145,7 @@ export class ARQController {
         taskId,
       };
     }
+      task.emit('resume', `[${new Date().toISOString().split('T')[1].split('Z')[0]}] Task resumed`);
     task.status = 'running';
     task.lastUpdate = new Date().toISOString();
     return task;
@@ -159,6 +161,7 @@ export class ARQController {
         taskId,
       };
     }
+      task.emit('cancel', `[${new Date().toISOString().split('T')[1].split('Z')[0]}] Task cancelled`);
     task.status = 'cancelled';
     task.lastUpdate = new Date().toISOString();
     return task;
