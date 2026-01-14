@@ -138,14 +138,12 @@ export class ARQController {
   @Patch('tasks/:taskId/resume')
   resumeTask(@Param('taskId') taskId: string) {
     this.logger.log(`[ARQ] Resuming task: ${taskId}`);
-    const task = this.activeTasks.get(taskId);
     if (!task) {
       return {
         error: 'Task not found',
         taskId,
       };
     }
-      task.emit('resume', `[${new Date().toISOString().split('T')[1].split('Z')[0]}] Task resumed`);
     task.status = 'running';
     task.lastUpdate = new Date().toISOString();
     return task;
@@ -161,7 +159,6 @@ export class ARQController {
         taskId,
       };
     }
-      task.emit('cancel', `[${new Date().toISOString().split('T')[1].split('Z')[0]}] Task cancelled`);
     task.status = 'cancelled';
     task.lastUpdate = new Date().toISOString();
     return task;
