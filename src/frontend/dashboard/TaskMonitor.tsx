@@ -50,12 +50,12 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ onTaskUpdate }) => {
     }
   };
 
-  const handleTaskAction = async (taskId: string, action: 'cancel' | 'pause' | 'resume'): Promise<void> => {
+  const handleTaskAction = async (taskId: string, action: 'cancel' | 'pause' | 'resume' | 'complete'): Promise<void> => {
     try {
+          const method = action === 'complete' ? 'POST' : 'PATCH';
       setActionLoading(action);
       const response = await fetch(`https://arq-ai.ru/api/v1/arq/tasks/${taskId}/${action}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+      method: method,        headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) throw new Error(`Failed to ${action} task`);
       const updatedTask = await response.json();
@@ -95,10 +95,11 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ onTaskUpdate }) => {
     }
   };
 
-  const shouldShowButton = (status: Task['status'], action: 'cancel' | 'pause' | 'resume'): boolean => {
+  const shouldShowButton = (status: Task['status'], action: 'cancel' | 'pause' | 'resume' | 'complete'): boolean => {
     if (action === 'cancel') return status === 'running' || status === 'paused';
     if (action === 'pause') return status === 'running';
     if (action === 'resume') return status === 'paused';
+      if (action === 'complete') return status === 'running' || status === 'paused';
     return false;
   };
 
@@ -176,6 +177,15 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ onTaskUpdate }) => {
                     {actionLoading === 'pause' ? '⏸ Pausing...' : '⏸ Pause'}
                   </button>
                 )}
+                          {shouldShowButton(task.status, 'complete') && (
+                          <button
+                                          onClick={() => handleTaskAction(task.taskId, 'complete')}
+                                          disabled={actionLoading === 'complete'}
+                                          style={{ ...styles.actionButton, ...styles.completeButton }}
+                                        >
+                                          {actionLoading === 'complete' ? '✓ Completing...' : '✓ Complete'}
+                                        </button>
+                        )}
                 {shouldShowButton(task.status, 'resume') && (
                   <button
                     onClick={() => handleTaskAction(task.taskId, 'resume')}
@@ -269,7 +279,8 @@ const styles: Record<string, React.CSSProperties> = {
   actionButton: { padding: '6px 12px', border: 'none', borderRadius: '4px', cursor: 'pointer', fontSize: '12px', fontWeight: '500', transition: 'all 0.2s' },
   pauseButton: { backgroundColor: '#f59e0b', color: 'white' },
   resumeButton: { backgroundColor: '#10b981', color: 'white' },
-  cancelButton: { backgroundColor: '#ef4444', color: 'white' },
+  cancelButton: { backgroundColor: '#ef4444', color: 'white' }
+    completeButton: { backgroundColor: '#10b981', color: 'white' },,
   taskDetails: { backgroundColor: 'white', padding: '15px', borderRadius: '6px', border: '1px solid #e5e7eb' },
   detailsGrid: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px', marginBottom: '20px' },
   metricsGrid: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px', marginBottom: '15px', padding: '12px', backgroundColor: '#f9fafb', borderRadius: '4px' },
