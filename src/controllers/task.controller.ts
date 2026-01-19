@@ -104,6 +104,7 @@ export class TaskController {
       data: data || { goal, description, taskType },
       status: 'active',
       createdAt: new Date().toISOString(),
+          completedAt: undefined,
       logs: [
         {
           timestamp: new Date().toISOString(),
