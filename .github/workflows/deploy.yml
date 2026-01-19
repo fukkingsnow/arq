@@ -80,11 +80,6 @@ jobs:
             # Reload nginx
             echo "Reloading nginx..."
                           touch /opt/arq/dist/frontend/index.html /opt/a
-                                        # Remove localStorage functions from inline script
-              sed -i 's/function pauseTask(id){[^}]*}//g' /opt/arq/dist/frontend/index.html
-              sed -i 's/function resumeTask(id){[^}]*}//g' /opt/arq/dist/frontend/index.html
-              sed -i 's/function cancelTask(id){[^}]*}//g' /opt/arq/dist/frontend/index.htmlrq/dist/frontend/app.js
-            sudo systemctl reload nginx || true
 
             # Health check with retries (improved to 15 attempts)
             echo "Running health check..."
