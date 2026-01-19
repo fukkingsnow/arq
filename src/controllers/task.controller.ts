@@ -102,7 +102,6 @@ export class TaskController {
       data: data || { goal, description, taskType },
       status: 'active',
       createdAt: new Date().toISOString(),
-          completedAt: undefined,
       logs: [
         {
           timestamp: new Date().toISOString(),
@@ -125,8 +124,6 @@ export class TaskController {
     console.log('Creating task:', taskId);
     tasksCache.push(task);
     saveTasks();
-
-              });
     
     res.status(202).json({
       taskId,
