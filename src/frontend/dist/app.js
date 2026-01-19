@@ -294,3 +294,17 @@ window.pauseTask = pauseTask;
 window.resumeTask = resumeTask;
 window.cancelTask = cancelTask;
 
+// Override inline localStorage functions after page load
+setTimeout(() => {
+  if (typeof window.pauseTask === 'function') {
+    window.pauseTask = pauseTask;
+  }
+  if (typeof window.resumeTask === 'function') {
+    window.resumeTask = resumeTask;
+  }
+  if (typeof window.cancelTask === 'function') {
+    window.cancelTask = cancelTask;
+  }
+  console.log('Backend task functions loaded and overridden');
+}, 0);
+
