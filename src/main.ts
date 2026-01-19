@@ -71,8 +71,7 @@ async function bootstrap() {
 // Serve static files (frontend)
 
     // Serve frontend static files
-  app.use('/', express.static(join(__dirname, '..', 'frontend')));
-
+  app.use('/', express.static(join(__dirname, '..', 'frontend', 'dist')));
   
   await app.listen(port, '0.0.0.0');
 
