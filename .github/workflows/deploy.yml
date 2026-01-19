@@ -79,6 +79,7 @@ jobs:
 
             # Reload nginx
             echo "Reloading nginx..."
+                          touch /opt/arq/dist/frontend/index.html /opt/arq/dist/frontend/app.js
             sudo systemctl reload nginx || true
 
             # Health check with retries (improved to 15 attempts)
