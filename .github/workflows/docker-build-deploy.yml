@@ -80,10 +80,9 @@ jobs:
           script: |
             mkdir -p /home/deployment/arq
             cd /home/deployment/arq
-            docker pull ${{ needs.build.outputs.tags }}
-            docker stop arq || true
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest            docker stop arq || true
             docker rm arq || true
-            docker run -d --name arq --restart always -p 3000:3000 ${{ needs.build.outputs.tags }}
+                        docker run -d --name arq --restart always -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       - name: Verify deployment
         run: |
           sleep 10
