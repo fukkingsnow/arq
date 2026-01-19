@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Body, Param, HttpStatus, HtRes, Delete  } from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Get, Post, Body, Param, HttpStatus, HttpCode, Res, Delete } from '@nestjs/common';import { Response } from 'express';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
@@ -182,6 +181,7 @@ export class TaskController {
       avgDuration: avgDuration || '0h',
       byType
     };
+      }
 
       // Complete task manually
   @Post('tasks/:taskId/complete')
