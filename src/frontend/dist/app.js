@@ -230,3 +230,62 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 render();
+
+// Task Action Functions - Backend API Integration
+async function pauseTask(taskId) {
+  try {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/pause`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to pause task: ${response.status}`);
+    }
+    
+    await loadTasks(); // Reload tasks to reflect changes
+    console.log(`Task ${taskId} paused successfully`);
+  } catch (error) {
+    console.error('Error pausing task:', error);
+    alert('Failed to pause task: ' + error.message);
+  }
+}
+
+async function resumeTask(taskId) {
+  try {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/resume`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to resume task: ${response.status}`);
+    }
+    
+    await loadTasks(); // Reload tasks to reflect changes
+    console.log(`Task ${taskId} resumed successfully`);
+  } catch (error) {
+    console.error('Error resuming task:', error);
+    alert('Failed to resume task: ' + error.message);
+  }
+}
+
+async function cancelTask(taskId) {
+  try {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/cancel`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to cancel task: ${response.status}`);
+    }
+    
+    await loadTasks(); // Reload tasks to reflect changes
+    console.log(`Task ${taskId} cancelled successfully`);
+  } catch (error) {
+    console.error('Error cancelling task:', error);
+    alert('Failed to cancel task: ' + error.message);
+  }
+}
+
