@@ -183,8 +183,8 @@ async function loadTasks() {
 async function submitTask(e) {
   e.preventDefault();
   try {
-    const goal = document.getElementById('goal').value.trim();
-    const description = document.getElementById('description').value.trim();
+    const goal = document.getElementById('goalField').value.trim();
+    const description = document.getElementById('descField').value.trim();
     const taskType = document.getElementById('taskType').value;
 
     if (!goal) {
