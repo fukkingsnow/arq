@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, HttpStatus, HttpCode, Res, Delete } from '@nestjs/common';import { Response } from 'express';
+import { Controller, Get,, Patch Post, Body, Param, HttpStatus, HttpCode, Res, Delete } from '@nestjs/common';import { Response } from 'express';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
@@ -243,6 +243,69 @@ export class TaskController {
     return {
       message: `All tasks cleared (${count} tasks removed)`,
       count
+    };
+  }
+
+    // Pause task
+  @Patch('tasks/:taskId/pause')
+  @HttpCode(HttpStatus.OK)
+  pauseTask(@Param('taskId') taskId: string) {
+    const task = tasksCache.find(t => t.id === taskId);
+    if (task && task.status === 'active') {
+      task.status = 'paused';
+      task.logs.push({
+        timestamp: new Date().toISOString(),
+        message: 'Task paused',
+        level: 'info'
+      });
+      saveTasks();
+      return task;
+    }
+    return {
+      message: 'Task not found or cannot be paused',
+      taskId
+    };
+  }
+
+  // Resume task
+  @Patch('tasks/:taskId/resume')
+  @HttpCode(HttpStatus.OK)
+  resumeTask(@Param('taskId') taskId: string) {
+    const task = tasksCache.find(t => t.id === taskId);
+    if (task && task.status === 'paused') {
+      task.status = 'active';
+      task.logs.push({
+        timestamp: new Date().toISOString(),
+        message: 'Task resumed',
+        level: 'info'
+      });
+      saveTasks();
+      return task;
+    }
+    return {
+      message: 'Task not found or cannot be resumed',
+      taskId
+    };
+  }
+
+  // Cancel task
+  @Patch('tasks/:taskId/cancel')
+  @HttpCode(HttpStatus.OK)
+  cancelTask(@Param('taskId') taskId: string) {
+    const task = tasksCache.find(t => t.id === taskId);
+    if (task && (task.status === 'active' || task.status === 'paused')) {
+      task.status = 'cancelled';
+      task.logs.push({
+        timestamp: new Date().toISOString(),
+        message: 'Task cancelled',
+        level: 'warning'
+      });
+      saveTasks();
+      return task;
+    }
+    return {
+      message: 'Task not found or cannot be cancelled',
+      taskId
     };
   }
   }
