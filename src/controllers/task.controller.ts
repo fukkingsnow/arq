@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, HttpStatus, HttpCode, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, HttpStatus, HtRes, Delete  } from '@nestjs/common';
 import { Response } from 'express';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
@@ -182,5 +182,68 @@ export class TaskController {
       avgDuration: avgDuration || '0h',
       byType
     };
+
+      // Complete task manually
+  @Post('tasks/:taskId/complete')
+  @HttpCode(HttpStatus.OK)
+  completeTask(@Param('taskId') taskId: string, @Res() res: Response) {
+    const task = tasksCache.find(t => t.id === taskId);
+    if (task) {
+      task.status = 'completed';
+      task.completedAt = new Date().toISOString();
+      task.logs.push({
+        timestamp: new Date().toISOString(),
+        message: 'Task manually completed',
+        level: 'success'
+      });
+      saveTasks();
+      res.status(200).json({
+        taskId,
+        status: 'completed',
+        message: 'Task completed successfully'
+      });
+    } else {
+      res.status(404).json({
+        taskId,
+        status: 'not_found',
+        message: 'Task not found'
+      });
+    }
+  }
+
+  // Delete single task
+  @Delete('tasks/:taskId')
+  @HttpCode(HttpStatus.OK)
+  deleteTask(@Param('taskId') taskId: string) {
+    const initialLength = tasksCache.length;
+    tasksCache = tasksCache.filter(t => t.id !== taskId);
+    const deleted = initialLength !== tasksCache.length;
+    
+    if (deleted) {
+      saveTasks();
+      return {
+        message: 'Task deleted successfully',
+        taskId
+      };
+    } else {
+      return {
+        message: 'Task not found',
+        taskId
+      };
+    }
+  }
+
+  // Clear all tasks
+  @Delete('tasks')
+  @HttpCode(HttpStatus.OK)
+  clearAllTasks() {
+    const count = tasksCache.length;
+    tasksCache = [];
+    saveTasks();
+    return {
+      message: `All tasks cleared (${count} tasks removed)`,
+      count
+    };
+  }
   }
 }
