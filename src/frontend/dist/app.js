@@ -93,7 +93,7 @@ class TaskApiService {
   }
 
   static async createTask(payload) {
-    const res = await fetch(`${API_BASE}/start-development`, {
+    const res = await fetch(`${API_BASE}/tasks/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -103,7 +103,7 @@ class TaskApiService {
   }
 
   static async getTaskStatus(taskId) {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}`);
+    const res = await fetch(`${API_BASE}/tasks/status/${taskId}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   }
@@ -151,15 +151,20 @@ function render() {
   }
 
   tasksList.innerHTML = appState.tasks.map(task => `
-    <div class="task-item">
+    <div class="task-card status-${task.status}">
       <div class="task-header">
-        <span class="task-id">ID: ${task.taskId}</span>
-        <span class="status-badge status-${task.status}">${task.status}</span>
+        <span class="task-id">ID: ${task.id}</span>
+        <span class="task-status badge status-${task.status}">${task.status}</span>
       </div>
-      ${task.developmentGoals ? `<div class="task-goals"><strong>Goals:</strong> ${task.developmentGoals.join(', ')}</div>` : ''}
+      ${task.data && task.data.goal ? `<div class="task-goal"><strong>Goal:</strong> ${task.data.goal}</div>` : ''}
+      ${task.data && task.data.description ? `<div class="task-description">${task.data.description}</div>` : ''}
       <div class="task-meta">
         <span>Created: ${new Date(task.createdAt).toLocaleString()}</span>
-        <span>Branch: <code>${task.branch || 'N/A'}</code></span>
+      </div>
+      <div class="task-actions">
+        ${task.status === 'active' ? `<button onclick="pauseTask('${task.id}')">Pause</button>` : ''}
+        ${task.status === 'paused' ? `<button onclick="resumeTask('${task.id}')">Resume</button>` : ''}
+        ${(task.status === 'active' || task.status === 'paused') ? `<button onclick="cancelTask('${task.id}')">Cancel</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -168,8 +173,8 @@ function render() {
 async function loadTasks() {
   try {
     setState({ loading: true, error: null });
-    const data = await TaskApiService.getTasks();
-    setState({ tasks: data.tasks || [], loading: false });
+    const tasks = await TaskApiService.getTasks();
+    setState({ tasks: tasks || [], loading: false });
   } catch (error) {
     setState({ error: `Error: ${error.message}`, loading: false });
   }
@@ -178,32 +183,40 @@ async function loadTasks() {
 async function submitTask(e) {
   e.preventDefault();
   try {
-    const goals = [
-      document.getElementById('goal1').value,
-      document.getElementById('goal2').value,
-      document.getElementById('goal3').value
-    ].filter(g => g.trim());
+    const goal = document.getElementById('goal').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const taskType = document.getElementById('taskType').value;
 
-    if (goals.length === 0) {
-      setState({ error: 'Please enter at least one development goal' });
+    if (!goal) {
+      setState({ error: 'Please enter a development goal' });
       return;
     }
 
     setState({ loading: true, error: null });
-    const data = await TaskApiService.createTask({
-      developmentGoals: goals,
-      maxIterations: parseInt(document.getElementById('maxIterations').value),
-      priority: document.getElementById('priority').value
-    });
 
+    const payload = {
+      goal: goal,
+      description: description,
+      taskType: taskType,
+      type: 'development',
+      data: {
+        goal: goal,
+        description: description,
+        taskType: taskType
+      }
+    };
+
+    const data = await TaskApiService.createTask(payload);
     setState({ loading: false });
     document.getElementById('taskForm').reset();
     setTimeout(loadTasks, 500);
-    
+
     const successMsg = document.getElementById('successMessage');
-    successMsg.textContent = `Task created: ${data.taskId}`;
+    successMsg.textContent = `Task created: ${data.taskId || data.id}`;
     successMsg.style.display = 'block';
-    setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
+    setTimeout(() => {
+      successMsg.style.display = 'none';
+    }, 5000);
   } catch (error) {
     setState({ error: `Error: ${error.message}`, loading: false });
   }
@@ -213,9 +226,11 @@ async function checkHealth() {
   try {
     const data = await TaskApiService.health();
     const successMsg = document.getElementById('successMessage');
-    successMsg.textContent = `✓ Service Healthy - ${data.activeTasks} active tasks`;
+    successMsg.textContent = `✓ Service Healthy`;
     successMsg.style.display = 'block';
-    setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
+    setTimeout(() => {
+      successMsg.style.display = 'none';
+    }, 5000);
   } catch (error) {
     setState({ error: `Health check failed: ${error.message}` });
   }
@@ -226,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
   window.loadTasks = loadTasks;
   window.checkHealth = checkHealth;
   loadTasks();
-  setInterval(loadTasks, 5000);
+  setInterval(loadTasks, 10000);
 });
 
 render();
@@ -238,12 +253,12 @@ async function pauseTask(taskId) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' }
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to pause task: ${response.status}`);
     }
-    
-    await loadTasks(); // Reload tasks to reflect changes
+
+    await loadTasks();
     console.log(`Task ${taskId} paused successfully`);
   } catch (error) {
     console.error('Error pausing task:', error);
@@ -257,12 +272,12 @@ async function resumeTask(taskId) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' }
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to resume task: ${response.status}`);
     }
-    
-    await loadTasks(); // Reload tasks to reflect changes
+
+    await loadTasks();
     console.log(`Task ${taskId} resumed successfully`);
   } catch (error) {
     console.error('Error resuming task:', error);
@@ -276,12 +291,12 @@ async function cancelTask(taskId) {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' }
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to cancel task: ${response.status}`);
     }
-    
-    await loadTasks(); // Reload tasks to reflect changes
+
+    await loadTasks();
     console.log(`Task ${taskId} cancelled successfully`);
   } catch (error) {
     console.error('Error cancelling task:', error);
@@ -289,22 +304,7 @@ async function cancelTask(taskId) {
   }
 }
 
-// Export functions to window for use in index.html
+// Export functions to window
 window.pauseTask = pauseTask;
 window.resumeTask = resumeTask;
 window.cancelTask = cancelTask;
-
-// Override inline localStorage functions after page load
-setTimeout(() => {
-  if (typeof window.pauseTask === 'function') {
-    window.pauseTask = pauseTask;
-  }
-  if (typeof window.resumeTask === 'function') {
-    window.resumeTask = resumeTask;
-  }
-  if (typeof window.cancelTask === 'function') {
-    window.cancelTask = cancelTask;
-  }
-  console.log('Backend task functions loaded and overridden');
-}, 0);
-
