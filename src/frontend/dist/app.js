@@ -289,3 +289,8 @@ async function cancelTask(taskId) {
   }
 }
 
+// Export functions to window for use in index.html
+window.pauseTask = pauseTask;
+window.resumeTask = resumeTask;
+window.cancelTask = cancelTask;
+
