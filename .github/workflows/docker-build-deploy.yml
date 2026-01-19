@@ -80,8 +80,7 @@ jobs:
           script: |
             mkdir -p /home/deployment/arq
             cd /home/deployment/arq
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest            docker stop arq || true
-            docker rm arq || true
+                        docker rm -f arq || true
                         docker run -d --name arq --restart always -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       - name: Verify deployment
         run: |
