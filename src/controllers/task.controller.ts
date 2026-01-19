@@ -3,8 +3,6 @@ import { Controller, Get, Patch, Post, Body, Param, HttpStatus, HttpCode, Res, D
 import { Response } from 'express';
   import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
-const TaskExecutor = require('../backend/taskExecutor');
-const taskExecutor = new TaskExecutor();
 
 // Use /tmp for storing tasks (writable location in Docker)
 const DATA_DIR = '/tmp/arq_data';
@@ -128,33 +126,6 @@ export class TaskController {
     tasksCache.push(task);
     saveTasks();
 
-        // Execute task asynchronously
-        taskExecutor.executeTask(taskId, task.data).then(result => {
-                if (result.success) {
-                          task.status = 'completed';
-                          task.completedAt = new Date().toISOString();
-                          task.logs.push({
-                                      timestamp: new Date().toISOString(),
-                                      message: 'Task completed successfully',
-                                      level: 'success'
-                                                });
-                        } else {
-                          task.status = 'failed';
-                          task.logs.push({
-                                      timestamp: new Date().toISOString(),
-                                      message: 'Task execution failed: ' + result.error,
-                                      level: 'error'
-                                                });
-                        }
-                saveTasks();
-              }).catch(error => {
-                task.status = 'failed';
-                task.logs.push({
-                          timestamp: new Date().toISOString(),
-                          message: 'Task execution error: ' + error.message,
-                          level: 'error'
-                                  });
-                saveTasks();
               });
     
     res.status(202).json({
