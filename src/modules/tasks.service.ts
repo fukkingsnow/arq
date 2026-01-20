@@ -13,8 +13,7 @@ export class TasksService {
       ...data,
       status: 'pending',
     });
-    return await this.taskRepository.save(tatask});
-  }
+    return await this.taskRepository.save(task);}
 
   async findAll(): Promise<Task[]> {
     return this.taskRepository.findAll();
