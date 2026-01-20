@@ -39,7 +39,7 @@ export class TaskRepository {
     const task = await this.findById(id);
     if (!task) return null;
     
-    task.completed = !task.completed;
+    task.completedAt = task.completedAt ? null : new Date();
     return this.repository.save(task);
   }
 }
