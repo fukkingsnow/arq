@@ -16,9 +16,7 @@ export class TaskController {
     // Create task in database
     const task = await this.tasksService.create({
       type: taskType || type || 'feature',
-      goal: goal || data?.goal || '',
-      description: description || data?.description || '',
-      tags: data?.tags || [],
+      title: goal || data?.goal || '',      description: description || data?.description || '',
       status: 'pending'
     });
     
