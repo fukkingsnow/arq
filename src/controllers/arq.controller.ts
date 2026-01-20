@@ -103,6 +103,55 @@ export class ARQController {
     return tasksList;
   }
 
+    @Post('tasks/submit')
+  @HttpCode(HttpStatus.CREATED)
+  submitTask(@Body() dto: { goal: string; description: string; taskType: string; tags: string[] }) {
+    this.logger.log(`[ARQ] Submitting new task: ${dto.goal}`);
+    
+    try {
+      // Generate unique task ID
+      const taskId = `task-${Date.now()}-${++this.taskCounter}`;
+      const now = new Date();
+      
+      // Create task object
+      const task: DevelopmentTask = {
+        taskId,
+        status: 'queued',
+        branch: '',
+        createdAt: now,
+        developmentGoals: [dto.goal],
+        currentIteration: 0,
+        progress: 0,
+        startTime: now.toISOString(),
+        lastUpdate: now.toISOString(),
+        currentPhase: dto.taskType,
+        metrics: {
+          linesAdded: 0,
+          linesModified: 0,
+          filesChanged: 0,
+          codeQualityScore: 0,
+        },
+      };
+      
+      this.activeTasks.set(taskId, task);
+      this.logger.log(`[ARQ] Task ${taskId} submitted successfully`);
+      
+      return {
+        success: true,
+        taskId,
+        message: 'Task submitted successfully',
+        timestamp: now.toISOString(),
+      };
+    } catch (error) {
+      this.logger.error(`[ARQ] Error submitting task: ${error.message}`);
+      return {
+        success: false,
+        error: error.message,
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
   @Get('tasks/:taskId')
   getTaskStatus(@Param('taskId') taskId: string) {
     this.logger.log(`[ARQ] Retrieving task status: ${taskId}`);
