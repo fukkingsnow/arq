@@ -9,9 +9,11 @@ export class TasksService {
   ) {}
 
   async create(data: any): Promise<Task> {
-    return this.taskRepository.create({
+    const task = this.taskRepository.create({
       ...data,
       status: 'pending',
+    });
+    return await this.taskRepository.save(task);..data,
     });
   }
 
