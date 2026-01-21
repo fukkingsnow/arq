@@ -17,6 +17,9 @@ export class Task {
   @Column('varchar', { nullable: true })
   dueDate?: string;
 
+    @Column('varchar', { length: 50, default: 'feature' })
+  type: string;
+
   @Column('varchar', { default: 'pending' })
   status: string;
 
