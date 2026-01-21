@@ -108,10 +108,10 @@ class TaskApiService {
     return res.json();
   }
 
-  static async health() {
+/*   static async health() {
     const res = await fetch(`${API_BASE}/health`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
+    return res.json(); */
   }
 }
 
@@ -127,7 +127,7 @@ function setState(updates) {
 }
 
 function render() {
-  const tasksList = document.getElementById('tasksList');
+  const tasksContainer = document.getElementById('tasksContainer');
   const errorMsg = document.getElementById('errorMessage');
   const successMsg = document.getElementById('successMessage');
 
@@ -141,16 +141,16 @@ function render() {
   }
 
   if (appState.loading) {
-    tasksList.innerHTML = '<div class="empty-message">Loading tasks...</div>';
+    tasksContainer.innerHTML = '<div class="empty-message">Loading tasks...</div>';
     return;
   }
 
   if (!appState.tasks || appState.tasks.length === 0) {
-    tasksList.innerHTML = '<div class="empty-message">📭 No tasks yet. Create one to get started!</div>';
+    tasksContainer.innerHTML = '<div class="empty-message">📭 No tasks yet. Create one to get started!</div>';
     return;
   }
 
-  tasksList.innerHTML = appState.tasks.map(task => `
+  tasksContainer.innerHTML = appState.tasks.map(task => `
     <div class="task-card status-${task.status}">
       <div class="task-header">
         <span class="task-id">ID: ${task.id}</span>
@@ -226,7 +226,7 @@ async function checkHealth() {
   try {
     const data = await TaskApiService.health();
     const successMsg = document.getElementById('successMessage');
-    successMsg.textContent = `✓ Service Healthy`;
+    /* successMsg.textContent = `✓ Service Healthy`;
     successMsg.style.display = 'block';
     setTimeout(() => {
       successMsg.style.display = 'none';
@@ -234,7 +234,7 @@ async function checkHealth() {
   } catch (error) {
     setState({ error: `Health check failed: ${error.message}` });
   }
-}
+} */
 
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('taskForm').addEventListener('submit', submitTask);
