@@ -8,3 +8,5 @@ import { TaskRepository } from '../repositories/task-repository';
 @Module({
   imports: [TypeOrmModule.forFeature([Task])],
   providers: [TasksService, TaskExecutorService, TaskRepository], controllers: [TaskController],
+  })
+export class TasksModule {}
