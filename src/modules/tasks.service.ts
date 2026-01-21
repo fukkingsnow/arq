@@ -9,7 +9,15 @@ export class TasksService {
   ) {}
 
   async create(data: any): Promise<Task> {
-    return await this.taskRepository.create(data);
+        console.log('[TasksService] create() called with data:', JSON.stringify(data, null, 2));
+    try {
+            const result = await this.taskRepository.create(data);
+            console.log('[TasksService] Task created successfully:', JSON.stringify(result, null, 2));
+            return result;
+          } catch (error) {
+            console.error('[TasksService] Error creating task:', error);
+            throw error;
+          }
   }
 
   async findAll(): Promise<Task[]> {
