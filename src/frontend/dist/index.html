@@ -11,8 +11,8 @@ function initSystemStatus() {
     const statusHTML = '<div class="system-status-indicator" id="systemStatus"><span class="status-icon" id="statusIcon"></span><span class="status-text" id="statusText">Online</span><div class="status-tooltip" id="statusTooltip">All systems operational</div></div>';
     header.insertAdjacentHTML('beforeend', statusHTML);
   }
-  checkSystemHealth();
-  statusCheckInterval = setInterval(checkSystemHealth, 45000);
+  //   checkSystemHealth();
+  //   statusCheckInterval = setInterval(checkSystemHealth, 45000);
 }
 
 function checkSystemHealth() {
