@@ -232,5 +232,80 @@ window.addEventListener('beforeunload', () => {
 .ci-status-badge:hover { transform: scale(1.05); }
 </style>
 </body>
+
+<script>
+// API Integration - Send tasks to backend
+const originalFormHandler = form.addEventListener;
+const taskForm = document.getElementById('taskForm');
+if (taskForm) {
+  taskForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const goalField = document.getElementById('goalField');
+    const descField = document.getElementById('descField');
+    const taskType = document.getElementById('taskType');
+    const selectedTags = window.selectedTags || [];
+    
+    if (!goalField.value || !taskType.value) return;
+    
+    const taskData = {
+      goal: goalField.value,
+      description: descField.value,
+      type: taskType.value,
+      tags: selectedTags,
+      status: 'active'
+    };
+    
+    try {
+      // Send to backend API
+      const response = await fetch('/api/v1/arq/tasks/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(taskData)
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Task submitted to backend:', result);
+        
+        // Also save to localStorage for backward compatibility
+        const task = {
+          id: result.id || Date.now().toString(),
+          ...taskData,
+          createdAt: result.createdAt || new Date().toISOString(),
+          duration: 0,
+          executionTime: Math.random() * 8 + 1
+        };
+        
+        const tasks = JSON.parse(localStorage.getItem('arqTasks') || '[]');
+        tasks.push(task);
+        localStorage.setItem('arqTasks', JSON.stringify(tasks));
+        
+        // Reload tasks display
+        if (typeof loadTasks === 'function') loadTasks();
+        if (typeof updateAnalytics === 'function') updateAnalytics();
+        
+        // Clear form
+        goalField.value = '';
+        descField.value = '';
+        taskType.value = '';
+        window.selectedTags = [];
+        if (typeof renderTags === 'function') renderTags();
+        document.getElementById('tagsInput').value = '';
+        document.getElementById('goalCounter').textContent = '0';
+        document.getElementById('descCounter').textContent = '0';
+      } else {
+        console.error('Failed to submit task:', response.statusText);
+        alert('Failed to submit task to server. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error submitting task:', error);
+      alert('Error submitting task. Please check your connection.');
+    }
+  }, true); // Use capture phase to intercept before other handlers
+}
+</script>
 <script src="app.js"></script>
 </html>
