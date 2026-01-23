@@ -40,6 +40,13 @@ jobs:
             # Deep disk cleanup to free space
             echo "Cleaning disk space..."
             pm2 flush 2>/dev/null || true
+
+                      # Build React Dashboard
+          echo "Building React Dashboard..."
+          cd src/frontend
+          npm install --legacy-peer-deps
+          npm run build
+          cd ../..
             pm2 logs --nostream --lines 0 2>/dev/null || true
             find ~/.pm2/logs -type f -mtime +7 -delete 2>/dev/null || true
             npm cache clean --force 2>/dev/null || true
