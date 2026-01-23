@@ -90,7 +90,7 @@ jobs:
 
             # Health check with retries (improved to 15 attempts)
             echo "Running health check..."
-            MAX_RETRIES=15
+            MAX_RET
             RETRY_COUNT=0
 
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
