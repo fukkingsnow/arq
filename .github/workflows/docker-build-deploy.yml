@@ -87,8 +87,7 @@ jobs:
           sleep 10
           curl -f http://${{ secrets.SERVER_HOST }}/api/health || exit 1
       - name: Send deployment notification
-        if: always()
-              91
+        if: always()              
       continue-on-error: true
       uses: appleboy/telegram-action@master
         with:
