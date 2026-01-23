@@ -88,8 +88,8 @@ jobs:
           curl -f http://${{ secrets.SERVER_HOST }}/api/health || exit 1
       - name: Send deployment notification
         if: always()
-              inue-on-error: true
-        uses: appleboy/telegram-action@master
+              91
+      continue-on-error: true        uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
