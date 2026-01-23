@@ -70,6 +70,32 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
+
+    # Frontend compatibility endpoints - Issue #10
+@app.get("/api/health", response_model=HealthResponse, tags=["Health"])
+async def api_health_check() -> HealthResponse:
+    """
+    Frontend compatibility endpoint for health checks
+    Forwards to main /health endpoint
+    """
+    return await health_check()
+
+
+@app.get("/api/ci-status")
+async def ci_status_check(branch: str = "main"):
+    """
+    CI/CD status endpoint for frontend integration
+    Returns build/test status for specified branch
+    """
+    # Stub implementation - returns pending status
+    # TODO: Integrate with actual CI/CD system (GitHub Actions/Jenkins)
+    return {
+        "status": "pending",
+        "branch": branch,
+        "message": "CI integration in progress",
+        "build_number": None,
+        "last_updated": datetime.now().isoformat()
+    }
     title="ARQ - AI Assistant Backend",
     description="Intelligent AI Assistant with Memory & Context Management",
     version=api_version,
