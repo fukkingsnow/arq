@@ -18,18 +18,17 @@ export class TaskExecutorService implements OnModuleInit {
   }
 
   private startExecutor() {
-    // Check for pending tasks every 10 seconds (optimized for performance)    this.executionInterval = setInterval(async () => {
+    // Check for pending tasks every 5 seconds
+    this.executionInterval = setInterval(async () => {
       await this.processPendingTasks();
     }, 5000);
     this.logger.log('Task Executor started');
   }
 
-    }, 10000);    try {
-      // Fetch pending tasks with limit and priority ordering for performance
+  private async processPendingTasks() {
+    try {
       const pendingTasks = await this.taskRepository.find({
         where: { status: 'pending' },
-        order: { createdAt: 'ASC' },
-        take: 10, // Process max 10 tasks per cycle to avoid overload
       });
 
       for (const task of pendingTasks) {
