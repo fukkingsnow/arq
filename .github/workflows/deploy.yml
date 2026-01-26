@@ -41,19 +41,6 @@ jobs:
             echo "Cleaning disk space..."
             pm2 flush 2>/dev/null || true
 
-                      # Build React Dashboard
-          echo "Building React Dashboard..."
-          cd src/frontend
-          npm install --legacy-peer-deps
-          npm run build
-          cd ../..
-            pm2 logs --nostream --lines 0 2>/dev/null || true
-            find ~/.pm2/logs -type f -mtime +7 -delete 2>/dev/null || true
-            npm cache clean --force 2>/dev/null || true
-            rm -rf ~/.npm/_cacache 2>/dev/null || true
-            find /tmp -name 'npm-*' -type d -mtime +1 -exec rm -rf {} + 2>/dev/null || true
-            docker system prune -af 2>/dev/null || true
-
             # Clean and install dependencies optimized
             echo "Installing dependencies..."
             npm cache clean --force --silent || true
