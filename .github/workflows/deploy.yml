@@ -86,11 +86,9 @@ jobs:
 
             # Reload nginx
             echo "Reloading nginx..."
-                          touch /opt/arq/dist/frontend/index.html /opt/a
-
-            # Health check with retries (improved to 15 attempts)
+            touch /opt/arq/dist/frontend/index.html            # Health check with retries (improved to 15 attempts)
             echo "Running health check..."
-            MAX_RET
+                  MAX_RETRIES=15
             RETRY_COUNT=0
 
             while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
