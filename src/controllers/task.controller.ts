@@ -12,12 +12,16 @@ export class TaskController {
     console.log('POST /api/v1/arq/tasks/submit - body:', body);
     
     const { type, data, goal, description, taskType } = body;
+        console.log('[TaskController] Received body:', JSON.stringify(body, null, 2));
     
     // Create task in database
     const task = await this.tasksService.create({
-      type: taskType || type || 'feature',
-      title: goal || data?.goal || '',      description: description || data?.description || '',
-      status: 'pending'
+      // Support both frontend format (title, description, priority) and legacy format (goal, data.goal)
+      type: body.type || body.taskType || 'feature',
+      title: body.title || body.goal || body.data?.goal || 'Untitled Task',
+      description: body.description || body.data?.description || '',
+      priority: body.priority || 'medium',
+            status: 'pending'
     });
     
     console.log('Created task in database:', task.id);
