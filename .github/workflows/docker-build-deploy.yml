@@ -8,7 +8,7 @@ on:
       - 'src/**'
       - 'package*.json'
       - 'deployment/Dockerfile.prod'
-            - - 'doer-compose.prod.yml'
+            - - 'docker-compood.prod.yml'
       - '.github/workflows/docker-build-deploy.yml'
   workflow_dispatch:
     inputs:
