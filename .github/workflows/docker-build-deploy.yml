@@ -90,7 +90,7 @@ jobs:
             mkdir -p /home/deployment/arq
             cd /home/deployment/arq
             docker rm -f arq || true
-            docker run -d --name arq --restart always -p 3000:3000 -e DB_HOST=${{ secrets.DB_HOST }} -e DB_PORT=${{ secrets.DB_PORT }} -e DB_USERNAME=${{ secrets.DB_USERNAME }} -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} -e DB_DATABASE=${{ secrets.DB_DATABASE }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            docker run -d --name arq --network arq-network --restart always -p 3000:8000 -e DATABASE_URL=postgresql://arq_dev:arq_dev_password@arq-postgres-dev:5432/arq_development ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
       
       - name: Verify deployment
         run: |
