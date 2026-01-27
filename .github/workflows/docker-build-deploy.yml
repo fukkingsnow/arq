@@ -2,6 +2,7 @@ name: Docker Build and Deploy
 
 on:
   push:
+  # Phase 40 frontend deployment workflow
     branches:
       - main
     paths:
