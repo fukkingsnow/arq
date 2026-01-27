@@ -7,8 +7,7 @@ on:
     paths:
       - 'src/**'
       - 'package*.json'
-      - 'Dockerfile.prod'
-      - 'docker-compose.prod.yml'
+      - 'deployment/Dockerfile.prod'      - 'docker-compose.prod.yml'
       - '.github/workflows/docker-build-deploy.yml'
   workflow_dispatch:
     inputs:
