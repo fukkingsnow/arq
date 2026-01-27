@@ -18,6 +18,9 @@ COPY src ./src
 # Build application
 RUN npm run build
 
+# Build frontend
+RUN cd src/frontend && npm install && npm run build
+
 # Stage 2: Runtime
 FROM node:18-alpine
 
@@ -34,6 +37,7 @@ RUN addgroup -g 1001 -S nodejs && \
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/src/frontend/dist ./frontend/dist
 
 # Copy environment files
 COPY .env* ./
