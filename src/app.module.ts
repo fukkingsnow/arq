@@ -18,23 +18,16 @@ import { MetricsService } from './services/metrics.service';
 import { TaskModule } from './task/task.module';
 import { TasksModule } from './modules/tasks.module';
 
-// Импорты для интеграции Model Context Protocol (MCP)
+// Модули для активации "рук" через Model Context Protocol (MCP)
 import { McpModule } from '@rekog/mcp-nest';
 import { ArqMcpTools } from './services/mcp-tools.service';
 
-/**
- * Root Application Module
- * Orchestrates all feature modules and provides global configuration.
- */
 @Module({
   imports:,
   controllers:,
   providers:,
 })
 export class AppModule implements NestModule {
-  /**
-   * Configures and registers middleware for the application
-   */
   configure(consumer: MiddlewareConsumer): void {
     consumer
      .apply(CompressionRequestMiddleware)
