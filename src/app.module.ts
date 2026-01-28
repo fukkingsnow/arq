@@ -18,7 +18,7 @@ import { MetricsService } from './services/metrics.service';
 import { TaskModule } from './task/task.module';
 import { TasksModule } from './modules/tasks.module';
 
-// Импорты для Model Context Protocol
+// Модули для активации MCP (Model Context Protocol)
 import { McpModule } from '@rekog/mcp-nest';
 import { ArqMcpTools } from './services/mcp-tools.service';
 
@@ -27,7 +27,6 @@ import { ArqMcpTools } from './services/mcp-tools.service';
   controllers:,
   providers:,
 })
-  
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
