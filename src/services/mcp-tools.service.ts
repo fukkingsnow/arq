@@ -27,7 +27,7 @@ export class ArqMcpTools {
     } catch (error) {
       return { 
         isError: true, 
-        content: [{ type: 'text', text: `Error: ${error.message}` }] 
+        content: [{ type: 'text', text: `Ошибка: ${error.message}` }] 
       };
     }
   }
