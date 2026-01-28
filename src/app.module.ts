@@ -18,7 +18,7 @@ import { MetricsService } from './services/metrics.service';
 import { TaskModule } from './task/task.module';
 import { TasksModule } from './modules/tasks.module';
 
-// Модули для активации MCP (Model Context Protocol)
+// Импорты для Model Context Protocol
 import { McpModule } from '@rekog/mcp-nest';
 import { ArqMcpTools } from './services/mcp-tools.service';
 
