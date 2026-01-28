@@ -27,6 +27,7 @@ import { ArqMcpTools } from './services/mcp-tools.service';
   controllers:,
   providers:,
 })
+  
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
