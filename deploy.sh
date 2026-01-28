@@ -60,6 +60,8 @@ df -h | head -2
 
 # 5. Install dependencies
 echo "=== Installing dependencies..."
+npm cache clean --force
+rm -rf node_modules package-lock.json
 npm install --legacy-peer-deps
 
 # 6. Build application
