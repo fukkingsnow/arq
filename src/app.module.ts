@@ -23,16 +23,40 @@ import { McpModule } from '@rekog/mcp-nest';
 import { ArqMcpTools } from './services/mcp-tools.service';
 
 @Module({
-  imports:,
-  controllers:,
-  providers:,
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }), // Обычно конфиг инициализируется так
+    DatabaseModule,
+    AuthModule,
+    BrowserModule,
+    UserModule,
+    CommonModule,
+    ContextEngineModule,
+    GitHubModule,
+    AssistantModule,
+    TaskModule,
+    TasksModule,
+    McpModule,
+  ],
+  controllers: [
+    AppController, 
+    ARQController
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ValidationExceptionFilter,
+    },
+    AutonomousStrategyAnalyzer,
+    MetricsService,
+    ArqMcpTools,
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
-     .apply(CompressionRequestMiddleware)
-     .forRoutes('*')
-     .apply(RequestLoggingMiddleware)
-     .forRoutes('*');
+      .apply(CompressionRequestMiddleware)
+      .forRoutes('*')
+      .apply(RequestLoggingMiddleware)
+      .forRoutes('*');
   }
 }
