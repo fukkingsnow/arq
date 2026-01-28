@@ -18,7 +18,7 @@ import { MetricsService } from './services/metrics.service';
 import { TaskModule } from './task/task.module';
 import { TasksModule } from './modules/tasks.module';
 
-// Импорты для активации "рук"
+// Импорты для Model Context Protocol
 import { McpModule } from '@rekog/mcp-nest';
 import { ArqMcpTools } from './services/mcp-tools.service';
 
