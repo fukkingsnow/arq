@@ -10,7 +10,7 @@ const execAsync = promisify(exec);
 export class ArqMcpTools {
   @Tool({
     name: 'execute_command',
-    description: 'Выполняет shell-команды на сервере Beget (npm test, git status и т.д.)',
+    description: 'Выполняет shell-команды на сервере Beget',
     parameters: z.object({
       command: z.string(),
     }),
@@ -19,21 +19,22 @@ export class ArqMcpTools {
     try {
       const { stdout, stderr } = await execAsync(command);
       return { 
-        content: [{ type: 'text', text: stdout |
-
-| stderr }] 
+        content: [{ 
+          type: 'text', 
+          text: stdout + (stderr? '\nErrors: ' + stderr : '') 
+        }] 
       };
     } catch (error) {
       return { 
         isError: true, 
-        content: [{ type: 'text', text: `Ошибка выполнения: ${error.message}` }] 
+        content: [{ type: 'text', text: `Error: ${error.message}` }] 
       };
     }
   }
 
   @Tool({
     name: 'read_file_content',
-    description: 'Читает содержимое файла для аудита кода',
+    description: 'Читает содержимое файла для аудита',
     parameters: z.object({
       path: z.string(),
     }),
