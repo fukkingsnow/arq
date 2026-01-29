@@ -24,7 +24,7 @@ import { ArqMcpTools } from './services/mcp-tools.service';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }), // Обычно конфиг инициализируется так
+    ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     AuthModule,
     BrowserModule,
@@ -35,7 +35,11 @@ import { ArqMcpTools } from './services/mcp-tools.service';
     AssistantModule,
     TaskModule,
     TasksModule,
-    McpModule,
+    // Инициализация MCP с указанием имени и версии
+    McpModule.register({
+      name: 'ARQ-Autonomous-Shell',
+      version: '1.0.1',
+    }),
   ],
   controllers: [
     AppController, 
@@ -48,15 +52,13 @@ import { ArqMcpTools } from './services/mcp-tools.service';
     },
     AutonomousStrategyAnalyzer,
     MetricsService,
-    ArqMcpTools,
+    ArqMcpTools, // Регистрация ваших инструментов для ассистента
   ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer
-      .apply(CompressionRequestMiddleware)
-      .forRoutes('*')
-      .apply(RequestLoggingMiddleware)
+      .apply(CompressionRequestMiddleware, RequestLoggingMiddleware)
       .forRoutes('*');
   }
 }
