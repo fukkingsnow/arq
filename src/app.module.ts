@@ -36,7 +36,7 @@ import { ArqMcpTools } from './services/mcp-tools.service';
     TaskModule,
     TasksModule,
     // Инициализация MCP с указанием имени и версии
-    McpModule.register({
+    McpModule({
       name: 'ARQ-Autonomous-Shell',
       version: '1.0.1',
     }),
