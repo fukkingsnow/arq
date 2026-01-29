@@ -41,21 +41,31 @@ export class ARQController {
     private readonly strategyAnalyzer: AutonomousStrategyAnalyzer,
   ) {}
 
+  // --- MCP STATUS ENDPOINTS ---
+
+  @Get('status/mcp')
+  @HttpCode(HttpStatus.OK)
+  getMcpStatus() {
+    return {
+      status: 'online',
+      protocol: 'MCP JSON-RPC 2.0',
+      tools: ['execute_command', 'read_file_content'],
+      info: 'To use tools, send POST to /mcp'
+    };
+  }
+
+  // --- DEVELOPMENT CORE ---
+
   @Post('start-development')
   @HttpCode(HttpStatus.CREATED)
   async startDevelopment(@Body() dto: StartDevelopmentDto) {
     this.logger.log(`[ARQ] Starting development cycle with goals: ${dto.developmentGoals.join(', ')}`);
 
     try {
-      // Generate unique task ID
       const taskId = `arq-dev-${Date.now()}-${++this.taskCounter}`;
-
-      // Create development branch
       const branchName = `feature/arq-improvement-${taskId}`;
-      this.logger.log(`[ARQ] Creating branch: ${branchName}`);
-
-      // Initialize task with full data
       const now = new Date();
+
       const task: DevelopmentTask = {
         taskId,
         status: 'running',
@@ -63,7 +73,7 @@ export class ARQController {
         createdAt: now,
         developmentGoals: dto.developmentGoals,
         currentIteration: 1,
-        progress: Math.floor(Math.random() * 40) + 10,
+        progress: 10,
         startTime: now.toISOString(),
         lastUpdate: now.toISOString(),
         currentPhase: 'Initialization',
@@ -77,139 +87,63 @@ export class ARQController {
       };
 
       this.activeTasks.set(taskId, task);
-      this.logger.log(`[ARQ] Task ${taskId} created successfully`);
-
       return {
         taskId,
         status: task.status,
-        branch: branchName,
-        goals: dto.developmentGoals,
         message: 'Development cycle started',
         timestamp: now,
       };
     } catch (error) {
-      this.logger.error(`[ARQ] Error starting development: ${error.message}`);
+      this.logger.error(`[ARQ] Error: ${error.message}`);
       throw error;
     }
   }
 
   @Get('tasks')
   getAllTasks() {
-    this.logger.log(`[ARQ] Retrieving all tasks`);
-    const tasksList = Array.from(this.activeTasks.values()).map(task => ({
+    return Array.from(this.activeTasks.values()).map(task => ({
       ...task,
       createdAt: task.createdAt.toISOString(),
     }));
-    return tasksList;
   }
 
-    @Post('tasks/submit')
+  @Post('tasks/submit')
   @HttpCode(HttpStatus.CREATED)
   submitTask(@Body() dto: { goal: string; description: string; taskType: string; tags: string[] }) {
-    this.logger.log(`[ARQ] Submitting new task: ${dto.goal}`);
+    const taskId = `task-${Date.now()}-${++this.taskCounter}`;
+    const now = new Date();
     
-    try {
-      // Generate unique task ID
-      const taskId = `task-${Date.now()}-${++this.taskCounter}`;
-      const now = new Date();
-      
-      // Create task object
-      const task: DevelopmentTask = {
-        taskId,
-        status: 'queued',
-        branch: '',
-        createdAt: now,
-        developmentGoals: [dto.goal],
-        currentIteration: 0,
-        progress: 0,
-        startTime: now.toISOString(),
-        lastUpdate: now.toISOString(),
-        currentPhase: dto.taskType,
-        metrics: {
-          linesAdded: 0,
-          linesModified: 0,
-          filesChanged: 0,
-          codeQualityScore: 0,
-        },
-      };
-      
-      this.activeTasks.set(taskId, task);
-      this.logger.log(`[ARQ] Task ${taskId} submitted successfully`);
-      
-      return {
-        success: true,
-        taskId,
-        message: 'Task submitted successfully',
-        timestamp: now.toISOString(),
-      };
-    } catch (error) {
-      this.logger.error(`[ARQ] Error submitting task: ${error.message}`);
-      return {
-        success: false,
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      };
-    }
+    const task: DevelopmentTask = {
+      taskId,
+      status: 'queued',
+      branch: '',
+      createdAt: now,
+      developmentGoals: [dto.goal],
+      currentIteration: 0,
+      progress: 0,
+      startTime: now.toISOString(),
+      lastUpdate: now.toISOString(),
+      currentPhase: dto.taskType,
+      metrics: { linesAdded: 0, linesModified: 0, filesChanged: 0, codeQualityScore: 0 },
+    };
+    
+    this.activeTasks.set(taskId, task);
+    return { success: true, taskId, timestamp: now.toISOString() };
   }
 
   @Get('tasks/:taskId')
   getTaskStatus(@Param('taskId') taskId: string) {
-    this.logger.log(`[ARQ] Retrieving task status: ${taskId}`);
     const task = this.activeTasks.get(taskId);
-    if (!task) {
-      return {
-        error: 'Task not found',
-        taskId,
-      };
-    }
-    return {
-      ...task,
-      createdAt: task.createdAt.toISOString(),
-    };
+    return task ? { ...task, createdAt: task.createdAt.toISOString() } : { error: 'Not found' };
   }
 
   @Patch('tasks/:taskId/pause')
   pauseTask(@Param('taskId') taskId: string) {
-    this.logger.log(`[ARQ] Pausing task: ${taskId}`);
     const task = this.activeTasks.get(taskId);
-    if (!task) {
-      return {
-        error: 'Task not found',
-        taskId,
-      };
+    if (task) {
+      task.status = 'paused';
+      task.lastUpdate = new Date().toISOString();
     }
-    task.status = 'paused';
-    task.lastUpdate = new Date().toISOString();
-    return task;
-  }
-
-  @Patch('tasks/:taskId/resume')
-  resumeTask(@Param('taskId') taskId: string) {
-    this.logger.log(`[ARQ] Resuming task: ${taskId}`);
-        const task = this.activeTasks.get(taskId);
-    if (!task) {
-      return {
-        error: 'Task not found',
-        taskId,
-      };
-    }
-    task.status = 'running';
-    task.lastUpdate = new Date().toISOString();
-    return task;
-  }
-
-  @Patch('tasks/:taskId/cancel')
-  cancelTask(@Param('taskId') taskId: string) {
-    this.logger.log(`[ARQ] Cancelling task: ${taskId}`);
-    const task = this.activeTasks.get(taskId);
-    if (!task) {
-      return {
-        error: 'Task not found',
-        taskId,
-      };
-    }
-    task.status = 'cancelled';
-    task.lastUpdate = new Date().toISOString();
     return task;
   }
 
@@ -231,118 +165,28 @@ export class ARQController {
       service: 'ARQ Self-Development Engine',
       version: '1.0.1',
       status: 'operational',
-      timestamp: new Date().toISOString(),
-      endpoints: {
-        'POST /start-development': 'Start a new development cycle',
-        'GET /health': 'Check service health',
-        'GET /tasks': 'Get all development tasks',
-        'GET /tasks/:taskId': 'Get specific task status',
-        'PATCH /tasks/:taskId/pause': 'Pause a task',
-        'PATCH /tasks/:taskId/resume': 'Resume a paused task',
-        'PATCH /tasks/:taskId/cancel': 'Cancel a task',
-      },
+      endpoints: ['/arq/start-development', '/arq/health', '/arq/tasks', '/arq/status/mcp']
     };
   }
 
-  private generateIssueDescription(dto: StartDevelopmentDto, taskId: string): string {
-    return `## ARQ Self-Development Task
-Task ID: ${taskId}
-
-### Development Goals
-${dto.developmentGoals.map(goal => `- ${goal}`).join('\n')}
-
-### Priority
-${dto.priority.toUpperCase()}
-
-### Details
-- Auto-generated by ARQ Self-Development Engine
-- Max iterations: ${dto.maxIterations}
-- Created at: ${new Date().toISOString()}
-
-### Branch
-\`feature/arq-improvement-${taskId}\`
-
-### Status
-🚀 In Progress`;
-  }
-
-  /**
-   * Analyze development strategy
-   */
   @Get('strategy/analyze')
-  @HttpCode(HttpStatus.OK)
   async analyzeStrategy() {
-    this.logger.log('[ARQ] Analyzing development strategy...');
     try {
       const strategy = await this.strategyAnalyzer.analyzeStrategy();
-      return {
-        success: true,
-        strategy,
-        timestamp: new Date().toISOString(),
-      };
+      return { success: true, strategy, timestamp: new Date().toISOString() };
     } catch (error) {
-      this.logger.error(`[ARQ] Error analyzing strategy: ${error.message}`);
-      return {
-        success: false,
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      };
+      return { success: false, error: error.message };
     }
   }
 
-  /**
-   * Execute current strategy
-   */
   @Post('strategy/execute')
-  @HttpCode(HttpStatus.OK)
   async executeStrategy() {
-    this.logger.log('[ARQ] Executing development strategy...');
     try {
       const strategy = await this.strategyAnalyzer.analyzeStrategy();
       await this.strategyAnalyzer.executeStrategy(strategy);
-      return {
-        success: true,
-        message: 'Strategy execution initiated',
-        strategy,
-        timestamp: new Date().toISOString(),
-      };
+      return { success: true, message: 'Execution initiated', strategy };
     } catch (error) {
-      this.logger.error(`[ARQ] Error executing strategy: ${error.message}`);
-      return {
-        success: false,
-        error: error.message,
-        timestamp: new Date().toISOString(),
-      };
+      return { success: false, error: error.message };
     }
-  }
-
-  /**
-   * Get PR status
-   */
-  @Get('pr-status/:prNumber')
-  @HttpCode(HttpStatus.OK)
-  getPRStatus(@Param('prNumber') prNumber: string) {
-    this.logger.log(`[ARQ] Getting PR #${prNumber} status`);
-    const status = {};
-    return {
-      prNumber,
-      status,
-      timestamp: new Date().toISOString(),
-    };
-  }
-
-  /**
-   * Get all monitored PRs
-   */
-  @Get('pr-status')
-  @HttpCode(HttpStatus.OK)
-  getAllPRStatuses() {
-    this.logger.log('[ARQ] Getting all PR statuses');
-    const statuses = [];
-    return {
-      count: statuses.length,
-      statuses,
-      timestamp: new Date().toISOString(),
-    };
   }
 }
