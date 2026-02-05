@@ -32,34 +32,35 @@ export class MetricsService {
 
   /**
    * ПРОВЕРКА ЦЕЛОСТНОСТИ СИСТЕМЫ
-   * Теперь с безопасными проверками путей для CI/CD
+   * ИМИТАЦИЯ ПОЛОМКИ ДЛЯ ТЕСТА АВТОНОМНОСТИ
    */
   async checkInternalIntegrity() {
     try {
-      // Пытаемся определить корневую директорию динамически
+      // 1. Пытаемся считать реальные данные (как и раньше)
       const rootPath = existsSync('/opt/arq/src') ? '/opt/arq/src' : process.cwd();
-      
       const mainTsPath = join(rootPath, 'main.ts');
-      const indexHtmlPath = join(rootPath, 'frontend/dist/index.html');
-
-      let backendPrefix = 'unknown';
-      let frontendSynced = true;
+      
+      let backendPrefix = 'api/v1'; // Значение по умолчанию
 
       if (existsSync(mainTsPath)) {
         const mainTsContent = readFileSync(mainTsPath, 'utf8');
         const prefixMatch = mainTsContent.match(/setGlobalPrefix\(['"](.+?)['"]\)/);
-        backendPrefix = prefixMatch ? prefixMatch[1] : '';
+        backendPrefix = prefixMatch ? prefixMatch[1] : 'api/v1';
       }
 
-      if (existsSync(indexHtmlPath)) {
-        const indexHtmlContent = readFileSync(indexHtmlPath, 'utf8');
-        frontendSynced = indexHtmlContent.includes(`fetch('/${backendPrefix}`);
-      } else {
-        // Если файла нет (например, во время билда), не считаем это критической ошибкой интроспекции
-        this.logger.warn('Frontend dist not found, skipping sync check');
-      }
+      // ---------------------------------------------------------
+      // 🚨 ТРИГГЕР ПОЛОМКИ: Мы специально говорим, что фронтенд НЕ СИНХРОНИЗИРОВАН.
+      // Это заставит AutonomousStrategyAnalyzer запустить процедуру исправления.
+      // ---------------------------------------------------------
+      this.logger.warn('[ARQ-TEST] Simulating integrity failure...');
+      
+      return { 
+        backendPrefix: backendPrefix, 
+        frontendSynced: false, // <-- ЗДЕСЬ МЫ ЛОМАЕМ
+        timestamp: new Date() 
+      };
+      // ---------------------------------------------------------
 
-      return { backendPrefix, frontendSynced, timestamp: new Date() };
     } catch (error) {
       this.logger.error(`Integrity check failed: ${error.message}`);
       return { backendPrefix: 'error', frontendSynced: false };
@@ -72,55 +73,4 @@ export class MetricsService {
       totalTasks: stats.total,
       completedTasks: stats.completed,
       failedTasks: stats.failed,
-      inProgressTasks: stats.inProgress,
-      averageExecutionTime: stats.avgTime,
-      successRate: stats.successRate,
-      timestamp: new Date(),
-    };
-  }
-
-  getProcessingStats(): ProcessingStats {
-    const hourly: { [key: string]: number } = {};
-    const daily: { [key: string]: number } = {};
-    this.taskHistory.forEach(({ timestamp, status }) => {
-      if (status === 'success') {
-        const hour = new Date(timestamp).getHours().toString();
-        const day = new Date(timestamp).toLocaleDateString();
-        hourly[hour] = (hourly[hour] || 0) + 1;
-        daily[day] = (daily[day] || 0) + 1;
-      }
-    });
-    return {
-      hourly,
-      daily,
-      totalProcessed: this.taskHistory.length,
-      peakHour: Object.entries(hourly).reduce((a, b) => a[1] > b[1] ? a : b, ['0', 0])[0],
-    };
-  }
-
-  getDashboardMetrics() {
-    const metrics = this.getMetrics();
-    const stats = this.getProcessingStats();
-    return {
-      overview: metrics,
-      statistics: stats,
-      recentTasks: this.taskHistory.slice(-10),
-    };
-  }
-
-  private calculateStats() {
-    const total = this.taskHistory.length;
-    const completed = this.taskHistory.filter((t) => t.status === 'success').length;
-    const avgTime = total > 0 ? this.taskHistory.reduce((sum, t) => sum + t.duration, 0) / total : 0;
-    return {
-      total,
-      completed,
-      failed: total - completed,
-      inProgress: 0,
-      avgTime: Math.round(avgTime),
-      successRate: total > 0 ? Math.round((completed / total) * 10000) / 100 : 0,
-    };
-  }
-
-  private updateMetrics() { this.metrics.set('lastUpdate', new Date()); }
-}
+      in
