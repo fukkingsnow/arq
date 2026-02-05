@@ -2,7 +2,6 @@ import { Controller, Post, Body, Get, HttpCode, HttpStatus, Logger, Param, Patch
 import { GitHubService } from '../services/github.service';
 import { AutonomousStrategyAnalyzer } from '../services/autonomous-strategy.analyzer';
 
-// Интерфейсы для типизации
 interface StartDevelopmentDto {
   developmentGoals: string[];
   maxIterations: number;
@@ -31,7 +30,7 @@ interface DevelopmentTask {
   estimatedCompletion?: string;
 }
 
-@Controller('arq') // ИСПРАВЛЕНО: Убран префикс api/v1, так как он задан в main.ts
+@Controller('arq')
 export class ARQController {
   private readonly logger = new Logger('ARQController');
   private taskCounter = 0;
@@ -46,7 +45,6 @@ export class ARQController {
   @HttpCode(HttpStatus.CREATED)
   async startDevelopment(@Body() dto: StartDevelopmentDto) {
     this.logger.log(`[ARQ] Starting development cycle with goals: ${dto.developmentGoals.join(', ')}`);
-
     try {
       const taskId = `arq-dev-${Date.now()}-${++this.taskCounter}`;
       const branchName = `feature/arq-improvement-${taskId}`;
@@ -73,8 +71,6 @@ export class ARQController {
       };
 
       this.activeTasks.set(taskId, task);
-      this.logger.log(`[ARQ] Task ${taskId} created successfully`);
-
       return {
         taskId,
         status: task.status,
@@ -91,7 +87,6 @@ export class ARQController {
 
   @Get('tasks')
   getAllTasks() {
-    this.logger.log(`[ARQ] Retrieving all tasks`);
     return Array.from(this.activeTasks.values()).map(task => ({
       ...task,
       createdAt: task.createdAt.toISOString(),
@@ -100,22 +95,15 @@ export class ARQController {
 
   @Get('tasks/:taskId')
   getTaskStatus(@Param('taskId') taskId: string) {
-    this.logger.log(`[ARQ] Retrieving task status: ${taskId}`);
     const task = this.activeTasks.get(taskId);
-    if (!task) {
-      throw new NotFoundException(`Task with ID ${taskId} not found`);
-    }
-    return {
-      ...task,
-      createdAt: task.createdAt.toISOString(),
-    };
+    if (!task) throw new NotFoundException(`Task ${taskId} not found`);
+    return { ...task, createdAt: task.createdAt.toISOString() };
   }
 
   @Patch('tasks/:taskId/pause')
   pauseTask(@Param('taskId') taskId: string) {
     const task = this.activeTasks.get(taskId);
     if (!task) throw new NotFoundException(`Task ${taskId} not found`);
-    
     task.status = 'paused';
     task.lastUpdate = new Date().toISOString();
     return task;
@@ -125,7 +113,6 @@ export class ARQController {
   resumeTask(@Param('taskId') taskId: string) {
     const task = this.activeTasks.get(taskId);
     if (!task) throw new NotFoundException(`Task ${taskId} not found`);
-
     task.status = 'running';
     task.lastUpdate = new Date().toISOString();
     return task;
@@ -134,3 +121,49 @@ export class ARQController {
   @Patch('tasks/:taskId/cancel')
   cancelTask(@Param('taskId') taskId: string) {
     const task = this.activeTasks.get(taskId);
+    if (!task) throw new NotFoundException(`Task ${taskId} not found`);
+    task.status = 'cancelled';
+    task.lastUpdate = new Date().toISOString();
+    return task;
+  }
+
+  @Get('health')
+  @HttpCode(HttpStatus.OK)
+  getHealth() {
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      activeTasks: this.activeTasks.size,
+    };
+  }
+
+  @Get()
+  getRootInfo() {
+    return {
+      service: 'ARQ Engine',
+      version: '1.0.1',
+      status: 'operational',
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  @Get('strategy/analyze')
+  async analyzeStrategy() {
+    const strategy = await this.strategyAnalyzer.analyzeStrategy();
+    return { success: true, strategy, timestamp: new Date().toISOString() };
+  }
+
+  @Post('strategy/execute')
+  async executeStrategy() {
+    try {
+      const strategy = await this.strategyAnalyzer.analyzeStrategy();
+      await this.strategyAnalyzer.executeStrategy(strategy);
+      return {
+        success: true,
+        message: 'Strategy execution initiated',
+        strategy,
+        timestamp: new Date().toISOString(),
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
