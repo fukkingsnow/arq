@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { GitHubService } from './github.service';
 import { MetricsService } from './metrics.service';
+import { FileSystemService } from './file-system.service';
 
 export interface StrategyScore {
   category: string;
@@ -36,8 +37,9 @@ export class AutonomousStrategyAnalyzer {
   constructor(
     private readonly githubService: GitHubService,
     private readonly metricsService: MetricsService,
+    private readonly fileSystem: FileSystemService, // ПОДКЛЮЧИЛИ РУКИ
   ) {
-    this.logger.log('AutonomousStrategyAnalyzer initialized');
+    this.logger.log('AutonomousStrategyAnalyzer initialized with Full Autonomy');
   }
 
   async analyzeStrategy(): Promise<DevelopmentStrategy> {
@@ -64,8 +66,7 @@ export class AutonomousStrategyAnalyzer {
         this.githubService.listPullRequests('open'),
       ]);
 
-      // Безопасный вызов метода интроспекции
-      let integrity = { frontendSynced: true };
+      let integrity = { frontendSynced: true, backendPrefix: 'v1' };
       if (typeof (this.metricsService as any).checkInternalIntegrity === 'function') {
         integrity = await (this.metricsService as any).checkInternalIntegrity();
       }
@@ -117,7 +118,34 @@ export class AutonomousStrategyAnalyzer {
     return { critical: 4, high: 3, medium: 2, low: 1 }[p] || 0;
   }
 
+  /**
+   * РЕАЛИЗАЦИЯ АВТОНОМНОГО ИСПРАВЛЕНИЯ
+   */
   async executeStrategy(strategy: DevelopmentStrategy): Promise<void> {
-    this.logger.log(`Executing strategy... Score: ${strategy.overallScore}`);
+    this.logger.log(`[ARQ-EXECUTE] Starting autonomous repair cycle. Score: ${strategy.overallScore}`);
+
+    for (const area of strategy.focusAreas) {
+      // Если есть критическая проблема целостности - чиним её
+      if (area.category === 'System Integrity' && area.priority === 'critical') {
+        this.logger.log('[ARQ] Critical Integrity Issue found. Patching index.html...');
+        
+        const integrity = await (this.metricsService as any).checkInternalIntegrity();
+        
+        if (!integrity.frontendSynced) {
+          // Вызываем ФС-сервис для замены пути на правильный с префиксом
+          const success = await this.fileSystem.replaceInFile(
+            'frontend/dist/index.html',
+            /fetch\(['"]\/api\/health['"]\)/g,
+            `fetch('/api/${integrity.backendPrefix}/health')`
+          );
+
+          if (success) {
+            this.logger.log('✅ [ARQ] SUCCESSFULLY PATCHED index.html with correct API prefix.');
+          } else {
+            this.logger.error('❌ [ARQ] Failed to patch index.html automatically.');
+          }
+        }
+      }
+    }
   }
 }
