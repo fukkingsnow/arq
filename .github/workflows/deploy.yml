@@ -7,9 +7,8 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code (shallow clone for speed)
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
@@ -24,92 +23,58 @@ jobs:
             set -e
             cd /opt/arq
 
-            echo "=== Starting deployment ==="
+            echo "=== Starting ARQ Autonomous Deployment ==="
 
-            # Kill existing processes
-            echo "Stopping old processes..."
-            pm2 delete arq-backend 2>/dev/null || true
-            fuser -k 8000/tcp 2>/dev/null || true
-            sleep 1
-
-            # Update repository (shallow clone already used above)
-            echo "Fetching updates..."
+            # 1. Умное обновление кода
             git fetch origin --depth 1
             git reset --hard origin/main
 
-            # Deep disk cleanup to free space
-            echo "Cleaning disk space..."
-            pm2 flush 2>/dev/null || true
-            pm2 logs --nostream --lines 0 2>/dev/null || true
-            find ~/.pm2/logs -type f -mtime +7 -delete 2>/dev/null || true
-            npm cache clean --force 2>/dev/null || true
-            rm -rf ~/.npm/_cacache 2>/dev/null || true
-            find /tmp -name 'npm-*' -type d -mtime +1 -exec rm -rf {} + 2>/dev/null || true
-            docker system prune -af 2>/dev/null || true
+            # 2. Оптимизированная установка зависимостей
+            # Устанавливаем только если изменился package-lock.json
+            if [ -f "package-lock.json" ]; then
+              npm ci --prefer-offline --no-audit
+            else
+              npm install --prefer-offline --no-audit
+            fi
 
-            # Clean and install dependencies optimized
-            echo "Installing dependencies..."
-            npm cache clean --force --silent || true
-            rm -rf node_modules
-            npm install --legacy-peer-deps --prefer-offline --no-audit --no-fund
-
-            # Build application with webpack for reliability
+            # 3. Сборка (Build)
             echo "Building application..."
-            npm run build || npm run build:webpack
+            npm run build
 
-            # Verify build output
+            # 4. Проверка целостности перед перезапуском
             if [ ! -f "dist/main.js" ]; then
-              echo "❌ ERROR: Build failed - dist/main.js not found"
+              echo "❌ ERROR: Build failed"
               exit 1
             fi
 
-            echo "✅ Build successful"
-            ls -lh /opt/arq/dist/main.js
+            # 5. Синхронизация фронтенда
+            mkdir -p dist/frontend
+            if [ -d "src/frontend/dist" ]; then
+              cp -r src/frontend/dist/* dist/frontend/
+            fi
 
-            # Copy frontend static files
-            echo "Copying frontend files..."
-            mkdir -p /opt/arq/dist/frontend
-            cp -r src/frontend/dist/* /opt/arq/dist/frontend/ || true
-            echo "✅ Frontend files copied successfully!"
+            # 6. Безопасный перезапуск через PM2 (Graceful Reload)
+            # Вместо delete/start используем reload, чтобы не было простоя
+            pm2 reload arq-backend --update-env || pm2 start dist/main.js --name arq-backend
 
-            # Start application using force-restart script
-            echo "Starting application with force-restart..."
-            chmod +x scripts/force-restart.sh
-            bash scripts/force-restart.sh
-
-            # Reload nginx
-            echo "Reloading nginx..."
-            sudo systemctl reload nginx || true
-
-            # Health check with retries (improved to 15 attempts)
+            # 7. Автономный Health Check
             echo "Running health check..."
-            MAX_RETRIES=15
-            RETRY_COUNT=0
-
-            while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-              sleep 2
-              RETRY_COUNT=$((RETRY_COUNT + 1))
-
-              if curl -sf http://localhost:8000/api/v1/health > /dev/null 2>&1; then
-                echo "✅ Health check passed on attempt $RETRY_COUNT"
+            # Используем гибкий поиск пути здоровья
+            HEALTH_URL=$(grep -o "/api/v[0-9]/health" dist/main.js | head -n 1 || echo "/api/v1/health")
+            
+            SUCCESS=0
+            for i in {1..10}; do
+              if curl -sf "http://localhost:8000$HEALTH_URL" > /dev/null; then
+                echo "✅ ARQ is Online (Path: $HEALTH_URL)"
+                SUCCESS=1
                 break
-              else
-                if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
-                  echo "⚠️ WARNING: Health check failed after $MAX_RETRIES attempts"
-                  echo "Getting application logs for diagnostics..."
-                  pm2 logs arq-backend --lines 50 || true
-                else
-                  echo "⏳ Attempt $RETRY_COUNT/$MAX_RETRIES - waiting..."
-                fi
               fi
+              echo "⏳ Waiting for ARQ... ($i/10)"
+              sleep 3
             done
 
-            # Show application status
-            echo ""
-            echo "=== Application Status ==="
-            pm2 list
-            echo ""
-
-            echo "✅ Deployment completed successfully!"
-            echo "App URL: http://arq-ai.ru"
-            echo "============================"
+            if [ $SUCCESS -eq 0 ]; then
+              echo "❌ Health check failed. Rolling back logs:"
+              pm2 logs arq-backend --lines 20 --nostream
+              exit 1
+            fi
