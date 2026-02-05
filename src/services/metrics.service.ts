@@ -1,4 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 export interface TaskMetrics {
   totalTasks: number;
   completedTasks: number;
@@ -18,11 +21,12 @@ export interface ProcessingStats {
 
 @Injectable()
 export class MetricsService {
+  private readonly logger = new Logger(MetricsService.name);
   private metrics: Map<string, any> = new Map();
   private taskHistory: Array<any> = [];
 
   /**
-   * Record task execution
+   * RECORD TASK EXECUTION
    */
   recordTaskExecution(taskId: string, duration: number, status: 'success' | 'failed') {
     this.taskHistory.push({
@@ -35,8 +39,41 @@ export class MetricsService {
   }
 
   /**
-   * Get current metrics
+   * NEW: АНАЛИЗ ЦЕЛОСТНОСТИ СИСТЕМЫ (ИНТРОСПЕКЦИЯ)
+   * Проверяет соответствие префикса в NestJS и вызовов во фронтенде
    */
+  async checkInternalIntegrity() {
+    try {
+      const rootPath = '/opt/arq/src';
+      
+      // 1. Извлекаем префикс из main.ts
+      const mainTsPath = join(rootPath, 'main.ts');
+      const mainTsContent = readFileSync(mainTsPath, 'utf8');
+      const prefixMatch = mainTsContent.match(/setGlobalPrefix\(['"](.+?)['"]\)/);
+      const backendPrefix = prefixMatch ? prefixMatch[1] : '';
+
+      // 2. Ищем вызовы API в index.html фронтенда
+      const indexHtmlPath = join(rootPath, 'frontend/dist/index.html');
+      const indexHtmlContent = readFileSync(indexHtmlPath, 'utf8');
+      
+      // Проверяем, содержат ли fetch-запросы актуальный префикс
+      const hasCorrectPrefix = indexHtmlContent.includes(`fetch('/${backendPrefix}`);
+
+      return {
+        backendPrefix,
+        frontendSynced: hasCorrectPrefix,
+        timestamp: new Date()
+      };
+    } catch (error) {
+      this.logger.error(`Integrity check failed: ${error.message}`);
+      return { 
+        backendPrefix: 'unknown', 
+        frontendSynced: false, 
+        error: error.message 
+      };
+    }
+  }
+
   getMetrics(): TaskMetrics {
     const stats = this.calculateStats();
     return {
@@ -50,9 +87,6 @@ export class MetricsService {
     };
   }
 
-  /**
-   * Get processing statistics by time
-   */
   getProcessingStats(): ProcessingStats {
     const hourly: { [key: string]: number } = {};
     const daily: { [key: string]: number } = {};
@@ -77,45 +111,6 @@ export class MetricsService {
       totalProcessed: this.taskHistory.length,
       peakHour,
     };
-  }
-
-  /**
-   * Get metrics for dashboard visualization
-   */
-  getDashboardMetrics() {
-    const metrics = this.getMetrics();
-    const stats = this.getProcessingStats();
-    const history = this.getTaskHistory();
-
-    return {
-      overview: metrics,
-      statistics: stats,
-      recentTasks: history.slice(-10),
-      charts: {
-        successRate: this.getSuccessRateChart(),
-        executionTime: this.getExecutionTimeChart(),
-        hourlyProcessing: stats.hourly,
-        dailyProcessing: stats.daily,
-      },
-    };
-  }
-
-  /**
-   * Get task history
-   */
-  getTaskHistory(limit: number = 50) {
-    return this.taskHistory.slice(-limit);
-  }
-
-  /**
-   * Clear old metrics
-   */
-  clearOldMetrics(daysToKeep: number = 7) {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-    this.taskHistory = this.taskHistory.filter(
-      (task) => new Date(task.timestamp) > cutoffDate,
-    );
   }
 
   private calculateStats() {
@@ -143,41 +138,8 @@ export class MetricsService {
     this.metrics.set('lastUpdate', new Date());
   }
 
-  private getSuccessRateChart() {
-    const stats = this.calculateStats();
-    return [
-      {
-        name: 'Success',
-        value: stats.completed,
-        percentage: stats.successRate,
-      },
-      {
-        name: 'Failed',
-        value: stats.failed,
-        percentage: 100 - stats.successRate,
-      },
-    ];
-  }
-
-  private getExecutionTimeChart() {
-    const times = this.taskHistory.map((t) => t.duration);
-    const min = Math.min(...times);
-    const max = Math.max(...times);
-    const avg = this.calculateStats().avgTime;
-
+  getDashboardMetrics() {
+    const metrics = this.getMetrics();
+    const stats = this.getProcessingStats();
     return {
-      min,
-      max,
-      average: avg,
-      median: this.getMedian(times),
-    };
-  }
-
-  private getMedian(numbers: number[]): number {
-    const sorted = [...numbers].sort((a, b) => a - b);
-    const middle = Math.floor(sorted.length / 2);
-    return sorted.length % 2 !== 0
-      ? sorted[middle]
-      : (sorted[middle - 1] + sorted[middle]) / 2;
-  }
-}
+      overview:
