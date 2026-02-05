@@ -244,3 +244,4 @@ coverage/
 
 # Production
 *.tgz
+node_modules
