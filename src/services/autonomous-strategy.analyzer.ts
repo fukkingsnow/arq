@@ -4,7 +4,7 @@ import { MetricsService } from './metrics.service';
 
 export interface StrategyScore {
   category: string;
-  score: number; // 0-100
+  score: number;
   priority: 'critical' | 'high' | 'medium' | 'low';
   recommendations: string[];
 }
@@ -26,55 +26,32 @@ export interface RepositoryMetrics {
   performanceMetrics: Record<string, number>;
 }
 
-/**
- * Autonomous Strategy Analyzer - Analyzes project state and recommends development priorities
- * Uses AI to determine optimal development strategies based on metrics and patterns
- */
 @Injectable()
 export class AutonomousStrategyAnalyzer {
   private readonly logger = new Logger(AutonomousStrategyAnalyzer.name);
   private strategyCache: DevelopmentStrategy | null = null;
   private lastAnalysis: Date | null = null;
-  private analysisInterval = 3600000; // 1 hour
+  private analysisInterval = 300000; // Уменьшено до 5 минут для быстрой реакции
 
   constructor(
     private readonly githubService: GitHubService,
     private readonly metricsService: MetricsService,
   ) {
-    this.logger.log('AutonomousStrategyAnalyzer initialized');
+    this.logger.log('AutonomousStrategyAnalyzer initialized with System Integrity Awareness');
   }
 
-  /**
-   * Analyze repository state and determine optimal development strategy
-   */
   async analyzeStrategy(): Promise<DevelopmentStrategy> {
     try {
-      // Check cache
-      if (
-        this.strategyCache &&
-        this.lastAnalysis &&
-        Date.now() - this.lastAnalysis.getTime() < this.analysisInterval
-      ) {
-        this.logger.log('Returning cached strategy');
+      if (this.strategyCache && this.lastAnalysis && Date.now() - this.lastAnalysis.getTime() < this.analysisInterval) {
         return this.strategyCache;
       }
 
-      this.logger.log('Analyzing development strategy...');
-
-      // Gather metrics
       const metrics = await this.gatherMetrics();
-      this.logger.log(`Metrics gathered: ${JSON.stringify(metrics)}`);
-
-      // Generate strategy scores
       const focusAreas = await this.calculateFocusAreas(metrics);
-
-      // Generate strategy
       const strategy = await this.generateStrategy(metrics, focusAreas);
 
-      // Cache the strategy
       this.strategyCache = strategy;
       this.lastAnalysis = new Date();
-
       return strategy;
     } catch (error) {
       this.logger.error(`Failed to analyze strategy: ${error.message}`);
@@ -83,7 +60,7 @@ export class AutonomousStrategyAnalyzer {
   }
 
   /**
-   * Gather repository and system metrics
+   * ПЕРЕРАБОТАНО: Сбор метрик теперь включает системную проверку
    */
   private async gatherMetrics(): Promise<RepositoryMetrics> {
     try {
@@ -92,258 +69,74 @@ export class AutonomousStrategyAnalyzer {
         this.githubService.listPullRequests('open'),
       ]);
 
-      // Get metrics from MetricsService
-    const metrics = { openIssues: 0, openPRs: 0, failedTests: 0, codeQualityScore: 85, performance: {} };
+      // Вызываем наш новый метод интроспекции
+      const integrity = await this.metricsService.checkInternalIntegrity();
+
       return {
         openIssues: openIssues.length,
         openPRs: openPRs.length,
-        failedTests: metrics.failedTests || 0,
-        codeQualityScore: metrics.codeQualityScore || 85,
-        performanceMetrics: metrics.performance || {},
+        // Если фронтенд не синхронизирован, помечаем это как критический провал теста
+        failedTests: integrity.frontendSynced ? 0 : 1,
+        // Снижаем оценку качества при рассинхроне
+        codeQualityScore: integrity.frontendSynced ? 85 : 30,
+        performanceMetrics: {
+          api_integrity: integrity.frontendSynced ? 1 : 0
+        },
       };
     } catch (error) {
       this.logger.error(`Failed to gather metrics: ${error.message}`);
-      return {
-        openIssues: 0,
-        openPRs: 0,
-        failedTests: 0,
-        codeQualityScore: 0,
-        performanceMetrics: {},
-      };
+      return { openIssues: 0, openPRs: 0, failedTests: 1, codeQualityScore: 0, performanceMetrics: {} };
     }
   }
 
-  /**
-   * Calculate focus areas based on metrics
-   */
-  private async calculateFocusAreas(
-    metrics: RepositoryMetrics,
-  ): Promise<StrategyScore[]> {
+  private async calculateFocusAreas(metrics: RepositoryMetrics): Promise<StrategyScore[]> {
     const areas: StrategyScore[] = [];
 
-    // Issue Management
-    if (metrics.openIssues > 10) {
+    // Блок тестирования и целостности
+    if (metrics.failedTests > 0) {
       areas.push({
-        category: 'Issue Management',
-        score: Math.max(0, 100 - metrics.openIssues * 3),
-        priority: metrics.openIssues > 20 ? 'critical' : 'high',
+        category: 'System Integrity & Testing',
+        score: 0,
+        priority: 'critical',
         recommendations: [
-          'Prioritize issue triage',
-          'Implement issue templates',
-          'Automate issue categorization',
+          'Fix API Prefix mismatch between backend and frontend',
+          'Ensure index.html fetch paths match NestJS global prefix',
+          'Verify service availability after build'
         ],
       });
     }
 
-    // PR Management
-    if (metrics.openPRs > 5) {
-      areas.push({
-        category: 'PR Management',
-        score: Math.max(0, 100 - metrics.openPRs * 5),
-        priority: metrics.openPRs > 10 ? 'high' : 'medium',
-        recommendations: [
-          'Review pending PRs',
-          'Automate review process',
-          'Set review SLAs',
-        ],
-      });
-    }
-
-    // Code Quality
+    // Стандартные блоки
     areas.push({
       category: 'Code Quality',
       score: metrics.codeQualityScore,
-      priority: metrics.codeQualityScore < 80 ? 'high' : 'medium',
-      recommendations: [
-        'Run linter and formatter',
-        'Increase test coverage',
-        'Refactor complex modules',
-      ],
+      priority: metrics.codeQualityScore < 50 ? 'critical' : 'medium',
+      recommendations: ['Refactor inconsistent API paths', 'Audit architectural integrity'],
     });
-
-    // Testing
-    if (metrics.failedTests > 0) {
-      areas.push({
-        category: 'Testing',
-        score: Math.max(0, 100 - metrics.failedTests * 10),
-        priority: 'high',
-        recommendations: [
-          'Fix failing tests',
-          'Add missing tests',
-          'Improve test reliability',
-        ],
-      });
-    }
 
     return areas;
   }
 
-  /**
-   * Generate development strategy
-   */
-  private async generateStrategy(
-    metrics: RepositoryMetrics,
-    focusAreas: StrategyScore[],
-  ): Promise<DevelopmentStrategy> {
-    try {
-      const priorityCritical = focusAreas.filter(
-        (a) => a.priority === 'critical',
-      );
-      const priorityHigh = focusAreas.filter((a) => a.priority === 'high');
+  private async generateStrategy(metrics: RepositoryMetrics, focusAreas: StrategyScore[]): Promise<DevelopmentStrategy> {
+    const overallScore = focusAreas.reduce((sum, a) => sum + a.score, 0) / focusAreas.length;
 
-      // Generate next steps based on metrics
-      const nextSteps = [
-        'Review and prioritize open issues',
-        'Address pending pull requests',
-        'Improve code quality and test coverage',
-        'Optimize performance metrics',
-        'Plan next development cycle',
-      ];
-
-      const overallScore =
-        focusAreas.reduce((sum, a) => sum + a.score, 0) / focusAreas.length;
-
-      return {
-        timestamp: new Date(),
-        overallScore: Math.round(overallScore),
-        focusAreas: focusAreas.sort(
-          (a, b) =>
-            this.priorityToNumber(b.priority) -
-            this.priorityToNumber(a.priority),
-        ),
-        nextSteps: nextSteps.slice(0, 5),
-        risks: this.identifyRisks(metrics, priorityCritical),
-        opportunities: this.identifyOpportunities(metrics),
-      };
-    } catch (error) {
-      this.logger.warn(`Failed to generate strategy: ${error.message}`);
-      // Return fallback strategy
-      return {
-        timestamp: new Date(),
-        overallScore: 50,
-        focusAreas,
-        nextSteps: [
-          'Reduce open issues',
-          'Review pending PRs',
-          'Improve code quality',
-          'Fix failing tests',
-          'Optimize performance',
-        ],
-        risks: [],
-        opportunities: [],
-      };
-    }
-  }
-
-  /**
-   * Identify potential risks
-   */
-  private identifyRisks(
-    metrics: RepositoryMetrics,
-    criticalAreas: StrategyScore[],
-  ): string[] {
-    const risks: string[] = [];
-
-    if (metrics.failedTests > 0) {
-      risks.push(
-        `${metrics.failedTests} failing tests could impact stability`,
-      );
-    }
-
-    if (metrics.codeQualityScore < 70) {
-      risks.push('Low code quality could lead to maintainability issues');
-    }
-
-    if (metrics.openIssues > 30) {
-      risks.push(
-        'High number of open issues could impact project momentum',
-      );
-    }
-
-    if (criticalAreas.length > 0) {
-      risks.push(
-        `${criticalAreas.length} critical areas need immediate attention`,
-      );
-    }
-
-    return risks;
-  }
-
-  /**
-   * Identify opportunities
-   */
-  private identifyOpportunities(metrics: RepositoryMetrics): string[] {
-    const opportunities: string[] = [];
-
-    if (metrics.codeQualityScore > 85) {
-      opportunities.push(
-        'High code quality enables faster feature development',
-      );
-    }
-
-    if (metrics.openIssues < 5) {
-      opportunities.push(
-        'Low issue count allows focus on feature development',
-      );
-    }
-
-    if (metrics.openPRs === 0) {
-      opportunities.push('No pending PRs - perfect time for major refactoring');
-    }
-
-    return opportunities;
-  }
-
-  /**
-   * Convert priority to numerical value for sorting
-   */
-  private priorityToNumber(
-    priority: 'critical' | 'high' | 'medium' | 'low',
-  ): number {
-    const priorityMap = {
-      critical: 4,
-      high: 3,
-      medium: 2,
-      low: 1,
+    return {
+      timestamp: new Date(),
+      overallScore: Math.round(overallScore),
+      focusAreas: focusAreas.sort((a, b) => this.priorityToNumber(b.priority) - this.priorityToNumber(a.priority)),
+      nextSteps: focusAreas.flatMap(f => f.recommendations).slice(0, 5),
+      risks: metrics.failedTests > 0 ? ['Critical API mismatch detected - frontend is DOWN'] : [],
+      opportunities: metrics.codeQualityScore > 80 ? ['System is stable - ready for new features'] : [],
     };
-    return priorityMap[priority];
   }
 
-  /**
-   * Get cached strategy without re-analysis
-   */
-  getCachedStrategy(): DevelopmentStrategy | null {
-    return this.strategyCache;
+  private priorityToNumber(priority: string): number {
+    const map = { critical: 4, high: 3, medium: 2, low: 1 };
+    return map[priority] || 0;
   }
 
-  /**
-   * Clear cache to force re-analysis
-   */
-  clearCache(): void {
-    this.strategyCache = null;
-    this.lastAnalysis = null;
-    this.logger.log('Strategy cache cleared');
-  }
-
-  /**
-   * Execute strategy - implement the recommended changes
-   */
   async executeStrategy(strategy: DevelopmentStrategy): Promise<void> {
-    try {
-      this.logger.log(
-        `Executing strategy with overall score: ${strategy.overallScore}`,
-      );
-
-      // Log the strategy execution
-      this.logger.log(
-        `Focus areas: ${strategy.focusAreas.map((a) => a.category).join(', ')}`,
-      );
-      this.logger.log(
-        `Next steps: ${strategy.nextSteps.slice(0, 3).join('; ')}`,
-      );
-    } catch (error) {
-      this.logger.error(`Failed to execute strategy: ${error.message}`);
-      throw error;
-    }
+    this.logger.log(`Executing strategy: ${strategy.overallScore}. Focus: ${strategy.focusAreas[0]?.category}`);
+    // Логика Чекпоинта №2 (CodeMorpher) будет вызываться здесь
   }
 }
