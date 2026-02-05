@@ -14,15 +14,20 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new HttpExceptionFilter());
-  
-  // Важно: Сначала статика, потом префикс!
-  app.use(express.static(staticPath));
-  
+
+  // 1. Сначала задаем префикс для API
   app.setGlobalPrefix('api/v1');
 
-  // Если это не API и не статический файл, принудительно отдаем index.html
+  // 2. Включаем статику
+  app.use(express.static(staticPath));
+
+  // 3. SPA-поддержка: отдаем index.html только если это НЕ запрос к API
+  // и НЕ запрос к существующему статическому файлу
   app.use((req, res, next) => {
-    if (req.url.startsWith('/api/v1')) return next();
+    if (req.url.startsWith('/api/v1')) {
+      return next(); // Даем NestJS обработать API
+    }
+    // Для всего остального отдаем фронтенд
     res.sendFile(join(staticPath, 'index.html'));
   });
 
