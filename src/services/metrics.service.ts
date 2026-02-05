@@ -36,11 +36,10 @@ export class MetricsService {
    */
   async checkInternalIntegrity() {
     try {
-      // 1. Пытаемся считать реальные данные (как и раньше)
       const rootPath = existsSync('/opt/arq/src') ? '/opt/arq/src' : process.cwd();
       const mainTsPath = join(rootPath, 'main.ts');
       
-      let backendPrefix = 'api/v1'; // Значение по умолчанию
+      let backendPrefix = 'api/v1'; 
 
       if (existsSync(mainTsPath)) {
         const mainTsContent = readFileSync(mainTsPath, 'utf8');
@@ -48,18 +47,13 @@ export class MetricsService {
         backendPrefix = prefixMatch ? prefixMatch[1] : 'api/v1';
       }
 
-      // ---------------------------------------------------------
-      // 🚨 ТРИГГЕР ПОЛОМКИ: Мы специально говорим, что фронтенд НЕ СИНХРОНИЗИРОВАН.
-      // Это заставит AutonomousStrategyAnalyzer запустить процедуру исправления.
-      // ---------------------------------------------------------
       this.logger.warn('[ARQ-TEST] Simulating integrity failure...');
       
       return { 
         backendPrefix: backendPrefix, 
-        frontendSynced: false, // <-- ЗДЕСЬ МЫ ЛОМАЕМ
+        frontendSynced: false, // ТРИГГЕР ПОЛОМКИ
         timestamp: new Date() 
       };
-      // ---------------------------------------------------------
 
     } catch (error) {
       this.logger.error(`Integrity check failed: ${error.message}`);
@@ -73,4 +67,57 @@ export class MetricsService {
       totalTasks: stats.total,
       completedTasks: stats.completed,
       failedTasks: stats.failed,
-      in
+      inProgressTasks: stats.inProgress,
+      averageExecutionTime: stats.avgTime,
+      successRate: stats.successRate,
+      timestamp: new Date(),
+    };
+  }
+
+  getProcessingStats(): ProcessingStats {
+    const hourly: { [key: string]: number } = {};
+    const daily: { [key: string]: number } = {};
+    this.taskHistory.forEach(({ timestamp, status }) => {
+      if (status === 'success') {
+        const hour = new Date(timestamp).getHours().toString();
+        const day = new Date(timestamp).toLocaleDateString();
+        hourly[hour] = (hourly[hour] || 0) + 1;
+        daily[day] = (daily[day] || 0) + 1;
+      }
+    });
+    return {
+      hourly,
+      daily,
+      totalProcessed: this.taskHistory.length,
+      peakHour: Object.entries(hourly).reduce((a, b) => a[1] > b[1] ? a : b, ['0', 0])[0],
+    };
+  }
+
+  getDashboardMetrics() {
+    const metrics = this.getMetrics();
+    const stats = this.getProcessingStats();
+    return {
+      overview: metrics,
+      statistics: stats,
+      recentTasks: this.taskHistory.slice(-10),
+    };
+  }
+
+  private calculateStats() {
+    const total = this.taskHistory.length;
+    const completed = this.taskHistory.filter((t) => t.status === 'success').length;
+    const avgTime = total > 0 ? this.taskHistory.reduce((sum, t) => sum + t.duration, 0) / total : 0;
+    return {
+      total,
+      completed,
+      failed: total - completed,
+      inProgress: 0,
+      avgTime: Math.round(avgTime),
+      successRate: total > 0 ? Math.round((completed / total) * 10000) / 100 : 0,
+    };
+  }
+
+  private updateMetrics() { 
+    this.metrics.set('lastUpdate', new Date()); 
+  }
+}
