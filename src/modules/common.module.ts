@@ -1,17 +1,25 @@
 import { Module } from '@nestjs/common';
 import { CommonService } from '../services/common.service';
+import { MetricsService } from '../services/metrics.service';
+import { AutonomousStrategyAnalyzer } from '../services/autonomous-strategy.analyzer';
+import { FileSystemService } from '../services/file-system.service';
 
 /**
  * Common Feature Module
- *
- * Provides shared utilities and common services including:
- * - Error handling and exception filters
- * - Custom decorators and guards
- * - Utility interceptors and pipes
- * - Cross-cutting concerns (logging, validation)
+ * Провайдеры для автономной работы ARQ
  */
 @Module({
-  providers: [CommonService],
-  exports: [CommonService],
+  providers: [
+    CommonService,
+    MetricsService,
+    AutonomousStrategyAnalyzer,
+    FileSystemService
+  ],
+  exports: [
+    CommonService,
+    MetricsService,
+    AutonomousStrategyAnalyzer,
+    FileSystemService
+  ],
 })
 export class CommonModule {}
