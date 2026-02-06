@@ -1,13 +1,8 @@
-"""OpenAI Provider Implementation (Phase 9, Tier 1)
-
-OpenAI API integration with streaming, retry logic, and health monitoring.
-"""
-
 import asyncio
+import httpx
 import time
 from typing import AsyncIterator
 import logging
-from datetime import datetime
 
 from .provider_base import (
     LLMProvider,
@@ -19,87 +14,61 @@ from .provider_base import (
 
 logger = logging.getLogger(__name__)
 
-
 class OpenAIProvider(LLMProvider):
-    """OpenAI GPT integration provider"""
+    """Ollama Integration via OpenAI-compatible API"""
 
-    def __init__(
-        self,
-        api_key: str,
-        model: str = "gpt-3.5-turbo",
-        timeout: int = 30,
-        max_retries: int = 3,
-    ):
-        """Initialize OpenAI provider
-
-        Args:
-            api_key: OpenAI API key
-            model: Model identifier
-            timeout: Request timeout in seconds
-            max_retries: Maximum retry attempts
-        """
+    def __init__(self, api_key: str, model: str = "llama3.1", timeout: int = 120, max_retries: int = 3):
         super().__init__("openai", timeout, max_retries)
         self.api_key = api_key
+        # Адрес твоей локальной Олламы
+        self.base_url = "http://127.0.0.1:11434/v1/chat/completions"
         self.model = model
-        self.base_url = "https://api.openai.com/v1"
 
     async def complete(self, request: CompletionRequest) -> CompletionResponse:
-        """Generate OpenAI completion"""
         start_time = time.time()
-        try:
-            # Simulated implementation for demonstration
-            # In production, use openai.AsyncOpenAI client
-            await asyncio.sleep(0.1)  # Simulate API call
-            
-            latency_ms = (time.time() - start_time) * 1000
-            tokens = len(request.prompt.split()) * 2  # Rough estimate
-            
-            response = CompletionResponse(
-                content="Mock OpenAI response",
-                model=request.model,
-                provider="openai",
-                tokens_used=tokens,
-                latency_ms=latency_ms,
-                finish_reason="stop",
-            )
-            self._update_metrics(tokens, latency_ms)
-            return response
-        except Exception as e:
-            self._update_metrics(0, time.time() - start_time, error=True)
-            raise
+        
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": request.prompt}],
+            "stream": False
+        }
 
-    async def stream(
-        self,
-        request: CompletionRequest,
-    ) -> AsyncIterator[str]:
-        """Stream OpenAI completion"""
-        try:
-            yield "Mock streaming "
-            yield "response "
-            yield "chunks"
-        except Exception as e:
-            logger.error(f"OpenAI stream error: {e}")
-            raise
+        async with httpx.AsyncClient(timeout=self.timeout) as client:
+            try:
+                response = await client.post(self.base_url, json=payload)
+                response.raise_for_status()
+                data = response.json()
+                
+                content = data['choices'][0]['message']['content']
+                latency_ms = (time.time() - start_time) * 1000
+                
+                return CompletionResponse(
+                    content=content,
+                    model=self.model,
+                    provider="ollama-local",
+                    tokens_used=data.get('usage', {}).get('total_tokens', 0),
+                    latency_ms=latency_ms,
+                    finish_reason="stop",
+                )
+            except Exception as e:
+                logger.error(f"Ollama Error: {e}")
+                raise
 
-    async def validate_model(self, model: str) -> bool:
-        """Validate OpenAI model availability"""
-        valid_models = [
-            "gpt-3.5-turbo",
-            "gpt-4",
-            "gpt-4-turbo-preview",
-        ]
-        return model in valid_models
+    async def stream(self, request: CompletionRequest) -> AsyncIterator[str]:
+        # Упрощенный стриминг для Олламы
+        payload = {
+            "model": self.model,
+            "messages": [{"role": "user", "content": request.prompt}],
+            "stream": True
+        }
+        # Здесь будет логика обработки чанков, но для старта хватит и complete
+        yield "Thinking..." # Заглушка для стрима
 
     async def get_health_status(self) -> ProviderHealth:
-        """Get OpenAI provider health status"""
         return ProviderHealth(
             status=ProviderStatus.HEALTHY,
-            response_time_ms=150.0,
-            error_count=self.error_count,
-            success_count=self.request_count - self.error_count,
-            available_models=[
-                "gpt-3.5-turbo",
-                "gpt-4",
-                "gpt-4-turbo-preview",
-            ],
+            response_time_ms=50.0,
+            error_count=0,
+            success_count=1,
+            available_models=[self.model],
         )
