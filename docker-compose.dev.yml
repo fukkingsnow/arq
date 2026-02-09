@@ -7,6 +7,8 @@ services:
       dockerfile: deployment/Dockerfile.prod
     container_name: arq-api
     image: arq:latest
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "3000:3000"
     environment:
