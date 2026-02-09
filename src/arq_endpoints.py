@@ -9,8 +9,13 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/arq", tags=["ARQ Development"])
 
-# Путь к файлу базы данных задач (будет лежать в той же папке, что и скрипт)
-TASKS_DB_PATH = os.path.join(os.path.dirname(__file__), "tasks_db.json")
+# --- ПУТЬ К БАЗЕ ДАННЫХ (для Docker-Volume) ---
+# Мы будем хранить данные в /app/data, которую пробросим на диск сервера
+DATA_DIR = "/app/data"
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR, exist_ok=True)
+
+TASKS_DB_PATH = os.path.join(DATA_DIR, "tasks_db.json")
 
 class DevelopmentGoal(BaseModel):
     """Development goal model"""
@@ -33,13 +38,11 @@ class DevelopmentResponse(BaseModel):
 def save_tasks_to_disk(tasks_dict):
     """Сохраняет задачи в JSON файл"""
     try:
-        # Для сохранения конвертируем объект Pydantic в dict
         serializable_tasks = {}
         for tid, data in tasks_dict.items():
             task_copy = data.copy()
             if isinstance(task_copy["goal"], DevelopmentGoal):
                 task_copy["goal"] = task_copy["goal"].dict()
-            # Конвертируем datetime в строку
             if isinstance(task_copy["start_time"], datetime):
                 task_copy["start_time"] = task_copy["start_time"].isoformat()
             serializable_tasks[tid] = task_copy
@@ -55,7 +58,6 @@ def load_tasks_from_disk():
         try:
             with open(TASKS_DB_PATH, "r", encoding="utf-8") as f:
                 data = json.load(f)
-                # Восстанавливаем типы данных
                 for tid, task in data.items():
                     task["goal"] = DevelopmentGoal(**task["goal"])
                     task["start_time"] = datetime.fromisoformat(task["start_time"])
@@ -68,7 +70,6 @@ def load_tasks_from_disk():
 # Инициализация хранилища
 development_tasks = load_tasks_from_disk()
 
-# Определяем следующий номер для счетчика на основе имеющихся задач
 def get_next_task_counter():
     if not development_tasks:
         return 0
@@ -90,7 +91,6 @@ async def start_development(goal: DevelopmentGoal) -> DevelopmentResponse:
     
     logger.info(f"Starting ARQ development task: {task_id}")
     
-    # Store task info
     development_tasks[task_id] = {
         "goal": goal,
         "status": "running",
