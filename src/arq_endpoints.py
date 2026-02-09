@@ -1,125 +1,94 @@
-from fastapi import APIRouter, HTTPException
+import httpx
+import asyncio
+from fastapi import APIRouter, BackgroundTasks
 from pydantic import BaseModel
 from datetime import datetime
-import logging
 import json
 import os
 
-logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/v1/arq", tags=["ARQ AI Engine"])
 
-router = APIRouter(prefix="/api/v1/arq", tags=["ARQ Development"])
-
-# --- ПУТЬ К БАЗЕ ДАННЫХ (Persistent Storage) ---
+# Настройки
 DATA_DIR = "/app/data"
-if not os.path.exists(DATA_DIR):
-    os.makedirs(DATA_DIR, exist_ok=True)
-
 TASKS_DB_PATH = os.path.join(DATA_DIR, "tasks_db.json")
+OLLAMA_URL = "http://host.docker.internal:11434/api/generate" # Для связи из Docker с хостом
 
 class DevelopmentGoal(BaseModel):
     title: str
-    description: str
-    priority: str = "high"
-    goals: list = []
+    description: str = ""
     max_iterations: int = 5
 
-class DevelopmentResponse(BaseModel):
-    status: str
-    message: str
-    task_id: str
-    timestamp: str
-    iteration: int = 0
-
-# --- СЕКЦИЯ РАБОТЫ С ДИСКОМ ---
-
-def save_tasks_to_disk(tasks_dict):
-    try:
-        serializable_tasks = {}
-        for tid, data in tasks_dict.items():
-            task_copy = data.copy()
-            if isinstance(task_copy["goal"], DevelopmentGoal):
-                task_copy["goal"] = task_copy["goal"].dict()
-            if isinstance(task_copy["start_time"], datetime):
-                task_copy["start_time"] = task_copy["start_time"].isoformat()
-            serializable_tasks[tid] = task_copy
-        
-        with open(TASKS_DB_PATH, "w", encoding="utf-8") as f:
-            json.dump(serializable_tasks, f, ensure_ascii=False, indent=4)
-    except Exception as e:
-        logger.error(f"Error saving tasks: {e}")
-
-def load_tasks_from_disk():
+# Вспомогательные функции для БД (упрощено для краткости)
+def load_db():
     if os.path.exists(TASKS_DB_PATH):
-        try:
-            with open(TASKS_DB_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                for tid, task in data.items():
-                    task["goal"] = DevelopmentGoal(**task["goal"])
-                    task["start_time"] = datetime.fromisoformat(task["start_time"])
-                return data
-        except Exception as e:
-            logger.error(f"Error loading tasks: {e}")
+        with open(TASKS_DB_PATH, "r") as f: return json.load(f)
     return {}
 
-# Инициализация
-development_tasks = load_tasks_from_disk()
+def save_db(data):
+    with open(TASKS_DB_PATH, "w") as f: json.dump(data, f, indent=4)
 
-def get_next_task_counter():
-    if not development_tasks: return 0
+# --- ГЛАВНАЯ МАГИЯ: ФОНОВЫЙ AI-ПРОЦЕСС ---
+async def run_ai_task(task_id: str, prompt: str):
+    db = load_db()
+    if task_id not in db: return
+
     try:
-        ids = [int(tid.split('-')[1]) for tid in development_tasks.keys()]
-        return max(ids)
-    except: return len(development_tasks)
+        # 1. Обновляем статус: ИИ начал думать
+        db[task_id]["status"] = "running"
+        save_db(db)
 
-task_counter = get_next_task_counter()
+        # 2. Запрос к Ollama
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            response = await client.post(OLLAMA_URL, json={
+                "model": "llama3.1:latest",
+                "prompt": f"Context: You are ARQ AI. Task: {prompt}. Give a concise technical plan.",
+                "stream": False
+            })
+            
+            if response.status_code == 200:
+                result = response.json().get("response", "No response from AI")
+                db = load_db()
+                db[task_id]["status"] = "completed"
+                db[task_id]["iterations"] = db[task_id]["goal"]["max_iterations"]
+                db[task_id]["results"] = [result]
+            else:
+                db[task_id]["status"] = "failed"
+                
+        save_db(db)
+    except Exception as e:
+        db = load_db()
+        db[task_id]["status"] = f"error: {str(e)}"
+        save_db(db)
 
 # --- ЭНДПОИНТЫ ---
 
-@router.get("/tasks")
-async def get_all_tasks():
-    """Новый эндпоинт для твоего фронтенда: отдает всё из памяти"""
-    # Преобразуем словарь в список для удобства фронта
-    tasks_list = []
-    for tid, data in development_tasks.items():
-        tasks_list.append({
-            "task_id": tid,
-            "status": data["status"],
-            "iterations": data["iterations"],
-            "start_time": data["start_time"].isoformat() if isinstance(data["start_time"], datetime) else data["start_time"],
-            "goal": data["goal"].dict() if hasattr(data["goal"], "dict") else data["goal"]
-        })
-    return {"tasks": tasks_list}
-
-@router.post("/start-development", response_model=DevelopmentResponse)
-async def start_development(goal: DevelopmentGoal) -> DevelopmentResponse:
-    global task_counter
-    task_counter += 1
-    task_id = f"task-{task_counter}"
+@router.post("/start-development")
+async def start_dev(goal: DevelopmentGoal, background_tasks: BackgroundTasks):
+    db = load_db()
+    task_id = f"task-{len(db) + 1}"
     
-    development_tasks[task_id] = {
-        "goal": goal,
-        "status": "running",
-        "start_time": datetime.now(),
+    new_task = {
+        "task_id": task_id,
+        "goal": goal.dict(),
+        "status": "pending",
         "iterations": 0,
+        "start_time": datetime.now().isoformat(),
         "results": []
     }
-    save_tasks_to_disk(development_tasks)
     
-    return DevelopmentResponse(
-        status="success",
-        message=f"Started: {goal.title}",
-        task_id=task_id,
-        timestamp=datetime.now().isoformat(),
-        iteration=1
-    )
+    db[task_id] = new_task
+    save_db(db)
+    
+    # Запускаем ИИ в фоне, чтобы не вешать фронтенд
+    background_tasks.add_task(run_ai_task, task_id, goal.title)
+    
+    return {"status": "accepted", "task_id": task_id}
 
 @router.get("/health")
-async def arq_health():
-    # Теперь health тоже отдает список задач, чтобы фронт сразу всё видел
-    tasks_list = [t for t in development_tasks.values()] # упрощенно
+async def health():
+    db = load_db()
     return {
         "status": "healthy",
-        "active_tasks": len([t for t in development_tasks.values() if t["status"] == "running"]),
-        "total_tasks": len(development_tasks),
-        "tasks": list(development_tasks.values()) # Для твоего app.js
+        "active_tasks": len([t for t in db.values() if t["status"] == "running"]),
+        "tasks": list(db.values())
     }
