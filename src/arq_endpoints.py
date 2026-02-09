@@ -2,10 +2,15 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from datetime import datetime
 import logging
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/v1/arq", tags=["ARQ Development"])
+
+# Путь к файлу базы данных задач (будет лежать в той же папке, что и скрипт)
+TASKS_DB_PATH = os.path.join(os.path.dirname(__file__), "tasks_db.json")
 
 class DevelopmentGoal(BaseModel):
     """Development goal model"""
@@ -23,23 +28,67 @@ class DevelopmentResponse(BaseModel):
     timestamp: str
     iteration: int = 0
 
-# Store for development tasks
-development_tasks = {}
-task_counter = 0
+# --- СЕКЦИЯ РАБОТЫ С ДИСКОМ ---
+
+def save_tasks_to_disk(tasks_dict):
+    """Сохраняет задачи в JSON файл"""
+    try:
+        # Для сохранения конвертируем объект Pydantic в dict
+        serializable_tasks = {}
+        for tid, data in tasks_dict.items():
+            task_copy = data.copy()
+            if isinstance(task_copy["goal"], DevelopmentGoal):
+                task_copy["goal"] = task_copy["goal"].dict()
+            # Конвертируем datetime в строку
+            if isinstance(task_copy["start_time"], datetime):
+                task_copy["start_time"] = task_copy["start_time"].isoformat()
+            serializable_tasks[tid] = task_copy
+        
+        with open(TASKS_DB_PATH, "w", encoding="utf-8") as f:
+            json.dump(serializable_tasks, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        logger.error(f"Error saving tasks to disk: {e}")
+
+def load_tasks_from_disk():
+    """Загружает задачи из JSON файла при старте"""
+    if os.path.exists(TASKS_DB_PATH):
+        try:
+            with open(TASKS_DB_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                # Восстанавливаем типы данных
+                for tid, task in data.items():
+                    task["goal"] = DevelopmentGoal(**task["goal"])
+                    task["start_time"] = datetime.fromisoformat(task["start_time"])
+                logger.info(f"Loaded {len(data)} tasks from disk")
+                return data
+        except Exception as e:
+            logger.error(f"Error loading tasks from disk: {e}")
+    return {}
+
+# Инициализация хранилища
+development_tasks = load_tasks_from_disk()
+
+# Определяем следующий номер для счетчика на основе имеющихся задач
+def get_next_task_counter():
+    if not development_tasks:
+        return 0
+    try:
+        ids = [int(tid.split('-')[1]) for tid in development_tasks.keys()]
+        return max(ids)
+    except:
+        return len(development_tasks)
+
+task_counter = get_next_task_counter()
+
+# --- ЭНДПОИНТЫ ---
 
 @router.post("/start-development", response_model=DevelopmentResponse)
 async def start_development(goal: DevelopmentGoal) -> DevelopmentResponse:
-    """
-    Start ARQ self-development process
-    Initiates the autonomous development cycle
-    """
     global task_counter
     task_counter += 1
     task_id = f"task-{task_counter}"
     
     logger.info(f"Starting ARQ development task: {task_id}")
-    logger.info(f"Goal: {goal.title}")
-    logger.info(f"Development goals: {goal.goals}")
     
     # Store task info
     development_tasks[task_id] = {
@@ -49,6 +98,8 @@ async def start_development(goal: DevelopmentGoal) -> DevelopmentResponse:
         "iterations": 0,
         "results": []
     }
+    
+    save_tasks_to_disk(development_tasks)
     
     return DevelopmentResponse(
         status="success",
@@ -60,7 +111,6 @@ async def start_development(goal: DevelopmentGoal) -> DevelopmentResponse:
 
 @router.get("/status/{task_id}")
 async def get_development_status(task_id: str):
-    """Get status of a development task"""
     if task_id not in development_tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     
@@ -75,14 +125,12 @@ async def get_development_status(task_id: str):
 
 @router.post("/execute")
 async def execute_development_task(task_id: str):
-    """Execute the next iteration of a development task"""
     if task_id not in development_tasks:
         raise HTTPException(status_code=404, detail="Task not found")
     
     task = development_tasks[task_id]
     task["iterations"] += 1
     
-    # Simulate development iteration
     logger.info(f"Executing iteration {task['iterations']} for task {task_id}")
     
     result = {
@@ -94,18 +142,19 @@ async def execute_development_task(task_id: str):
     
     task["results"].append(result)
     
-    # Check if max iterations reached
     if task["iterations"] >= task["goal"].max_iterations:
         task["status"] = "completed"
+    
+    save_tasks_to_disk(development_tasks)
     
     return result
 
 @router.get("/health", response_model=dict)
 async def arq_health():
-    """Health check for ARQ system"""
     return {
         "status": "healthy",
         "service": "ARQ-Development",
         "active_tasks": len([t for t in development_tasks.values() if t["status"] == "running"]),
+        "total_tasks": len(development_tasks),
         "timestamp": datetime.now().isoformat()
     }
