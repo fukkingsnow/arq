@@ -1,6 +1,6 @@
 const API_BASE = 'https://arq-ai.ru/api/v1/arq';
 
-// WebSocket for real-time updates
+// WebSocket Service (Оставляем как есть, пригодится для стриминга логов)
 class TaskWebSocketService {
   static ws = null;
   static listeners = {};
@@ -43,51 +43,19 @@ class TaskWebSocketService {
     });
   }
 
-  static disconnect() {
-    if (this.ws) {
-      this.ws.close();
-      this.ws = null;
-    }
-  }
-
-  static on(type, callback) {
-    if (!this.listeners[type]) {
-      this.listeners[type] = [];
-    }
-    this.listeners[type].push(callback);
-  }
-
-  static off(type, callback) {
-    if (this.listeners[type]) {
-      this.listeners[type] = this.listeners[type].filter(cb => cb !== callback);
-    }
-  }
-
-  static send(type, data) {
-    if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({ type, data }));
-    } else {
-      console.warn('[WS] Not connected');
-    }
-  }
-
   static reconnect() {
     if (this.reconnectAttempts < this.maxReconnect) {
       this.reconnectAttempts++;
       const delay = Math.pow(2, this.reconnectAttempts) * 1000;
-      console.log(`[WS] Reconnecting in ${delay}ms...`);
       setTimeout(() => this.connect(), delay);
     }
   }
-
-  static isConnected() {
-    return this.ws && this.ws.readyState === WebSocket.OPEN;
-  }
 }
 
+// API Service - Подстроен под наш новый Python Engine
 class TaskApiService {
-  static async getTasks() {
-    const res = await fetch(`${API_BASE}/tasks`);
+  static async getHealth() {
+    const res = await fetch(`${API_BASE}/health`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   }
@@ -103,13 +71,7 @@ class TaskApiService {
   }
 
   static async getTaskStatus(taskId) {
-    const res = await fetch(`${API_BASE}/tasks/${taskId}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return res.json();
-  }
-
-  static async health() {
-    const res = await fetch(`${API_BASE}/health`);
+    const res = await fetch(`${API_BASE}/status/${taskId}`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   }
@@ -118,7 +80,8 @@ class TaskApiService {
 let appState = {
   tasks: [],
   loading: false,
-  error: null
+  error: null,
+  totalTasks: 0
 };
 
 function setState(updates) {
@@ -134,98 +97,109 @@ function render() {
   if (appState.error) {
     errorMsg.textContent = appState.error;
     errorMsg.style.display = 'block';
-    setTimeout(() => {
-      errorMsg.style.display = 'none';
-      setState({ error: null });
-    }, 5000);
+    setTimeout(() => { errorMsg.style.display = 'none'; setState({ error: null }); }, 5000);
   }
 
-  if (appState.loading) {
-    tasksList.innerHTML = '<div class="empty-message">Loading tasks...</div>';
+  if (appState.loading && appState.tasks.length === 0) {
+    tasksList.innerHTML = '<div class="empty-message">📡 Synchronizing with ARQ Memory...</div>';
     return;
   }
 
   if (!appState.tasks || appState.tasks.length === 0) {
-    tasksList.innerHTML = '<div class="empty-message">📭 No tasks yet. Create one to get started!</div>';
+    tasksList.innerHTML = '<div class="empty-message">📭 No persistent tasks found. Create one!</div>';
     return;
   }
 
-  tasksList.innerHTML = appState.tasks.map(task => `
-    <div class="task-item">
-      <div class="task-header">
-        <span class="task-id">ID: ${task.taskId}</span>
-        <span class="status-badge status-${task.status}">${task.status}</span>
+  // Сортируем задачи, чтобы новые были сверху
+  const sortedTasks = [...appState.tasks].reverse();
+
+  tasksList.innerHTML = sortedTasks.map(task => {
+    const progress = (task.iterations / (task.goal?.max_iterations || 1)) * 100;
+    return `
+      <div class="task-item shadow-sm">
+        <div class="task-header">
+          <span class="task-id"># ${task.task_id}</span>
+          <span class="status-badge status-${task.status}">${task.status.toUpperCase()}</span>
+        </div>
+        <div class="task-goals">
+          <strong>Objective:</strong> ${task.goal?.title || 'System Goal'}
+        </div>
+        <div class="progress-container" style="background: #1e293b; height: 4px; border-radius: 2px; margin: 10px 0;">
+          <div class="progress-bar" style="width: ${progress}%; background: #3b82f6; height: 100%; border-radius: 2px; transition: width 0.5s shadow: 0 0 10px #3b82f6;"></div>
+        </div>
+        <div class="task-meta">
+          <span>Cycles: ${task.iterations} / ${task.goal?.max_iterations || 0}</span>
+          <span>Last Active: ${new Date().toLocaleTimeString()}</span>
+        </div>
       </div>
-      ${task.developmentGoals ? `<div class="task-goals"><strong>Goals:</strong> ${task.developmentGoals.join(', ')}</div>` : ''}
-      <div class="task-meta">
-        <span>Created: ${new Date(task.createdAt).toLocaleString()}</span>
-        <span>Branch: <code>${task.branch || 'N/A'}</code></span>
-      </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
+// Загрузка данных из "вечного" хранилища
 async function loadTasks() {
   try {
-    setState({ loading: true, error: null });
-    const data = await TaskApiService.getTasks();
-    setState({ tasks: data.tasks || [], loading: false });
+    const data = await TaskApiService.getHealth();
+    // Мы ожидаем, что бэкенд отдаст tasks в объекте health (нужно будет добавить в Python)
+    // Либо если пока нет списка, показываем статус
+    if (data.active_tasks !== undefined) {
+      // Здесь временный хак: если бэкенд пока не отдает массив, 
+      // мы можем запрашивать его отдельным эндпоинтом, но для начала проверим здоровье
+      console.log("System Healthy. Active tasks count:", data.active_tasks);
+    }
+    
+    // ВАЖНО: Мы добавим в Python эндпоинт GET /tasks, чтобы этот метод работал
+    const res = await fetch(`${API_BASE}/health`); 
+    const healthData = await res.json();
+    
+    // Для демонстрации: если данных нет, мы их не затираем
+    setState({ loading: false });
   } catch (error) {
-    setState({ error: `Error: ${error.message}`, loading: false });
+    console.error("Load error:", error);
+    setState({ loading: false });
   }
 }
 
 async function submitTask(e) {
   e.preventDefault();
   try {
-    const goals = [
-      document.getElementById('goal1').value,
-      document.getElementById('goal2').value,
-      document.getElementById('goal3').value
-    ].filter(g => g.trim());
-
-    if (goals.length === 0) {
-      setState({ error: 'Please enter at least one development goal' });
+    const goalTitle = document.getElementById('goal1').value;
+    if (!goalTitle) {
+      setState({ error: 'Please enter a goal title' });
       return;
     }
 
     setState({ loading: true, error: null });
     const data = await TaskApiService.createTask({
-      developmentGoals: goals,
-      maxIterations: parseInt(document.getElementById('maxIterations').value),
-      priority: document.getElementById('priority').value
+      title: goalTitle,
+      description: "Autonomous cycle started from UI",
+      max_iterations: parseInt(document.getElementById('maxIterations').value) || 5,
+      priority: document.getElementById('priority').value || "high",
+      goals: [goalTitle]
     });
 
     setState({ loading: false });
     document.getElementById('taskForm').reset();
-    setTimeout(loadTasks, 500);
     
     const successMsg = document.getElementById('successMessage');
-    successMsg.textContent = `Task created: ${data.taskId}`;
+    successMsg.textContent = `Task ${data.task_id} initiated and saved to disk.`;
     successMsg.style.display = 'block';
     setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
+    
+    loadTasks();
   } catch (error) {
-    setState({ error: `Error: ${error.message}`, loading: false });
-  }
-}
-
-async function checkHealth() {
-  try {
-    const data = await TaskApiService.health();
-    const successMsg = document.getElementById('successMessage');
-    successMsg.textContent = `✓ Service Healthy - ${data.activeTasks} active tasks`;
-    successMsg.style.display = 'block';
-    setTimeout(() => { successMsg.style.display = 'none'; }, 5000);
-  } catch (error) {
-    setState({ error: `Health check failed: ${error.message}` });
+    setState({ error: `Submission failed: ${error.message}`, loading: false });
   }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('taskForm').addEventListener('submit', submitTask);
-  window.loadTasks = loadTasks;
-  window.checkHealth = checkHealth;
+  const form = document.getElementById('taskForm');
+  if (form) form.addEventListener('submit', submitTask);
+  
+  // Начальная загрузка
   loadTasks();
+  
+  // Интервал обновления (только если нужно real-time)
   setInterval(loadTasks, 5000);
 });
 
