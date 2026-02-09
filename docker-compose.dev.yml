@@ -1,47 +1,94 @@
-version: '3.9'
+version: '3.8'
+
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: arq-postgres-dev
-    environment:
-      POSTGRES_USER: arq_dev
-      POSTGRES_PASSWORD: arq_dev_password
-      POSTGRES_DB: arq_development
-      POSTGRES_INITDB_ARGS: "-c max_connections=200"
+  arq:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile.prod
+    container_name: arq-api
+    image: arq:latest
     ports:
-      - "5433:5432"
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - API_PORT=3000
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    networks:
+      - arq-network
+    depends_on:
+      - postgres
+      - redis
     volumes:
-      - postgres_data_dev:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./logs:/app/logs
+      - ./data:/app/data  # <--- КРИТИЧЕСКИ ВАЖНО: Вечная память здесь
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgres:
+    image: postgres:14-alpine
+    container_name: arq-postgres
+    environment:
+      - POSTGRES_DB=arq
+      - POSTGRES_USER=arq
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - arq-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U arq_dev -d arq_development"]
+      test: ["CMD-SHELL", "pg_isready -U arq -d arq"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
-    container_name: arq-redis-dev
-    ports:
-      - "6379:6379"
+    container_name: arq-redis
+    restart: always
     volumes:
-      - redis_data_dev:/data
+      - redis-data:/data
     networks:
       - arq-network
+    command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: arq-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    restart: always
+    networks:
+      - arq-network
+    depends_on:
+      - arq
 
 volumes:
-  postgres_data_dev:
+  postgres-data:
     driver: local
-  redis_data_dev:
+  redis-data:
     driver: local
 
 networks:
