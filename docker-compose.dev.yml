@@ -10,17 +10,25 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "3000:8000" # Направляем внешний 3000 на внутренний 8000
+      - "3000:8000"
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=info
+      - API_PORT=8000
+      - JWT_SECRET=${JWT_SECRET:-supersecretchangeit}
+      # База данных и Redis
       - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@arq-postgres:5432/arq
       - REDIS_URL=redis://arq-redis:6379
-      - JWT_SECRET=${JWT_SECRET:-supersecretchangeit}
-      - API_PORT=8000
+      # Настройки нейронки (Ollama)
+      - OLLAMA_HOST=http://arq-ollama:11434
+      - OLLAMA_BASE_URL=http://arq-ollama:11434
+      - OLLAMA_MODEL=gemma2:2b
+      - ASSISTANT_MODEL=gemma2:2b
     restart: always
+    volumes:
+      # Сохраняем данные задач, чтобы они не пропадали при перезапуске
+      - arq-data:/tmp/arq_data
     healthcheck:
-      # Проверяем порт 8000, который реально открыт в приложении
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/api/v1/health', (r) => { if (r.statusCode < 500) process.exit(0); else process.exit(1); })"]
       interval: 30s
       timeout: 10s
@@ -33,6 +41,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      ollama:
+        condition: service_started
 
   postgres:
     image: postgres:14-alpine
@@ -82,6 +92,8 @@ volumes:
   redis-data:
     driver: local
   ollama-data:
+    driver: local
+  arq-data:
     driver: local
 
 networks:
