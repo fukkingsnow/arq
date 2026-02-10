@@ -10,18 +10,18 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
-      - "3000:3000"
+      - "3000:8000" # Направляем внешний 3000 на внутренний 8000
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=info
-      - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@postgres:5432/arq
-      - REDIS_URL=redis://redis:6379
+      - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@arq-postgres:5432/arq
+      - REDIS_URL=redis://arq-redis:6379
       - JWT_SECRET=${JWT_SECRET:-supersecretchangeit}
-      - API_PORT=3000
+      - API_PORT=8000
     restart: always
     healthcheck:
-      # Используем Node.js для проверки, так как curl не установлен в образе
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/api/v1/arq/tasks', (r) => { if (r.statusCode < 500) process.exit(0); else process.exit(1); })"]
+      # Проверяем порт 8000, который реально открыт в приложении
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/api/v1/health', (r) => { if (r.statusCode < 500) process.exit(0); else process.exit(1); })"]
       interval: 30s
       timeout: 10s
       retries: 3
