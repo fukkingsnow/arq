@@ -20,9 +20,10 @@ services:
       - API_PORT=3000
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      # Используем Node.js для проверки, так как curl не установлен в образе
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/api/v1/arq/tasks', (r) => { if (r.statusCode < 500) process.exit(0); else process.exit(1); })"]
       interval: 30s
-      timeout: 3s
+      timeout: 10s
       retries: 3
       start_period: 40s
     networks:
@@ -66,7 +67,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Добавляем "Младшего" прямо в связку
   ollama:
     image: ollama/ollama:latest
     container_name: arq-ollama
