@@ -26,12 +26,12 @@ export class TasksService {
 
   async create(data: Partial<Task>): Promise<Task> {
     // Используем Gemma для генерации плана выполнения
-    if (data.goal && !data.description) {
+    if (data.title && !data.description) {
       try {
         const aiResponse = await axios.post(this.ollamaUrl, {
           model: 'gemma', // Наш младший на связи
           prompt: `Context: Project Management. 
-                   Task: "${data.goal}". 
+                   Task: "${data.title}". 
                    Act as a technical lead. Provide a professional 1-sentence execution plan.`,
           stream: false,
         });
