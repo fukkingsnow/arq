@@ -1,38 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
 
 @Injectable()
 export class TasksService {
+  private readonly logger = new Logger(TasksService.name);
+
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
   ) {}
 
   async create(data: any): Promise<Task> {
+    this.logger.log(`Creating task in Postgres: ${data.title}`);
     const task = this.taskRepository.create({
       ...data,
-      status: 'pending',
+      status: data.status || 'pending',
     });
-    const savedTask = await this.taskRepository.save(task);
-    return Array.isArray(savedTask) ? savedTask[0] : savedTask;
+    return await this.taskRepository.save(task);
   }
 
   async findAll(): Promise<Task[]> {
-    return this.taskRepository.find();
+    return await this.taskRepository.find({ order: { createdAt: 'DESC' } });
   }
 
   async findOne(id: string): Promise<Task | null> {
-    return this.taskRepository.findOne({ where: { id } });
+    return await this.taskRepository.findOne({ where: { id } });
   }
 
-  async update(id: string, data: any): Promise<Task | null> {
-    await this.taskRepository.update(id, data);
+  async updateStatus(id: string, status: string, progress?: number): Promise<Task | null> {
+    this.logger.log(`Updating task ${id} to status: ${status}, progress: ${progress}%`);
+    await this.taskRepository.update(id, { 
+      status, 
+      ...(progress !== undefined && { progress }), // если в таблице есть поле progress
+      updatedAt: new Date() 
+    });
     return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
     await this.taskRepository.delete(id);
+  }
+
+  // Метод для воркера или админки: найти все активные
+  async findByStatus(status: string): Promise<Task[]> {
+    return await this.taskRepository.find({ where: { status } });
   }
 }
