@@ -27,7 +27,6 @@ export class TasksService {
     return await this.taskRepository.save(task);
   }
 
-  // ЭТОГО МЕТОДА НЕ ХВАТАЛО
   async update(id: string, data: Partial<Task>): Promise<Task> {
     const task = await this.findOne(id);
     Object.assign(task, data);
