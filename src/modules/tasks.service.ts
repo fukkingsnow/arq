@@ -6,6 +6,7 @@ import axios from 'axios';
 
 @Injectable()
 export class TasksService {
+  // Внутри Docker сети мы обращаемся к сервису по имени 'ollama'
   private readonly ollamaUrl = process.env.OLLAMA_URL || 'http://ollama:11434/api/generate';
 
   constructor(
@@ -23,22 +24,23 @@ export class TasksService {
     return task;
   }
 
-  // Умное создание задачи с ИИ
   async create(data: Partial<Task>): Promise<Task> {
-    // 1. Пытаемся получить описание от ИИ, если есть цель (goal)
+    // Используем Gemma для генерации плана выполнения
     if (data.goal && !data.description) {
       try {
         const aiResponse = await axios.post(this.ollamaUrl, {
-          model: 'llama3', // или твоя модель из ollama list
-          prompt: `As a technical assistant, provide a concise 2-sentence execution plan for this task: "${data.goal}". Be direct.`,
+          model: 'gemma', // Наш младший на связи
+          prompt: `Context: Project Management. 
+                   Task: "${data.goal}". 
+                   Act as a technical lead. Provide a professional 1-sentence execution plan.`,
           stream: false,
         });
         
         data.description = aiResponse.data.response.trim();
-        console.log('AI Enrichment successful:', data.description);
+        console.log('Gemma successfully enriched the task!');
       } catch (error) {
-        console.error('AI Enrichment failed (Ollama unavailable):', error.message);
-        data.description = 'AI analysis unavailable at the moment.';
+        console.error('Ollama/Gemma error:', error.message);
+        data.description = 'Task created without AI plan (AI service offline).';
       }
     }
 
