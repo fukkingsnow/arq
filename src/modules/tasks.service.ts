@@ -2,9 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
+import axios from 'axios';
 
 @Injectable()
-export class TasksService { // Убедись, что здесь есть слово export
+export class TasksService {
+  private readonly ollamaUrl = process.env.OLLAMA_URL || 'http://ollama:11434/api/generate';
+
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
@@ -20,7 +23,25 @@ export class TasksService { // Убедись, что здесь есть сло
     return task;
   }
 
+  // Умное создание задачи с ИИ
   async create(data: Partial<Task>): Promise<Task> {
+    // 1. Пытаемся получить описание от ИИ, если есть цель (goal)
+    if (data.goal && !data.description) {
+      try {
+        const aiResponse = await axios.post(this.ollamaUrl, {
+          model: 'llama3', // или твоя модель из ollama list
+          prompt: `As a technical assistant, provide a concise 2-sentence execution plan for this task: "${data.goal}". Be direct.`,
+          stream: false,
+        });
+        
+        data.description = aiResponse.data.response.trim();
+        console.log('AI Enrichment successful:', data.description);
+      } catch (error) {
+        console.error('AI Enrichment failed (Ollama unavailable):', error.message);
+        data.description = 'AI analysis unavailable at the moment.';
+      }
+    }
+
     const task = this.taskRepository.create(data);
     return await this.taskRepository.save(task);
   }
@@ -36,4 +57,3 @@ export class TasksService { // Убедись, что здесь есть сло
     await this.taskRepository.remove(task);
   }
 }
-
