@@ -14,8 +14,10 @@ services:
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=info
-      - DATABASE_URL=${DATABASE_URL}
-      - REDIS_URL=${REDIS_URL}
+      # Используем имя сервиса 'postgres' вместо внешней переменной
+      - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@postgres:5432/arq
+      # Аналогично для Redis
+      - REDIS_URL=redis://redis:6379
       - JWT_SECRET=${JWT_SECRET}
       - API_PORT=3000
     restart: always
@@ -28,16 +30,13 @@ services:
     networks:
       - arq-network
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./logs:/app/logs
-      - ./data:/app/data  # <--- КРИТИЧЕСКИ ВАЖНО: Вечная память здесь
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - ./data:/app/data
 
   postgres:
     image: postgres:14-alpine
