@@ -11,12 +11,11 @@ export class TasksService {
   ) {}
 
   async findAll(): Promise<Task[]> {
-    return await this.taskRepository.find({
-      order: { createdAt: 'DESC' }
-    });
+    return await this.taskRepository.find({ order: { createdAt: 'DESC' } });
   }
 
   async findOne(id: string): Promise<Task> {
+    // Используем id as any, чтобы TypeORM не ругался на типы UUID/String
     const task = await this.taskRepository.findOne({ where: { id: id as any } });
     if (!task) throw new NotFoundException(`Task with ID ${id} not found`);
     return task;
@@ -27,6 +26,7 @@ export class TasksService {
     return await this.taskRepository.save(task);
   }
 
+  // ТОТ САМЫЙ МЕТОД, ИЗ-ЗА КОТОРОГО ВСЁ ПАДАЛО
   async update(id: string, data: Partial<Task>): Promise<Task> {
     const task = await this.findOne(id);
     Object.assign(task, data);
