@@ -3,7 +3,7 @@ version: '3.8'
 services:
   arq:
     build:
-      context: ..
+      context: .
       dockerfile: deployment/Dockerfile.prod
     container_name: arq-api
     image: arq:latest
@@ -14,11 +14,9 @@ services:
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=info
-      # Используем имя сервиса 'postgres' вместо внешней переменной
       - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@postgres:5432/arq
-      # Аналогично для Redis
       - REDIS_URL=redis://redis:6379
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:-supersecretchangeit}
       - API_PORT=3000
     restart: always
     healthcheck:
@@ -34,9 +32,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - ./logs:/app/logs
-      - ./data:/app/data
 
   postgres:
     image: postgres:14-alpine
@@ -71,25 +66,22 @@ services:
       timeout: 5s
       retries: 5
 
-  nginx:
-    image: nginx:latest
-    container_name: arq-nginx
-    ports:
-      - "80:80"
-      - "443:443"
+  # Добавляем "Младшего" прямо в связку
+  ollama:
+    image: ollama/ollama:latest
+    container_name: arq-ollama
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    restart: always
+      - ollama-data:/root/.ollama
     networks:
       - arq-network
-    depends_on:
-      - arq
+    restart: always
 
 volumes:
   postgres-data:
     driver: local
   redis-data:
+    driver: local
+  ollama-data:
     driver: local
 
 networks:
