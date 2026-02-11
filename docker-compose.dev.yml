@@ -7,7 +7,6 @@ services:
       dockerfile: deployment/Dockerfile.prod
     container_name: arq-api
     user: "0:0"
-    # Добавляем env_file, чтобы API видел переменные из твоего .env (включая DB_PASSWORD)
     env_file:
       - .env
     ports:
@@ -16,10 +15,11 @@ services:
       - NODE_ENV=production
       - LOG_LEVEL=debug
       - API_PORT=8000
-      # Используем переменные напрямую для надежности
       - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@arq-postgres:5432/arq
       - REDIS_URL=redis://arq-redis:6379
-      - OLLAMA_BASE_URL=http://arq-ollama:11434
+      # Исправленные переменные под требования твоего кода (src/modules/tasks.service.ts)
+      - OLLAMA_URL=http://arq-ollama:11434
+      - OLLAMA_MODEL=gemma2:2b
       - ASSISTANT_MODEL=gemma2:2b
     volumes:
       - ./data/arq-storage:/tmp/arq_data
@@ -68,6 +68,11 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: arq-ollama
+    # Добавляем алиас 'ollama', так как он жестко прописан в некоторых сервисах
+    networks:
+      default:
+        aliases:
+          - ollama
     volumes:
       - ./data/ollama:/root/.ollama
     restart: always
