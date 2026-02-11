@@ -1,4 +1,0 @@
-Testing automatic CI/CD deployment via GitHub Actions.
-Timestamp: 2025-12-17 16:00 MSK
-
-This file was created to test the deployment workflow.
