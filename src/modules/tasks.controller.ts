@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common'
 import { TasksService } from './tasks.service';
 import { Task } from '../entities/task.entity';
 
-@Controller('api/v1')
+@Controller('tasks')
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
@@ -15,7 +15,7 @@ export class TasksController {
     };
   }
 
-  @Post('tasks/submit')
+  @Post('submit')
   async create(@Body() data: any): Promise<Task> {
     return this.tasksService.create(data);
   }

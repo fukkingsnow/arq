@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from '../entities/task.entity';
@@ -6,56 +6,53 @@ import axios from 'axios';
 
 @Injectable()
 export class TasksService {
-  // Внутри Docker сети мы обращаемся к сервису по имени 'ollama'
-  private readonly ollamaUrl = process.env.OLLAMA_URL || 'http://ollama:11434/api/generate';
+  private get ollamaUrl() {
+    const baseUrl = process.env.OLLAMA_URL || 'http://arq-ollama:11434';
+    return `${baseUrl.replace(/\/$/, '')}/api/generate`;
+  }
 
   constructor(
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
   ) {}
 
+  async create(data: any): Promise<Task> {
+    // Используем unknown как промежуточный тип, чтобы TS не ругался
+    const task = this.taskRepository.create(data) as unknown as Task;
+    
+    try {
+      const response = await axios.post(this.ollamaUrl, {
+        model: 'gemma2:2b',
+        prompt: `Create a short step-by-step action plan for this task: ${data.title}`,
+        stream: false,
+      });
+      
+      if (response.data && response.data.response) {
+        task.description = response.data.response;
+      }
+    } catch (error) {
+      console.error('Ollama Error:', error.message);
+      task.description = 'Task created without AI plan (AI service offline).';
+    }
+
+    return this.taskRepository.save(task);
+  }
+
   async findAll(): Promise<Task[]> {
-    return await this.taskRepository.find({ order: { createdAt: 'DESC' } });
+    return this.taskRepository.find();
   }
 
   async findOne(id: string): Promise<Task> {
-    const task = await this.taskRepository.findOne({ where: { id: id as any } });
-    if (!task) throw new NotFoundException(`Task with ID ${id} not found`);
-    return task;
+    const task = await this.taskRepository.findOne({ where: { id } });
+    return task || null;
   }
 
-  async create(data: Partial<Task>): Promise<Task> {
-    // Используем Gemma для генерации плана выполнения
-    if (data.title && !data.description) {
-      try {
-        const aiResponse = await axios.post(this.ollamaUrl, {
-          model: 'gemma', // Наш младший на связи
-          prompt: `Context: Project Management. 
-                   Task: "${data.title}". 
-                   Act as a technical lead. Provide a professional 1-sentence execution plan.`,
-          stream: false,
-        });
-        
-        data.description = aiResponse.data.response.trim();
-        console.log('Gemma successfully enriched the task!');
-      } catch (error) {
-        console.error('Ollama/Gemma error:', error.message);
-        data.description = 'Task created without AI plan (AI service offline).';
-      }
-    }
-
-    const task = this.taskRepository.create(data);
-    return await this.taskRepository.save(task);
-  }
-
-  async update(id: string, data: Partial<Task>): Promise<Task> {
-    const task = await this.findOne(id);
-    Object.assign(task, data);
-    return await this.taskRepository.save(task);
+  async update(id: string, data: any): Promise<Task> {
+    await this.taskRepository.update(id, data);
+    return this.findOne(id);
   }
 
   async remove(id: string): Promise<void> {
-    const task = await this.findOne(id);
-    await this.taskRepository.remove(task);
+    await this.taskRepository.delete(id);
   }
 }
