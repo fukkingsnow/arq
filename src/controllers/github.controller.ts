@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GitHubService } from '../services/github.service';
 
 @ApiTags('github')
-@Controller('api/v1/github')
+@Controller('github')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class GitHubController {

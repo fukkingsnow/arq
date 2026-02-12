@@ -1,4 +1,4 @@
-const API_BASE = 'https://arq-ai.ru/api/v1/arq';
+const API_BASE = 'https://arq-ai.ru/api/v1/tasksarq';
 
 // WebSocket for real-time updates
 class TaskWebSocketService {
@@ -7,7 +7,7 @@ class TaskWebSocketService {
   static reconnectAttempts = 0;
   static maxReconnect = 5;
 
-  static connect(url = 'wss://arq-ai.ru/api/v1/arq/ws') {
+  static connect(url = 'wss://arq-ai.ru/api/v1/tasksarq/ws') {
     if (this.ws) return Promise.resolve();
     return new Promise((resolve, reject) => {
       try {

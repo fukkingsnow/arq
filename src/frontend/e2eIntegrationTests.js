@@ -46,7 +46,7 @@ class E2EIntegrationTester {
       // Create tasks sequentially
       for (let i = 0; i < count; i++) {
         try {
-          const response = await fetch('/api/tasks', {
+          const response = await fetch('/api/v1/taskstasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -105,7 +105,7 @@ class E2EIntegrationTester {
       // Rapid sequential updates
       for (let i = 0; i < updateCount; i++) {
         try {
-          const response = await fetch(`/api/tasks/${taskId}`, {
+          const response = await fetch(`/api/v1/taskstasks/${taskId}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -165,7 +165,7 @@ class E2EIntegrationTester {
       // Poll for completion
       while (performance.now() - startTime < maxWaitTime) {
         try {
-          const response = await fetch(`/api/tasks/${taskId}`);
+          const response = await fetch(`/api/v1/taskstasks/${taskId}`);
           const task = await response.json();
           results.statusChecks++;
 
@@ -219,7 +219,7 @@ class E2EIntegrationTester {
       // Test 1: Validation error
       results.totalAttempts++;
       try {
-        const response = await fetch('/api/tasks', {
+        const response = await fetch('/api/v1/taskstasks', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ goal: '' }) // Invalid: empty goal
@@ -238,7 +238,7 @@ class E2EIntegrationTester {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1000);
         
-        await fetch('/api/tasks', {
+        await fetch('/api/v1/taskstasks', {
           signal: controller.signal
         });
       } catch (e) {

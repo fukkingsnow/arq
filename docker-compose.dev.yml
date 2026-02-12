@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: deployment/Dockerfile.prod
-    container_name: arq-api
+    container_name: arq
     user: "0:0"
     env_file:
       - .env
@@ -17,15 +17,16 @@ services:
       - API_PORT=8000
       - DATABASE_URL=postgresql://arq:${DB_PASSWORD}@arq-postgres:5432/arq
       - REDIS_URL=redis://arq-redis:6379
-      # Исправленные переменные под требования твоего кода (src/modules/tasks.service.ts)
       - OLLAMA_URL=http://arq-ollama:11434
       - OLLAMA_MODEL=gemma2:2b
       - ASSISTANT_MODEL=gemma2:2b
     volumes:
       - ./data/arq-storage:/tmp/arq_data
+      # Автоматический проброс фронтенда в контейнер
+      - ./dist/frontend:/app/dist/frontend
     restart: always
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/api/v1/health', (r) => { process.exit(r.statusCode < 500 ? 0 : 1) })"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:8000/api/v1/health', (r) => { process.exit(r.statusCode === 200 ? 0 : 1) })"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -68,7 +69,6 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: arq-ollama
-    # Добавляем алиас 'ollama', так как он жестко прописан в некоторых сервисах
     networks:
       default:
         aliases:

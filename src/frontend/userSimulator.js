@@ -10,7 +10,7 @@ class UserSimulator {
       slowNetwork: 0.1
     };
     this.requestPatterns = [
-      { endpoint: '/api/tasks', weight: 40 },
+      { endpoint: '/api/v1/taskstasks', weight: 40 },
       { endpoint: '/api/ai-chat', weight: 30 },
       { endpoint: '/api/metrics', weight: 20 },
       { endpoint: '/api/status', weight: 10 }
