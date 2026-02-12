@@ -1,233 +1,150 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ARQ - Task Manager v1.0.3</title><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}.container{background:white;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,0.1);max-width:1200px;margin:0 auto;padding:40px}.header{text-align:center;margin-bottom:40px}.header h1{font-size:32px;color:#667eea;margin-bottom:10px}.header p{color:#666;font-size:14px}.nav-tabs{display:flex;gap:20px;border-bottom:2px solid #ddd;margin-bottom:30px;overflow-x:auto}.nav-tab{padding:12px 20px;cursor:pointer;font-weight:500;color:#999;border-bottom:3px solid transparent;white-space:nowrap;transition:all 0.3s ease}.nav-tab.active{color:#667eea;border-bottom-color:#667eea}.content{display:none}.content.active{display:block}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:30px}.card{background:#f8f9fa;border-radius:8px;padding:20px;border-left:4px solid #667eea}.card h2{color:#667eea;font-size:18px;margin-bottom:10px}.card button{padding:10px 20px;background:#667eea;color:white;border:none;border-radius:5px;cursor:pointer}.card button:hover{background:#764ba2}.form-group{margin-bottom:20px}.form-group label{display:block;margin-bottom:8px;color:#333;font-weight:500}.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:14px}.task-card{background:white;border:1px solid #ddd;border-radius:8px;padding:15px;margin:15px 0;cursor:pointer;transition:all 0.3s ease}.task-card:hover{box-shadow:0 4px 12px rgba(102,126,234,0.1)}.task-card h4{color:#333;margin-bottom:8px}.task-meta{display:flex;gap:10px;margin:10px 0;flex-wrap:wrap}.task-badge{padding:4px 8px;background:#e3f2fd;color:#1976d2;border-radius:3px;font-size:12px;font-weight:500}.task-controls{display:flex;gap:8px;margin-top:10px}.task-controls button{padding:6px 12px;background:#667eea;color:white;border:none;border-radius:4px;font-size:12px;cursor:pointer;transition:all 0.2s ease}.task-controls button:hover{opacity:0.8}.task-controls button.pause{background:#ff9800}.task-controls button.cancel{background:#f44336}.char-counter{font-size:12px;color:#999;margin-top:4px}.tags-container{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.tag{background:#667eea;color:white;padding:5px 10px;border-radius:20px;font-size:12px;display:flex;align-items:center;gap:5px}.tag button{background:0;border:0;color:white;cursor:pointer;font-size:14px;padding:0}.status{background:#e8f5e9;padding:20px;border-radius:8px;margin-top:30px}.status h3{color:#4caf50;margin-bottom:15px}.status-item{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #c8e6c9}.status-badge{background:#4caf50;color:white;padding:5px 10px;border-radius:20px;font-size:12px}.btn-submit{width:100%;padding:12px;background:#667eea;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s ease}.btn-submit:hover{background:#764ba2}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);overflow-y:auto}.modal.active{display:block}.modal-content{background-color:#fefefe;margin:5% auto;padding:30px;border:1px solid #888;border-radius:10px;width:90%;max-width:800px;max-height:90vh;overflow-y:auto}.close{color:#aaa;float:right;font-size:28px;font-weight:bold;cursor:pointer}.close:hover,.close:focus{color:black}.modal-section{margin-bottom:25px}.modal-section h3{color:#667eea;margin-bottom:15px;border-bottom:2px solid #667eea;padding-bottom:10px}.log-entry{background:#f5f5f5;padding:10px;margin:8px 0;border-left:3px solid #667eea;border-radius:4px;font-family:monospace;font-size:12px}.log-entry.error{border-left-color:#f44336}.log-entry.warning{border-left-color:#ff9800}.log-entry.success{border-left-color:#4caf50}.filters{display:flex;gap:15px;margin-bottom:20px;flex-wrap:wrap}.filter-group{display:flex;flex-direction:column;gap:5px}.filter-group label{font-size:12px;font-weight:500;color:#666}.filter-group select{padding:8px;border:1px solid #ddd;border-radius:4px}.analytics-card{background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:15px}.analytics-card h4{color:#667eea;margin-bottom:10px}.chart-placeholder{width:100%;height:300px;background:#f0f0f0;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#999}.metrics-table{width:100%;border-collapse:collapse;margin-top:20px}.metrics-table th{background:#667eea;color:white;padding:12px;text-align:left}.metrics-table td{padding:12px;border-bottom:1px solid #ddd}.metrics-table tr:hover{background:#f5f5f5}</style></head><body><div class="container"><div class="header"><h1>ARQ Task Manager</h1><p>AI-powered intelligent task management system (v1.0.3 1.0.3Phase 3)</p></div><div class="nav-tabs"><div class="nav-tab active" data-tab="tasks">📋 Task Management</div><div class="nav-tab" data-tab="history">📜 History</div><div class="nav-tab" data-tab="assistant">🤖 AI Assistant</div><div class="nav-tab" data-tab="analytics">📊 Analytics</div></div><div id="tasks" class="content active"><div class="card" style="margin-bottom:30px"><h2>Create New Task</h2><form id="taskForm"><div class="form-group"><label>Development Goal <span style="color:red">*</span></label><input id="goalField" type="text" maxlength="200" placeholder="Enter a clear, measurable goal" required/><div class="char-counter"><span id="goalCounter">0</span>/200</div></div><div class="form-group"><label>Description/Context</label><textarea id="descField" maxlength="2000" placeholder="Provide additional context"></textarea><div class="char-counter"><span id="descCounter">0</span>/2000</div></div><div class="form-group"><label>Task Type <span style="color:red">*</span></label><select id="taskType" required><option value="">-- Select Task Type --</option><option value="bug">🐛 Bug</option><option value="feature">✨ Feature</option><option value="refactor">♻️ Refactor</option><option value="research">🔬 Research</option></select></div><div class="form-group"><label>Tags</label><input id="tagsInput" type="text" placeholder="Type tags separated by commas"><div class="tags-container" id="tagsContainer"></div></div><button class="btn-submit" type="submit">Create Task</button></form></div><h2 style="margin:30px 0 20px;color:#667eea">📌 Active Tasks</h2><div id="tasksContainer"></div><div class="status"><h3>✓ System Status</h3><div class="status-item"><span>API Server</span><span class="status-badge" id="statusDot">Online</span></div><div class="status-item"><span>Database</span><span class="status-badge" id="statusText">Connected</span></div><div class="status-item"><span>Frontend</span><span class="status-badge">Running</span></div><div class="status-item"><span>AI Engine</span><span class="status-badge">Active</span></div></div></div><div id="history" class="content"><h2 style="margin-bottom:20px;color:#667eea">📜 Task History</h2><div class="filters"><div class="filter-group"><label>Date Range</label><input type="date" id="dateFrom"/></div><div class="filter-group"><label>To</label><input type="date" id="dateTo"/></div><div class="filter-group"><label>Task Type</label><select id="filterType"><option value="">All Types</option><option value="bug">🐛 Bug</option><option value="feature">✨ Feature</option><option value="refactor">♻️ Refactor</option><option value="research">🔬 Research</option></select></div><div class="filter-group"><label>Status</label><select id="filterStatus"><option value="">All Status</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option><option value="failed">Failed</option></select></div><div class="filter-group"><label>Sort By</label><select id="sortBy"><option value="date-desc">Date (Newest)</option><option value="date-asc">Date (Oldest)</option><option value="duration-asc">Duration (Shortest)</option><option value="duration-desc">Duration (Longest)</option></select></div></div><div id="historyContainer"></div></div><div id="assistant" class="content"><div class="card"><h2>🤖 AI Assistant</h2><p>Interact with our AI assistant to analyze task status and get recommendations.</p><p style="margin-top:20px;color:#999">AI Assistant interface coming in Phase 3</p></div></div><div id="analytics" class="content"><h2 style="margin-bottom:20px;color:#667eea">📊 Analytics Dashboard</h2><div class="analytics-card"><h4>Overview Cards</h4><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px"><div class="card"><h2 style="font-size:24px;margin-bottom:5px" id="totalTasks">0</h2><p style="color:#666;margin:0">Total Tasks</p></div><div class="card"><h2 style="font-size:24px;margin-bottom:5px" id="completedTasks">0</h2><p style="color:#666;margin:0">Completed</p></div><div class="card"><h2 style="font-size:24px;margin-bottom:5px" id="avgDuration">0h</h2><p style="color:#666;margin:0">Avg Duration</p></div><div class="card"><h2 style="font-size:24px;margin-bottom:5px" id="successRate">0%</h2><p style="color:#666;margin:0">Success Rate</p></div></div></div><div class="analytics-card"><h4>Metrics Table</h4><table class="metrics-table"><thead><tr><th>Task Type</th><th>Count</th><th>Completed</th><th>Avg Duration</th><th>Success Rate</th></tr></thead><tbody id="analyticsTable"><tr><td colspan="5" style="text-align:center;color:#999">No data available</td></tr></tbody></table></div></div></div><div id="detailsModal" class="modal"><div class="modal-content"><span class="close" onclick="closeModal()">&times;</span><h2 id="modalTitle" style="color:#667eea;margin-bottom:20px">Task Details</h2><div class="modal-section"><h3>Task Information</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:15px"><div><strong>Goal:</strong><p id="modalGoal" style="margin:5px 0;color:#666"></p></div><div><strong>Type:</strong><p id="modalType" style="margin:5px 0;color:#666"></p></div><div><strong>Created:</strong><p id="modalCreated" style="margin:5px 0;color:#666"></p></div><div><strong>Status:</strong><p id="modalStatus" style="margin:5px 0;color:#666"></p></div></div><div style="margin-top:15px"><strong>Description:</strong><p id="modalDesc" style="margin:5px 0;color:#666"></p></div></div><div class="modal-section"><h3>Execution Logs</h3><div id="executionLogs" style="max-height:300px;overflow-y:auto"></div></div><div class="modal-section"><h3>Tags</h3><div id="modalTags"></div></div></div></div></body></html><script>const suggestedTags=['backend','frontend','infra','LLM','billing','performance','security','testing','docs'];const goalField=document.getElementById('goalField');const descField=document.getElementById('descField');const taskType=document.getElementById('taskType');const tagsInput=document.getElementById('tagsInput');const form=document.getElementById('taskForm');const tagsContainer=document.getElementById('tagsContainer');const tasksContainer=document.getElementById('tasksContainer');let selectedTags=[];function loadTasks(){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');tasksContainer.innerHTML='';tasks.filter(t=>t.status==='active').forEach(task=>displayTask(task));}function displayTask(task){const card=document.createElement('div');card.className='task-card';const emojis={bug:'🐛',feature:'✨',refactor:'♻️',research:'🔬'};const labels={bug:'Bug',feature:'Feature',refactor:'Refactor',research:'Research'};const date=new Date(task.createdAt).toLocaleDateString();card.innerHTML=`<h4>${task.goal}</h4><p>${task.description||'No description'}</p><div class="task-meta"><span class="task-badge">📅 ${date}</span><span class="task-badge">${emojis[task.type]||''} ${labels[task.type]||''}</span>${task.tags.map(tag=>`<span class="task-badge">#${tag}</span>`).join('')}</div><div class="task-controls"><button class="pause" onclick="pauseTask('${task.id}')">⏸ Pause</button><button class="pause" onclick="resumeTask('${task.id}')">▶ Resume</button><button onclick="viewTaskDetails('${task.id}')">👁 Details</button><button class="cancel" onclick="cancelTask('${task.id}')">✕ Cancel</button></div>`;tasksContainer.appendChild(card);}function pauseTask(id){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');const task=tasks.find(t=>t.id===id);if(task){task.status='paused';localStorage.setItem('arqTasks',JSON.stringify(tasks));loadTasks();}}function resumeTask(id){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');const task=tasks.find(t=>t.id===id);if(task){task.status='active';localStorage.setItem('arqTasks',JSON.stringify(tasks));loadTasks();}}function cancelTask(id){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');const idx=tasks.findIndex(t=>t.id===id);if(idx>-1){tasks[idx].status='cancelled';localStorage.setItem('arqTasks',JSON.stringify(tasks));loadTasks();}}function viewTaskDetails(id){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');const task=tasks.find(t=>t.id===id);if(task){document.getElementById('modalTitle').textContent=task.goal;document.getElementById('modalGoal').textContent=task.goal;document.getElementById('modalDesc').textContent=task.description||'No description';document.getElementById('modalType').textContent=task.type;document.getElementById('modalStatus').textContent=task.status||'unknown';document.getElementById('modalCreated').textContent=new Date(task.createdAt).toLocaleString();const logsHtml=`<div class="log-entry success">[${new Date().toLocaleTimeString()}] Task initialized</div><div class="log-entry">[${new Date().toLocaleTimeString()}] Execution started</div><div class="log-entry warning">[${new Date().toLocaleTimeString()}] Processing... (estimated time: 2h)</div>`;document.getElementById('executionLogs').innerHTML=logsHtml;document.getElementById('modalTags').innerHTML=task.tags.length>0?task.tags.map(t=>`<span class="tag">${t}</span>`).join(''):' <p style="color:#999">No tags</p>';document.getElementById('detailsModal').classList.add('active');}}function closeModal(){document.getElementById('detailsModal').classList.remove('active');}goalField.addEventListener('input',()=>{document.getElementById('goalCounter').textContent=goalField.value.length;});descField.addEventListener('input',()=>{document.getElementById('descCounter').textContent=descField.value.length;});tagsInput.addEventListener('keyup',(e)=>{if(e.key==='Enter'||e.key===','){e.preventDefault();const tag=tagsInput.value.split(',').pop().trim().toLowerCase();if(tag&&!selectedTags.includes(tag)){selectedTags.push(tag);renderTags();tagsInput.value='';}}});function renderTags(){tagsContainer.innerHTML=selectedTags.map(tag=>`<div class="tag">${tag}<button type="button" onclick="removeTag('${tag}')">×</button></div>`).join('');}function removeTag(tag){selectedTags=selectedTags.filter(t=>t!==tag);renderTags();}form.addEventListener('submit',(e)=>{e.preventDefault();if(!goalField.value||!taskType.value)return;const task={id:Date.now().toString(),goal:goalField.value,description:descField.value,type:taskType.value,tags:selectedTags,createdAt:new Date().toISOString(),status:'active',duration:0,executionTime:Math.random()*8+1};const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');tasks.push(task);localStorage.setItem('arqTasks',JSON.stringify(tasks));loadTasks();updateAnalytics();goalField.value='';descField.value='';taskType.value='';selectedTags=[];renderTags();tagsInput.value='';document.getElementById('goalCounter').textContent='0';document.getElementById('descCounter').textContent='0';});function loadHistory(){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');const historyContainer=document.getElementById('historyContainer');const dateFrom=document.getElementById('dateFrom').value;const dateTo=document.getElementById('dateTo').value;const filterType=document.getElementById('filterType').value;const filterStatus=document.getElementById('filterStatus').value;const sortBy=document.getElementById('sortBy').value;let filtered=tasks.filter(t=>['cancelled','completed','failed'].includes(t.status));if(dateFrom){const fromDate=new Date(dateFrom);filtered=filtered.filter(t=>new Date(t.createdAt)>=fromDate);}if(dateTo){const toDate=new Date(dateTo);toDate.setHours(23,59,59,999);filtered=filtered.filter(t=>new Date(t.createdAt)<=toDate);}if(filterType){filtered=filtered.filter(t=>t.type===filterType);}if(filterStatus){filtered=filtered.filter(t=>t.status===filterStatus);}if(sortBy==='date-asc'){filtered.sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));}else if(sortBy==='date-desc'){filtered.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));}else if(sortBy==='duration-asc'){filtered.sort((a,b)=>(a.duration||0)-(b.duration||0));}else if(sortBy==='duration-desc'){filtered.sort((a,b)=>(b.duration||0)-(a.duration||0));}historyContainer.innerHTML='';filtered.forEach(task=>{const card=document.createElement('div');card.className='task-card';const date=new Date(task.createdAt).toLocaleDateString();card.innerHTML=`<h4>${task.goal}</h4><p>${task.description||'No description'}</p><div class="task-meta"><span class="task-badge">📅 ${date}</span><span class="task-badge">⏱️ ${task.duration||'0'}h</span><span class="task-badge" style="background:${task.status==='completed'?'#c8e6c9':'#ffcdd2'};color:${task.status==='completed'?'#2e7d32':'#c62828'}">${task.status}</span>${task.tags.map(tag=>`<span class="task-badge">#${tag}</span>`).join('')}</div><div class="task-controls"><button onclick="viewTaskDetails('${task.id}')">👁 Details</button></div>`;historyContainer.appendChild(card);});if(filtered.length===0){historyContainer.innerHTML='<p style="color:#999;text-align:center;padding:40px">No tasks found</p>';}}function updateAnalytics(){const tasks=JSON.parse(localStorage.getItem('arqTasks')||'[]');document.getElementById('totalTasks').textContent=tasks.length;const completed=tasks.filter(t=>t.status==='completed').length;document.getElementById('completedTasks').textContent=completed;const avgDuration=tasks.length>0?Math.round(tasks.reduce((sum,t)=>sum+(t.duration||0),0)/tasks.length):0;document.getElementById('avgDuration').textContent=avgDuration+'h';const successRate=tasks.length>0?Math.round(completed/tasks.length*100):0;document.getElementById('successRate').textContent=successRate+'%';const typeMetrics={bug:{count:0,completed:0,duration:0},feature:{count:0,completed:0,duration:0},refactor:{count:0,completed:0,duration:0},research:{count:0,completed:0,duration:0}};tasks.forEach(t=>{if(typeMetrics[t.type]){typeMetrics[t.type].count++;if(t.status==='completed')typeMetrics[t.type].completed++;typeMetrics[t.type].duration+=t.duration||0;}});const tbody=document.getElementById('analyticsTable');tbody.innerHTML='';Object.entries(typeMetrics).forEach(([type,metrics])=>{if(metrics.count>0){const avgDur=Math.round(metrics.duration/metrics.count);const rate=Math.round(metrics.completed/metrics.count*100);const row=tbody.insertRow();row.innerHTML=`<td>${type}</td><td>${metrics.count}</td><td>${metrics.completed}</td><td>${avgDur}h</td><td>${rate}%</td>`;}});}document.querySelectorAll('.nav-tab').forEach(tab=>{tab.addEventListener('click',()=>{document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.content').forEach(c=>c.classList.remove('active'));tab.classList.add('active');const tabId=tab.getAttribute('data-tab');document.getElementById(tabId).classList.add('active');if(tabId==='history'){loadHistory();}if(tabId==='analytics'){updateAnalytics();}});});document.getElementById('dateFrom').addEventListener('change',loadHistory);document.getElementById('dateTo').addEventListener('change',loadHistory);document.getElementById('filterType').addEventListener('change',loadHistory);document.getElementById('filterStatus').addEventListener('change',loadHistory);document.getElementById('sortBy').addEventListener('change',loadHistory);window.addEventListener('load',()=>{loadTasks();updateAnalytics();});</script>
-
-<script>
-// System Status Indicator - Issue #10
-let systemStatus = 'online';
-let statusCheckInterval;
-
-function initSystemStatus() {
-  const header = document.querySelector('.header');
-  if (header) {
-    const statusHTML = '<div class="system-status-indicator" id="systemStatus"><span class="status-icon" id="statusIcon"></span><span class="status-text" id="statusText">Online</span><div class="status-tooltip" id="statusTooltip">All systems operational</div></div>';
-    header.insertAdjacentHTML('beforeend', statusHTML);
-  }
-  checkSystemHealth();
-  statusCheckInterval = setInterval(checkSystemHealth, 45000);
-}
-
-function checkSystemHealth() {
-  fetch('/api/health')
-    .then(response => response.json())
-    .then(data => {
-      updateSystemStatus(data.status || 'online', data.message);
-    })
-    .catch(error => {
-      console.log('Health check:', error);
-      updateSystemStatus('down', 'Service unavailable');
-    });
-}
-
-function updateSystemStatus(status, message) {
-  systemStatus = status;
-  const statusIcon = document.getElementById('statusIcon');
-  const statusText = document.getElementById('statusText');
-  const statusTooltip = document.getElementById('statusTooltip');
-  if (!statusIcon) return;
-  statusIcon.className = 'status-icon';
-  if (status === 'online') {
-    statusIcon.classList.add('status-online');
-    statusText.textContent = 'Online';
-    statusTooltip.textContent = message || 'All systems operational';
-  } else if (status === 'degraded') {
-    statusIcon.classList.add('status-degraded');
-    statusText.textContent = 'Degraded';
-    statusTooltip.textContent = message || 'Some services experiencing issues';
-  } else {
-    statusIcon.classList.add('status-down');
-    statusText.textContent = 'Down';
-    statusTooltip.textContent = message || 'Critical services unavailable';
-  }
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initSystemStatus);
-} else {
-  initSystemStatus();
-}
-</script>
-<style>
-.system-status-indicator { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #f5f5f5; border-radius: 4px; font-size: 12px; position: relative; margin-left: 20px; cursor: pointer; transition: all 0.3s ease; }
-.system-status-indicator:hover { background: #efefef; }
-.status-icon { width: 12px; height: 12px; border-radius: 50%; display: inline-block; animation: statusPulse 2s infinite; }
-.status-icon.status-online { background: #4CAF50; box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3); }
-.status-icon.status-degraded { background: #FF9800; box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.3); }
-.status-icon.status-down { background: #f44336; box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.3); animation: statusPulseWarning 1s infinite; }
-@keyframes statusPulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-@keyframes statusPulseWarning { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-.status-text { font-weight: 500; color: #333; }
-.status-tooltip { display: none; position: absolute; top: 100%; left: 0; background: #333; color: white; padding: 8px 12px; border-radius: 4px; font-size: 11px; white-space: nowrap; margin-top: 8px; z-index: 1000; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-.system-status-indicator:hover .status-tooltip { display: block; }
-.task-error { border: 2px solid #f44336; background: #ffebee; }
-.task-error-badge { display: inline-block; background: #f44336; color: white; padding: 4px 8px; border-radius: 3px; font-size: 11px; font-weight: 500; margin-top: 8px; cursor: pointer; }
-.task-error-badge:hover { background: #d32f2f; }
-</style>
-
-<script>
-// Health Check Modal - Issue #9
-let healthCheckInterval;
-
-function openHealthCheckModal() {
-  const modal = document.getElementById('healthCheckModal');
-  const overlay = document.getElementById('modalOverlay');
-  if (modal) modal.classList.add('open');
-  if (overlay) overlay.classList.add('open');
-  fetchHealthData();
-  healthCheckInterval = setInterval(fetchHealthData, 30000);
-}
-
-function closeHealthCheckModal() {
-  const modal = document.getElementById('healthCheckModal');
-  const overlay = document.getElementById('modalOverlay');
-  if (modal) modal.classList.remove('open');
-  if (overlay) overlay.classList.remove('open');
-  if (healthCheckInterval) clearInterval(healthCheckInterval);
-}
-
-function fetchHealthData() {
-  fetch('/api/health')
-    .then(response => response.json())
-    .then(data => renderHealthData(data))
-    .catch(error => console.log('Health fetch error:', error));
-}
-
-function renderHealthData(data) {
-  const content = document.getElementById('healthModalContent');
-  if (!content) return;
-  
-  const html = `
-    <div class="health-section">
-      <h3><span class="status-dot healthy"></span>API Status</h3>
-      <div class="health-item"><span class="health-item-label">Endpoint:</span><span class="health-item-value">Responding</span></div>
-      <div class="health-item"><span class="health-item-label">Latency:</span><span class="health-item-value">${data.latency || 'N/A'}ms</span></div>
-      <div class="health-item"><span class="health-item-label">Last Check:</span><span class="health-item-value">${new Date().toLocaleTimeString()}</span></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARQ - Task Management Platform</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}.main-container{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:30px}h1,h2{color:#1f2937;margin-bottom:20px}h1{font-size:28px}h2{font-size:20px;border-bottom:2px solid #e5e7eb;padding-bottom:10px}.form-group{margin-bottom:20px}label{display:block;margin-bottom:8px;color:#374151;font-weight:500}input,textarea,select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-family:inherit}textarea{resize:vertical;min-height:100px}.button-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}button{padding:12px 20px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s ease}.btn-create{background:#10b981;color:white;grid-column:1/-1}.btn-create:hover{background:#059669;transform:translateY(-2px)}.btn-primary{background:#3b82f6;color:white}.btn-primary:hover{background:#2563eb}.btn-secondary{background:#e5e7eb;color:#1f2937}.btn-secondary:hover{background:#d1d5db}.status-badge{display:inline-block;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:600}.status-queued{background:#fef3c7;color:#92400e}.status-in_progress{background:#bfdbfe;color:#1e3a8a}.status-completed{background:#d1fae5;color:#065f46}.task-item{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:15px;margin-bottom:15px}.task-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.task-id{font-size:12px;color:#6b7280;font-family:monospace}.task-goals{background:white;padding:10px;border-radius:4px;font-size:13px;color:#374151;margin-bottom:10px;max-height:80px;overflow-y:auto}.task-meta{display:flex;justify-content:space-between;font-size:12px;color:#6b7280}.empty-message{text-align:center;color:#9ca3af;padding:40px 20px}.header{background:#f3f4f6;padding:20px;border-radius:8px;margin-bottom:20px}.header p{color:#6b7280;margin-bottom:10px}.status-online{color:#10b981}.error-message,.success-message{padding:12px;border-radius:6px;margin-bottom:15px;display:none}.error-message{background:#fee2e2;color:#991b1b}.success-message{background:#d1fae5;color:#065f46}@media(max-width:900px){.main-container{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="panel">
+            <div class="header">
+                <h1>🚀 ARQ Task Creator</h1>
+                <p>Create and submit development tasks</p>
+                <p id="serviceStatus" style="color: #6b7280;">● Checking Service...</p>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="goal1">Primary Goal</label>
+                    <input type="text" id="goal1" required value="Conduct comprehensive system analysis">
+                </div>
+                <div class="form-group">
+                    <label for="maxIterations">Max Iterations</label>
+                    <input type="number" id="maxIterations" value="5" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority">
+                        <option value="low">🟢 Low</option>
+                        <option value="medium" selected>🟡 Medium</option>
+                        <option value="high">🔴 High</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-create" id="submitBtn">📤 Submit Task</button>
+                </div>
+            </form>
+        </div>
+        <div class="panel">
+            <h2>📋 Active Tasks</h2>
+            <div class="button-group" style="margin-bottom:20px">
+                <button class="btn-primary" onclick="loadTasks()">🔄 Refresh</button>
+                <button class="btn-secondary" onclick="checkHealth()">💚 Check Health</button>
+            </div>
+            <div id="tasksList">
+                <div class="empty-message">Initializing...</div>
+            </div>
+        </div>
     </div>
-    <div class="health-section">
-      <h3><span class="status-dot healthy"></span>Database Status</h3>
-      <div class="health-item"><span class="health-item-label">Connection:</span><span class="health-item-value">Connected</span></div>
-      <div class="health-item"><span class="health-item-label">Response Time:</span><span class="health-item-value">${data.db_latency || 'N/A'}ms</span></div>
-    </div>
-    <div class="health-section">
-      <h3><span class="status-dot healthy"></span>System Info</h3>
-      <div class="health-item"><span class="health-item-label">Version:</span><span class="health-item-value">v1.0.3</span></div>
-      <div class="health-item"><span class="health-item-label">Environment:</span><span class="health-item-value">${data.environment || 'production'}</span></div>
-      <div class="health-item"><span class="health-item-label">Uptime:</span><span class="health-item-value">${data.uptime || 'stable'}</span></div>
-    </div>
-  `;
-  content.innerHTML = html;
-}
 
-// Add Click Handler to Status Indicator
-setTimeout(() => {
-  const indicator = document.querySelector('.system-status-indicator');
-  if (indicator) indicator.addEventListener('click', openHealthCheckModal);
-}, 500);
-</script>
+    <script>
+        const tasksList = document.getElementById('tasksList');
+        const taskForm = document.getElementById('taskForm');
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
 
-<div class="modal-overlay" id="modalOverlay" onclick="closeHealthCheckModal()"></div>
-<div class="health-check-modal" id="healthCheckModal">
-  <div class="modal-header">
-    <h2>System Health Check</h2>
-    <button class="modal-close" onclick="closeHealthCheckModal()">×</button>
-  </div>
-  <div class="modal-content" id="healthModalContent">
-    <p>Loading health data...</p>
-  </div>
-</div>
-<style>
-.health-check-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 500px; z-index: 2000; display: none; }
-.health-check-modal.open { display: block; animation: slideIn 0.3s ease; }
-@keyframes slideIn { from { opacity: 0; transform: translate(-50%, -48%); } to { opacity: 1; transform: translate(-50%, -50%); } }
-.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 1999; }
-.modal-overlay.open { display: block; }
-.modal-header { padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-.modal-header h2 { margin: 0; color: #667eea; font-size: 18px; }
-.modal-close { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; padding: 0; width: 30px; height: 30px; }
-.modal-close:hover { color: #667eea; }
-.modal-content { padding: 20px; max-height: 60vh; overflow-y: auto; }
-.health-section { margin-bottom: 20px; }
-.health-section h3 { margin: 0 0 10px 0; font-size: 14px; color: #333; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-.status-dot.healthy { background: #4CAF50; }
-.status-dot.degraded { background: #FF9800; }
-.status-dot.critical { background: #f44336; }
-.health-item { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f5f5f5; }
-.health-item-label { color: #666; }
-.health-item-value { color: #333; font-weight: 500; }
-</style>
+        function showMsg(msg, isError = false) {
+            const el = isError ? errorDiv : successDiv;
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
 
-<script>
-// Git/PR and CI/CD Status Integration - Issue #11
-let ciStatusCache = {};
-let ciUpdateInterval;
+        async function checkHealth() {
+            const statusEl = document.getElementById('serviceStatus');
+            try {
+                const res = await fetch('/api/v1/health');
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    statusEl.style.color = '#10b981';
+                    statusEl.textContent = '✓ Service Online';
+                }
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.textContent = '✗ Service Offline';
+            }
+        }
 
-function initGitPRCI() {
-  startCIStatusUpdates();
-}
+        async function loadTasks() {
+            tasksList.innerHTML = '<div class="empty-message">Fetching tasks from server...</div>';
+            try {
+                const res = await fetch('/api/v1/tasks');
+                const tasks = await res.json();
+                if (tasks.length === 0) {
+                    tasksList.innerHTML = '<div class="empty-message">No active tasks found.</div>';
+                    return;
+                }
+                tasksList.innerHTML = tasks.map(task => `
+                    <div class="task-item">
+                        <div class="task-header">
+                            <span class="task-id">ID: ${task.id || 'N/A'}</span>
+                            <span class="status-badge status-${task.status}">${task.status}</span>
+                        </div>
+                        <div class="task-goals">${task.goal || task.title}</div>
+                        <div class="task-meta">
+                            <span>Priority: ${task.priority || 'medium'}</span>
+                            <span>Type: ${task.type || 'task'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                tasksList.innerHTML = '<div class="empty-message" style="color:#991b1b">Failed to load tasks. Check API connection.</div>';
+            }
+        }
 
-function startCIStatusUpdates() {
-  updateAllCIStatus();
-  ciUpdateInterval = setInterval(updateAllCIStatus, 90000);
-}
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '⌛ Sending...';
 
-function updateAllCIStatus() {
-  const taskCards = document.querySelectorAll('.task-card');
-  taskCards.forEach(card => {
-    const taskId = card.getAttribute('data-task-id');
-    if (taskId) fetchCIStatus(taskId, card);
-  });
-}
+            const payload = {
+                goal: document.getElementById('goal1').value,
+                maxIterations: parseInt(document.getElementById('maxIterations').value),
+                priority: document.getElementById('priority').value,
+                type: 'feature' 
+            };
 
-function fetchCIStatus(taskId, card) {
-  const branch = card.getAttribute('data-branch');
-  if (!branch) return;
-  fetch('/api/ci-status?branch=' + encodeURIComponent(branch))
-    .then(r => r.json())
-    .then(data => {
-      ciStatusCache[taskId] = data;
-      updateTaskCardGitInfo(card, data);
-    })
-    .catch(e => console.log('CI fetch:', e));
-}
+            try {
+                const res = await fetch('/api/v1/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-function updateTaskCardGitInfo(card, ciData) {
-  let gitInfo = card.querySelector('.git-pr-ci-info');
-  if (!gitInfo) {
-    gitInfo = document.createElement('div');
-    gitInfo.className = 'git-pr-ci-info';
-    card.appendChild(gitInfo);
-  }
-  const branch = card.getAttribute('data-branch') || 'feature/arq';
-  const branchUrl = 'https://github.com/fukkingsnow/arq/tree/' + branch;
-  const status = ciData.status || 'pending';
-  const icon = status === 'passed' ? '✅' : status === 'failed' ? '❌' : status === 'running' ? '⏳' : '⏱️';
-  const color = status === 'passed' ? '#4CAF50' : status === 'failed' ? '#f44336' : status === 'running' ? '#FF9800' : '#9E9E9E';
-  gitInfo.innerHTML = '<a href="' + branchUrl + '" target="_blank" style="color: #667eea; text-decoration: none; margin-right: 10px;">🌿 ' + branch + '</a><span style="background: ' + color + '; color: white; padding: 3px 8px; border-radius: 3px; font-size: 12px;">' + icon + ' ' + status.toUpperCase() + '</span>';
-}
+                if (res.ok) {
+                    showMsg('Task submitted successfully!');
+                    loadTasks();
+                    taskForm.reset();
+                } else {
+                    showMsg('Server error: ' + res.status, true);
+                }
+            } catch (err) {
+                showMsg('Connection failed', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📤 Submit Task';
+            }
+        });
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initGitPRCI);
-} else {
-  initGitPRCI();
-}
-
-window.addEventListener('beforeunload', () => {
-  if (ciUpdateInterval) clearInterval(ciUpdateInterval);
-});
-</script>
-<style>
-.git-pr-ci-info { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; }
-.git-pr-ci-info a { color: #667eea; text-decoration: none; font-size: 13px; display: flex; align-items: center; gap: 4px; }
-.git-pr-ci-info a:hover { text-decoration: underline; }
-.ci-status-badge { display: inline-flex; align-items: center; gap: 4px; background: #9E9E9E; color: white; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; }
-.ci-status-badge:hover { transform: scale(1.05); }
-</style>
+        // Initial load
+        checkHealth();
+        loadTasks();
+    </script>
+</body>
+</html>

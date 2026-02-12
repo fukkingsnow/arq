@@ -18,7 +18,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
   app.useGlobalFilters(new HttpExceptionFilter());
   
-  const staticPath = '/opt/arq/src/frontend/dist';
+  const staticPath = join(process.cwd(), 'dist/frontend');
 
   // 3. Обработка статики и SPA роутинга
   app.use((req, res, next) => {
