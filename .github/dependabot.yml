@@ -1,0 +1,56 @@
+version: 2
+updates:
+  # Automated dependency updates for npm packages
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "fukkingsnow"
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "deps:"
+      include: "scope"
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "node"
+    pull-request-branch-name:
+      separator: "/"
+
+  # Security updates for npm packages (more frequent)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "fukkingsnow"
+    labels:
+      - "security"
+      - "dependencies"
+    commit-message:
+      prefix: "security:"
+      include: "scope"
+
+  # GitHub Actions workflow updates
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "03:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "fukkingsnow"
+    labels:
+      - "github-actions"
+      - "ci-cd"
+    commit-message:
+      prefix: "ci:"
+      include: "scope"

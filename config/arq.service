@@ -1,0 +1,16 @@
+[Unit]
+Description=ARQ Application Server
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/arq
+ExecStart=/usr/bin/node /opt/arq/dist/main.js
+Restart=always
+RestartSec=10
+Environment="NODE_ENV=production"
+Environment="PORT=80"
+
+[Install]
+WantedBy=multi-user.target

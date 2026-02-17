@@ -1,0 +1,17 @@
+[Unit]
+Description=ARQ - AI Assistant Backend Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/arq
+ExecStart=/usr/bin/node /opt/arq/dist/main.js
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=arq
+
+[Install]
+WantedBy=multi-user.target

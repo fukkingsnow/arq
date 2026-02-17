@@ -1,0 +1,22 @@
+# Зависимости
+node_modules/
+dist/
+
+# Переменные окружения (секреты)
+.env
+.env.local
+.env.production
+
+# Данные баз данных и логи
+data/
+logs/
+*.log
+
+# Мусорные файлы и бэкапы
+*.bak
+*.tmp
+.DS_Store
+src/frontend/index.html.bak
+
+# Docker
+.docker/

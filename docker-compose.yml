@@ -1,0 +1,71 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: arq-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./certbot-root:/var/www/certbot:ro
+    depends_on:
+      - arq
+      - arq-frontend
+    networks:
+      - arq-network
+
+  arq:
+    build: .
+    container_name: arq
+    environment:
+      - NODE_ENV=development
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - OLLAMA_HOST=http://arq-ollama:11434
+      - API_PREFIX=/api/v1
+      - DATABASE_URL=postgresql://postgres:postgres@arq-postgres:5432/arq
+      - REDIS_URL=redis://arq-redis:6379
+      - JWT_SECRET=secret
+    networks:
+      - arq-network
+
+  arq-frontend:
+    build: ./src/frontend
+    container_name: arq-frontend
+    networks:
+      - arq-network
+
+  arq-ollama:
+    image: ollama/ollama
+    container_name: arq-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - arq-network
+
+  arq-postgres:
+    image: postgres:15-alpine
+    container_name: arq-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=arq
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - arq-network
+
+  arq-redis:
+    image: redis:7-alpine
+    container_name: arq-redis
+    networks:
+      - arq-network
+
+networks:
+  arq-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  ollama_data:

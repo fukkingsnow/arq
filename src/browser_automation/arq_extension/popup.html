@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARQ Browser Assistant</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="arq-popup">
+  <header class="arq-header">
+    <div class="arq-logo">
+      <h1>ARQ</h1>
+    </div>
+    <div class="status-indicator" id="status">Ready</div>
+  </header>
+  
+  <main class="arq-main">
+    <section class="arq-section">
+      <button class="arq-btn primary" id="analyzeBtn">Analyze Page</button>
+      <button class="arq-btn secondary" id="selectBtn">Select Element</button>
+    </section>
+    
+    <section class="arq-section">
+      <h3>Forms</h3>
+      <button class="arq-btn" id="autoFillBtn">Auto-fill Form</button>
+      <button class="arq-btn" id="extractBtn">Extract Data</button>
+    </section>
+    
+    <section class="arq-section">
+      <h3>Recent Actions</h3>
+      <ul class="arq-history" id="history"></ul>
+    </section>
+  </main>
+  
+  <footer class="arq-footer">
+    <button class="arq-btn icon" id="settingsBtn">⚙️ Settings</button>
+  </footer>
+  
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+node_modules
+dist
+.git
+*.md
+phase50-*
+phase51-*

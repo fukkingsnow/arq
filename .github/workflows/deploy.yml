@@ -1,0 +1,47 @@
+name: Deploy ARQ to Beget Server (Docker)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/arq
+            
+            echo "=== Updating Code ==="
+            git fetch origin --depth 1
+            git reset --hard origin/main
+
+            echo "=== Building & Starting Docker Containers ==="
+            # Пересобираем только API, остальные сервисы просто поднимаем
+            docker compose -f docker-compose.dev.yml up -d --build arq
+            
+            echo "=== Syncing Frontend Static ==="
+            # Собираем фронт на хосте и закидываем в контейнер
+            cd src/frontend && npm install && npm run build
+            cd ../..
+            docker exec arq-api mkdir -p /app/dist/frontend
+            docker cp src/frontend/dist/. arq-api:/app/dist/frontend/
+
+            echo "=== Health Check ==="
+            sleep 5
+            if curl -sf "http://localhost:3000/api/v1/health" > /dev/null; then
+              echo "✅ ARQ is Online on port 3000"
+            else
+              echo "❌ Health check failed"
+              docker compose -f docker-compose.dev.yml logs arq --tail 20
+              exit 1
+            fi

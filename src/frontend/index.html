@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARQ - Task Management Platform</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Roboto',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;padding:20px}.main-container{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:20px}.panel{background:white;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.2);padding:30px}h1,h2{color:#1f2937;margin-bottom:20px}h1{font-size:28px}h2{font-size:20px;border-bottom:2px solid #e5e7eb;padding-bottom:10px}.form-group{margin-bottom:20px}label{display:block;margin-bottom:8px;color:#374151;font-weight:500}input,textarea,select{width:100%;padding:10px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;font-family:inherit}textarea{resize:vertical;min-height:100px}.button-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}button{padding:12px 20px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s ease}.btn-create{background:#10b981;color:white;grid-column:1/-1}.btn-create:hover{background:#059669;transform:translateY(-2px)}.btn-primary{background:#3b82f6;color:white}.btn-primary:hover{background:#2563eb}.btn-secondary{background:#e5e7eb;color:#1f2937}.btn-secondary:hover{background:#d1d5db}.status-badge{display:inline-block;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:600}.status-queued{background:#fef3c7;color:#92400e}.status-in_progress{background:#bfdbfe;color:#1e3a8a}.status-completed{background:#d1fae5;color:#065f46}.task-item{background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:15px;margin-bottom:15px}.task-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.task-id{font-size:12px;color:#6b7280;font-family:monospace}.task-goals{background:white;padding:10px;border-radius:4px;font-size:13px;color:#374151;margin-bottom:10px;max-height:80px;overflow-y:auto}.task-meta{display:flex;justify-content:space-between;font-size:12px;color:#6b7280}.empty-message{text-align:center;color:#9ca3af;padding:40px 20px}.header{background:#f3f4f6;padding:20px;border-radius:8px;margin-bottom:20px}.header p{color:#6b7280;margin-bottom:10px}.status-online{color:#10b981}.error-message,.success-message{padding:12px;border-radius:6px;margin-bottom:15px;display:none}.error-message{background:#fee2e2;color:#991b1b}.success-message{background:#d1fae5;color:#065f46}@media(max-width:900px){.main-container{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="panel">
+            <div class="header">
+                <h1>🚀 ARQ Task Creator</h1>
+                <p>Create and submit development tasks</p>
+                <p id="serviceStatus" style="color: #6b7280;">● Checking Service...</p>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="goal1">Primary Goal</label>
+                    <input type="text" id="goal1" required value="Conduct comprehensive system analysis">
+                </div>
+                <div class="form-group">
+                    <label for="maxIterations">Max Iterations</label>
+                    <input type="number" id="maxIterations" value="5" min="1" max="20">
+                </div>
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority">
+                        <option value="low">🟢 Low</option>
+                        <option value="medium" selected>🟡 Medium</option>
+                        <option value="high">🔴 High</option>
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-create" id="submitBtn">📤 Submit Task</button>
+                </div>
+            </form>
+        </div>
+        <div class="panel">
+            <h2>📋 Active Tasks</h2>
+            <div class="button-group" style="margin-bottom:20px">
+                <button class="btn-primary" onclick="loadTasks()">🔄 Refresh</button>
+                <button class="btn-secondary" onclick="checkHealth()">💚 Check Health</button>
+            </div>
+            <div id="tasksList">
+                <div class="empty-message">Initializing...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tasksList = document.getElementById('tasksList');
+        const taskForm = document.getElementById('taskForm');
+        const errorDiv = document.getElementById('errorMessage');
+        const successDiv = document.getElementById('successMessage');
+
+        function showMsg(msg, isError = false) {
+            const el = isError ? errorDiv : successDiv;
+            el.textContent = msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        async function checkHealth() {
+            const statusEl = document.getElementById('serviceStatus');
+            try {
+                const res = await fetch('/api/v1/health');
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    statusEl.style.color = '#10b981';
+                    statusEl.textContent = '✓ Service Online';
+                }
+            } catch (e) {
+                statusEl.style.color = '#ef4444';
+                statusEl.textContent = '✗ Service Offline';
+            }
+        }
+
+        async function loadTasks() {
+            tasksList.innerHTML = '<div class="empty-message">Fetching tasks from server...</div>';
+            try {
+                const res = await fetch('/api/v1/tasks');
+                const tasks = await res.json();
+                if (tasks.length === 0) {
+                    tasksList.innerHTML = '<div class="empty-message">No active tasks found.</div>';
+                    return;
+                }
+                tasksList.innerHTML = tasks.map(task => `
+                    <div class="task-item">
+                        <div class="task-header">
+                            <span class="task-id">ID: ${task.id || 'N/A'}</span>
+                            <span class="status-badge status-${task.status}">${task.status}</span>
+                        </div>
+                        <div class="task-goals">${task.goal || task.title}</div>
+                        <div class="task-meta">
+                            <span>Priority: ${task.priority || 'medium'}</span>
+                            <span>Type: ${task.type || 'task'}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                tasksList.innerHTML = '<div class="empty-message" style="color:#991b1b">Failed to load tasks. Check API connection.</div>';
+            }
+        }
+
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = '⌛ Sending...';
+
+            const payload = {
+                goal: document.getElementById('goal1').value,
+                maxIterations: parseInt(document.getElementById('maxIterations').value),
+                priority: document.getElementById('priority').value,
+                type: 'feature' 
+            };
+
+            try {
+                const res = await fetch('/api/v1/tasks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showMsg('Task submitted successfully!');
+                    loadTasks();
+                    taskForm.reset();
+                } else {
+                    showMsg('Server error: ' + res.status, true);
+                }
+            } catch (err) {
+                showMsg('Connection failed', true);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📤 Submit Task';
+            }
+        });
+
+        // Initial load
+        checkHealth();
+        loadTasks();
+    </script>
+</body>
+</html>
