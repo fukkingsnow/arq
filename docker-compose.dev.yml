@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # База данных: Хранилище стратегий и логов
+  arq-postgres:
+    image: postgres:15-alpine
+    container_name: arq-postgres
+    environment:
+      - POSTGRES_USER=arq
+      - POSTGRES_PASSWORD=arq
+      - POSTGRES_DB=arq
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - arq_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arq -d arq"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Очереди сообщений для связи API и Воркера
+  arq-redis:
+    image: redis:7.4-alpine
+    container_name: arq-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - arq_network
+
+  # Основной API Сервис (Единое окно)
+  arq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arq
+    # Запускаем в dev-режиме с hot-reload
+    command: npm run start:dev
+    environment:
+      - DATABASE_URL=postgresql://arq:arq@arq-postgres:5432/arq
+      - REDIS_HOST=arq-redis
+      - REDIS_PORT=6379
+      - API_PREFIX=/api/v1
+      - PORT=8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      arq-postgres:
+        condition: service_healthy
+      arq-redis:
+        condition: service_started
+    networks:
+      - arq_network
+
+  # Фоновый воркер для тяжелых задач
+  arq-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arq-worker
+    # Воркеру не нужен порт 8000, он работает через Redis
+    command: npm run start:dev
+    environment:
+      - DATABASE_URL=postgresql://arq:arq@arq-postgres:5432/arq
+      - REDIS_HOST=arq-redis
+      - REDIS_PORT=6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      arq-postgres:
+        condition: service_healthy
+      arq-redis:
+        condition: service_started
+      arq-ollama:
+        condition: service_started
+    networks:
+      - arq_network
+
+  # ИИ-сервис (Модель: gemma2:2b)
+  arq-ollama:
+    image: ollama/ollama:latest
+    container_name: arq-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - arq_network
+
+networks:
+  arq_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  ollama_data:

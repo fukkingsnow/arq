@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
         "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "module": "commonjs",
@@ -16,7 +17,6 @@
     "types": ["node", "jest"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": false,
     "resolveJsonModule": true,
     "declarationMap": true,
@@ -33,7 +33,6 @@
     "noFallthroughCasesInSwitch": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-        "skipLibCheck": true,
     "paths": {
       "@/*": ["src/*"]
     }
