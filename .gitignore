@@ -1,22 +1,24 @@
-# Зависимости
+# Dependency directories
 node_modules/
+jspm_packages/
+
+# Build outputs
 dist/
+build/
+*.pyc
 
-# Переменные окружения (секреты)
+# IDE files
+.vscode/
+.idea/
+
+# Environment and Logs
 .env
-.env.local
-.env.production
-
-# Данные баз данных и логи
-data/
-logs/
 *.log
+npm-debug.log*
 
-# Мусорные файлы и бэкапы
-*.bak
-*.tmp
+# System files
 .DS_Store
-src/frontend/index.html.bak
+Thumbs.db
 
-# Docker
-.docker/
+# SSL (уже на сервере, в гите не нужны)
+etc/letsencrypt/

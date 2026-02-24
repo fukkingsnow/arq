@@ -1,33 +1,28 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-
-// НИКАКИХ ИМПОРТОВ 'Task' ЗДЕСЬ БЫТЬ НЕ ДОЛЖНО!
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
 @Entity('tasks')
 export class Task {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar', { length: 255 })
+  @Column()
   title: string;
 
-  @Column('text', { nullable: true })
-  description?: string;
+  @Column({ type: 'text', nullable: true })
+  description: string;
 
-  @Column('varchar', { length: 20, nullable: true })
-  priority?: 'low' | 'medium' | 'high';
-
-  @Column('varchar', { nullable: true })
-  dueDate?: string;
-
-  @Column('varchar', { default: 'pending' })
+  @Column({ default: 'pending' })
   status: string;
+
+  @Column({ type: 'text', nullable: true })
+  goal: string;
+
+  @Column({ type: 'text', nullable: true })
+  result: string;
 
   @CreateDateColumn()
   createdAt: Date;
 
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @Column({ nullable: true })
-  completedAt?: Date;
+  @Column({ type: 'timestamp', nullable: true })
+  completedAt: Date;
 }

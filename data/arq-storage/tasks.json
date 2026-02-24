@@ -1,0 +1,33 @@
+[
+  {
+    "id": "task_1770735736529",
+    "data": {
+      "description": "Напиши короткий слоган для ИИ-ассистента"
+    },
+    "status": "completed",
+    "createdAt": "2026-02-10T15:02:16.529Z",
+    "logs": [
+      {
+        "timestamp": "2026-02-10T15:02:16.529Z",
+        "message": "Task initialized",
+        "level": "info"
+      },
+      {
+        "timestamp": "2026-02-10T15:02:16.529Z",
+        "message": "Execution started",
+        "level": "info"
+      },
+      {
+        "timestamp": "2026-02-10T15:02:16.529Z",
+        "message": "Processing... (estimated time: 2h)",
+        "level": "warning"
+      },
+      {
+        "timestamp": "2026-02-10T17:02:43.580Z",
+        "message": "Task completed",
+        "level": "success"
+      }
+    ],
+    "completedAt": "2026-02-10T17:02:43.580Z"
+  }
+]

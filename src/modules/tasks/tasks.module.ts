@@ -1,18 +1,15 @@
 import { Module } from '@nestjs/common';
-import { BullModule } from '@nestjs/bull';
-import { TasksService } from './tasks.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksController } from './tasks.controller';
-import { TasksProcessor } from './tasks.processor';
-import { FileSystemService } from '../../services/file-system.service';
+import { TasksService } from './tasks.service';
+import { Task } from '../../entities/task.entity';
+import { OrchestratorService } from '../orchestrator.service';
+import { ServicesController } from '../services.controller';
 
 @Module({
-  imports: [
-    BullModule.registerQueue({
-      name: 'task-queue',
-    }),
-  ],
-  controllers: [TasksController],
-  providers: [TasksService, TasksProcessor, FileSystemService],
-  exports: [TasksService],
+  imports: [TypeOrmModule.forFeature([Task])],
+  controllers: [TasksController, ServicesController],
+  providers: [TasksService, OrchestratorService],
+  exports: [TasksService, OrchestratorService],
 })
 export class TasksModule {}
