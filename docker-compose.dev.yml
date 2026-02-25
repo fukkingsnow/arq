@@ -4,29 +4,48 @@ services:
   arq-gateway:
     image: nginx:stable-alpine
     container_name: arq-gateway
+    restart: always  # Важно: он будет перезапускаться, пока не найдет 'arq'
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./src/frontend:/usr/share/nginx/html
+      - ./src/frontend/dist:/usr/share/nginx/html:ro
+      - ./arq-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
-    depends_on:
-      - arq
     networks:
       - arq-network
+    depends_on:
+      - arq
 
   arq:
-    container_name: arq
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
-      - /var/run/docker.sock:/var/run/docker.sock
+      dockerfile: Dockerfile
+    container_name: arq
+    restart: always
+    ports:
+      - "8000:8000"
     environment:
-      - NODE_ENV=development
+      - DB_HOST=arq-postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=password  # Совпадает с postgres ниже
+      - DB_DATABASE=arq
+    networks:
+      - arq-network
+    depends_on:
+      - arq-postgres
+
+  arq-postgres:
+    image: postgres:15-alpine
+    container_name: arq-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password  # Совпадает с arq выше
+      POSTGRES_DB: arq
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - arq-network
 
@@ -43,4 +62,5 @@ networks:
     driver: bridge
 
 volumes:
+  postgres_data:
   ollama_data:

@@ -26,7 +26,7 @@ const APITester: React.FC = () => {
       if (body && method !== 'GET') {
         options.body = body;
       }
-      const response = await fetch(`https://arq-ai.ru/api/v1/arq${endpoint}`, options);
+      const response = await fetch(`https://arq-ai.ru/api/v1${endpoint}`, options);
       const data = await response.json();
       setResult({
         status: response.status,

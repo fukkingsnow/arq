@@ -24,8 +24,8 @@ Main application wrapper that provides:
 
 ### ARQDashboard.tsx
 Real-time task monitoring:
-- Fetches tasks from `/api/v1/arq/tasks`
-- Health monitoring from `/api/v1/arq/health`
+- Fetches tasks from `/api/v1/tasks`
+- Health monitoring from `/api/v1/health`
 - Auto-refresh every 5 seconds
 - Task status visualization
 - System metrics display
@@ -48,7 +48,7 @@ Task creation interface:
 
 Real-time task monitoring component:
 
-- Fetches tasks from `/api/v1/arq/tasks`
+- Fetches tasks from `/api/v1/tasks`
 - Auto-refresh every 1-10 seconds (configurable)
 - Task status visualization (running/completed/failed)
 - Iteration progress display
@@ -78,7 +78,7 @@ npm start
 ## API Integration
 
 ### Base URL
-`https://arq-ai.ru/api/v1/arq`
+`https://arq-ai.ru/api/v1`
 
 ### Endpoints Used
 - `GET /health` - Server health check
@@ -90,7 +90,7 @@ npm start
 If needed, create `.env` file:
 
 ```
-REACT_APP_API_BASE_URL=https://arq-ai.ru/api/v1/arq
+REACT_APP_API_BASE_URL=https://arq-ai.ru/api/v1
 REACT_APP_REFRESH_INTERVAL=5000
 ```
 
@@ -140,9 +140,9 @@ Ensure backend is running at `arq-ai.ru` and accessible
 Backend must have CORS enabled for `localhost` and dashboard domain
 
 ### Tasks Not Loading
-Check `/api/v1/arq/tasks` endpoint is working:
+Check `/api/v1/tasks` endpoint is working:
 ```bash
-curl https://arq-ai.ru/api/v1/arq/tasks
+curl https://arq-ai.ru/api/v1/tasks
 ```
 
 ## Contributing

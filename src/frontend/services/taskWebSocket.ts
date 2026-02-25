@@ -4,7 +4,7 @@ export class TaskWebSocketService {
   private static reconnectAttempts = 0;
   private static maxReconnect = 5;
 
-  static connect(url = 'wss://arq-ai.ru/api/v1/arq/ws') {
+  static connect(url = 'wss://arq-ai.ru/api/v1/ws') {
     if (this.ws) return Promise.resolve();
 
     return new Promise((resolve, reject) => {

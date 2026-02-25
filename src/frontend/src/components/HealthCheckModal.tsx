@@ -23,7 +23,7 @@ export const HealthCheckModal: React.FC<HealthCheckModalProps> = ({ isOpen, onCl
   const fetchHealth = async () => {
     setLoading(true);
     try {
-      const res = await fetch('https://arq-ai.ru/api/v1/arq/health');
+      const res = await fetch('https://arq-ai.ru/api/v1/health');
       const data = await res.json();
       setHealth(data);
       setLastCheck(new Date());

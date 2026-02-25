@@ -37,7 +37,7 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ onTaskUpdate }) => {
   const fetchTasks = async (): Promise<void> => {
     try {
       setLoading(true);
-      const response = await fetch('https://arq-ai.ru/api/v1/arq/tasks');
+      const response = await fetch('https://arq-ai.ru/api/v1/tasks');
       if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
       const data: Task[] = await response.json();
       setTasks(data);
@@ -53,7 +53,7 @@ const TaskMonitor: React.FC<TaskMonitorProps> = ({ onTaskUpdate }) => {
   const handleTaskAction = async (taskId: string, action: 'cancel' | 'pause' | 'resume'): Promise<void> => {
     try {
       setActionLoading(action);
-      const response = await fetch(`https://arq-ai.ru/api/v1/arq/tasks/${taskId}/${action}`, {
+      const response = await fetch(`https://arq-ai.ru/api/v1/tasks/${taskId}/${action}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
       });

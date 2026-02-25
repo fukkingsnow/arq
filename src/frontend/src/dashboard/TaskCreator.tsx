@@ -21,7 +21,7 @@ const TaskCreator = ({ onTaskCreated }) => {
     setMessage(null);
 
     try {
-      const response = await fetch('/api/v1/arq/tasks/submit', {
+      const response = await fetch('/api/v1/tasks/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

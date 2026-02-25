@@ -25,7 +25,7 @@ const History: React.FC = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-axios.get('/api/v1/arq/tasks')      const eventList = data
+axios.get('/api/v1/tasks')      const eventList = data
         .map((task: any) => ({
           id: task.id,
           taskId: task.id,
